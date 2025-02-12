@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(main LANGUAGES CXX)
 
-# Set C++20 as the standard
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -14,6 +13,11 @@ FetchContent_Declare(SFML
     GIT_TAG 2.6.x)
 FetchContent_MakeAvailable(SFML)
 
-add_executable(main src/main.cpp)
-target_compile_features(main PRIVATE cxx_std_20)
+add_executable(main 
+    src/main.cpp
+    src/Game.cpp
+    src/Snake.cpp)
+
+target_include_directories(main PRIVATE include)
+target_compile_features(main PRIVATE cxx_std_17)
 target_link_libraries(main PRIVATE sfml-graphics)
