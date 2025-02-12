@@ -1,0 +1,173 @@
+[main] Configuring project: CoSnake 
+[proc] Executing command: "C:\Program Files\CMake\bin\cmake.exe" -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE --no-warn-unused-cli -SC:/Users/lollisjosh/Desktop/dev/CoSnake/cmake-sfml-project -Bc:/Users/lollisjosh/Desktop/dev/CoSnake/build -G "Visual Studio 17 2022" -T host=x86 -A x64
+[cmake] Not searching for unused variables given on the command line.
+[main] Building folder: c:/Users/lollisjosh/Desktop/dev/CoSnake/build ALL_BUILD
+[cmake] CMake Deprecation Warning at C:/Users/lollisjosh/Desktop/dev/CoSnake/build/_deps/sfml-src/CMakeLists.txt:1 (cmake_minimum_required):
+[cmake]   Compatibility with CMake < 3.10 will be removed from a future version of
+[cmake]   CMake.
+[cmake] 
+[cmake]   Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+[cmake]   to tell CMake that the project requires at least <min> but has been updated
+[cmake]   to work with policies introduced by <max> or earlier.
+[cmake] 
+[cmake] 
+[build] Starting build
+[build] Build finished with exit code -1
+[main] =======================================================
+[main] No executable target was found to launch. Please check:
+[main]  - Have you called add_executable() in your CMake project?
+[main]  - Have you executed a successful CMake configure?
+[main] No program will be executed
+[cmake] -- Configuring done (7.7s)
+[cmake] -- Generating done (2.1s)
+[cmake] -- Build files have been written to: C:/Users/lollisjosh/Desktop/dev/CoSnake/build
+[ctest] Folder is not found in Test Explorer: c:/users/lollisjosh/desktop/dev/cosnake/cmake-sfml-project
+[main] Building folder: c:/Users/lollisjosh/Desktop/dev/CoSnake/build ALL_BUILD
+[build] Starting build
+[proc] Executing command: "C:\Program Files\CMake\bin\cmake.exe" --build c:/Users/lollisjosh/Desktop/dev/CoSnake/build --config Debug --target ALL_BUILD -j 10 --
+[build] MSBuild version 17.13.9+e0f243f1e for .NET Framework
+[build] 
+[build]   MainWin32.cpp
+[build]   Clock.cpp
+[build]   Err.cpp
+[build]   sfml-main.vcxproj -> C:\Users\lollisjosh\Desktop\dev\CoSnake\build\_deps\sfml-build\lib\Debug\sfml-main-d.lib
+[build]   Lock.cpp
+[build]   Mutex.cpp
+[build]   Sleep.cpp
+[build]   String.cpp
+[build]   Thread.cpp
+[build]   ThreadLocal.cpp
+[build]   Time.cpp
+[build]   FileInputStream.cpp
+[build]   MemoryInputStream.cpp
+[build]   ClockImpl.cpp
+[build]   MutexImpl.cpp
+[build]   SleepImpl.cpp
+[build]   ThreadImpl.cpp
+[build]   ThreadLocalImpl.cpp
+[build]   Generating Code...
+[build]      Creating library C:/Users/lollisjosh/Desktop/dev/CoSnake/build/_deps/sfml-build/lib/Debug/sfml-system-d.lib and object C:/Users/lollisjosh/Desktop/dev/CoSnake/build/_deps/sfml-build/lib/Debug/sfml-system-d.exp
+[build]   sfml-system.vcxproj -> C:\Users\lollisjosh\Desktop\dev\CoSnake\build\bin\Debug\sfml-system-d-2.dll
+[build]   Ftp.cpp
+[build]   ALCheck.cpp
+[build]   Clipboard.cpp
+[build]   AlResource.cpp
+[build]   Context.cpp
+[build]   Http.cpp
+[build]   Cursor.cpp
+[build]   AudioDevice.cpp
+[build]   GlContext.cpp
+[build]   IpAddress.cpp
+[build]   Listener.cpp
+[build]   Music.cpp
+[build]   GlResource.cpp
+[build]   Joystick.cpp
+[build]   Packet.cpp
+[build]   Sound.cpp
+[build]   SoundBuffer.cpp
+[build]   JoystickManager.cpp
+[build]   Socket.cpp
+[build]   SoundBufferRecorder.cpp
+[build]   Keyboard.cpp
+[build]   InputSoundFile.cpp
+[build]   SocketSelector.cpp
+[build]   Mouse.cpp
+[build]   OutputSoundFile.cpp
+[build]   TcpListener.cpp
+[build]   SoundRecorder.cpp
+[build]   Touch.cpp
+[build]   Sensor.cpp
+[build]   SensorManager.cpp
+[build]   SoundSource.cpp
+[build]   SoundStream.cpp
+[build]   VideoMode.cpp
+[build]   TcpSocket.cpp
+[build]   Vulkan.cpp
+[build]   SoundFileFactory.cpp
+[build]   Window.cpp
+[build]   UdpSocket.cpp
+[build]   SoundFileReaderFlac.cpp
+[build]   WindowBase.cpp
+[build]   SoundFileReaderMp3.cpp
+[build]   SocketImpl.cpp
+[build]   Generating Code...
+[build]   SoundFileReaderOgg.cpp
+[build]      Creating library C:/Users/lollisjosh/Desktop/dev/CoSnake/build/_deps/sfml-build/lib/Debug/sfml-network-d.lib and object C:/Users/lollisjosh/Desktop/dev/CoSnake/build/_deps/sfml-build/lib/Debug/sfml-network-d.exp
+[build]   WindowImpl.cpp
+[build]   sfml-network.vcxproj -> C:\Users\lollisjosh\Desktop\dev\CoSnake\build\bin\Debug\sfml-network-d-2.dll
+[build]   SoundFileReaderWav.cpp
+[build]   SoundFileWriterFlac.cpp
+[build]   CursorImpl.cpp
+[build]   SoundFileWriterOgg.cpp
+[build]   ClipboardImpl.cpp
+[build]   Generating Code...
+[build]   Compiling...
+[build]   SoundFileWriterWav.cpp
+[build]   InputImpl.cpp
+[build]   Generating Code...
+[build]   sfml-audio.vcxproj -> C:\Users\lollisjosh\Desktop\dev\CoSnake\build\bin\Debug\sfml-audio-d-2.dll
+[build]   Generating Code...
+[build]   Compiling...
+[build]   JoystickImpl.cpp
+[build]   SensorImpl.cpp
+[build]   VideoModeImpl.cpp
+[build]   VulkanImplWin32.cpp
+[build]   WindowImplWin32.cpp
+[build]   WglContext.cpp
+[build]   Generating Code...
+[build]      Creating library C:/Users/lollisjosh/Desktop/dev/CoSnake/build/_deps/sfml-build/lib/Debug/sfml-window-d.lib and object C:/Users/lollisjosh/Desktop/dev/CoSnake/build/_deps/sfml-build/lib/Debug/sfml-window-d.exp
+[build]   sfml-window.vcxproj -> C:\Users\lollisjosh\Desktop\dev\CoSnake\build\bin\Debug\sfml-window-d-2.dll
+[build]   BlendMode.cpp
+[build]   Color.cpp
+[build]   Font.cpp
+[build]   Glsl.cpp
+[build]   GLCheck.cpp
+[build]   GLExtensions.cpp
+[build]   Image.cpp
+[build]   ImageLoader.cpp
+[build]   RenderStates.cpp
+[build]   RenderTexture.cpp
+[build]   RenderTarget.cpp
+[build]   RenderWindow.cpp
+[build]   Shader.cpp
+[build]   Texture.cpp
+[build]   TextureSaver.cpp
+[build]   Transform.cpp
+[build]   Transformable.cpp
+[build]   View.cpp
+[build]   Vertex.cpp
+[build]   Shape.cpp
+[build]   Generating Code...
+[build]   Compiling...
+[build]   CircleShape.cpp
+[build]   RectangleShape.cpp
+[build]   ConvexShape.cpp
+[build]   Sprite.cpp
+[build]   Text.cpp
+[build]   VertexArray.cpp
+[build]   VertexBuffer.cpp
+[build]   RenderTextureImpl.cpp
+[build]   RenderTextureImplFBO.cpp
+[build]   RenderTextureImplDefault.cpp
+[build]   Generating Code...
+[build]      Creating library C:/Users/lollisjosh/Desktop/dev/CoSnake/build/_deps/sfml-build/lib/Debug/sfml-graphics-d.lib and object C:/Users/lollisjosh/Desktop/dev/CoSnake/build/_deps/sfml-build/lib/Debug/sfml-graphics-d.exp
+[build]   sfml-graphics.vcxproj -> C:\Users\lollisjosh\Desktop\dev\CoSnake\build\bin\Debug\sfml-graphics-d-2.dll
+[build]   main.cpp
+[build] C:\Users\lollisjosh\Desktop\dev\CoSnake\cmake-sfml-project\src\main.cpp(10,27): error C2039: 'optional': is not a member of 'std' [C:\Users\lollisjosh\Desktop\dev\CoSnake\build\main.vcxproj]
+[build]       C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\map(24,1):
+[build]       see declaration of 'std'
+[build]   
+[build] C:\Users\lollisjosh\Desktop\dev\CoSnake\cmake-sfml-project\src\main.cpp(10,16): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int [C:\Users\lollisjosh\Desktop\dev\CoSnake\build\main.vcxproj]
+[build] C:\Users\lollisjosh\Desktop\dev\CoSnake\cmake-sfml-project\src\main.cpp(10,36): error C2061: syntax error: identifier 'event' [C:\Users\lollisjosh\Desktop\dev\CoSnake\build\main.vcxproj]
+[build] C:\Users\lollisjosh\Desktop\dev\CoSnake\cmake-sfml-project\src\main.cpp(11,9): error C2143: syntax error: missing ';' before '{' [C:\Users\lollisjosh\Desktop\dev\CoSnake\build\main.vcxproj]
+[build] C:\Users\lollisjosh\Desktop\dev\CoSnake\cmake-sfml-project\src\main.cpp(12,17): error C2065: 'event': undeclared identifier [C:\Users\lollisjosh\Desktop\dev\CoSnake\build\main.vcxproj]
+[build] C:\Users\lollisjosh\Desktop\dev\CoSnake\cmake-sfml-project\src\main.cpp(12,46): error C2059: syntax error: ')' [C:\Users\lollisjosh\Desktop\dev\CoSnake\build\main.vcxproj]
+[build] C:\Users\lollisjosh\Desktop\dev\CoSnake\cmake-sfml-project\src\main.cpp(13,13): error C2143: syntax error: missing ';' before '{' [C:\Users\lollisjosh\Desktop\dev\CoSnake\build\main.vcxproj]
+[proc] The command: "C:\Program Files\CMake\bin\cmake.exe" --build c:/Users/lollisjosh/Desktop/dev/CoSnake/build --config Debug --target ALL_BUILD -j 10 -- exited with code: 1
+[driver] Build completed: 00:01:30.114
+[build] Build finished with exit code 1
+[main] =======================================================
+[main] No executable target was found to launch. Please check:
+[main]  - Have you called add_executable() in your CMake project?
+[main]  - Have you executed a successful CMake configure?
+[main] No program will be executed

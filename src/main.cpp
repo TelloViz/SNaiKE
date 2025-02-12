@@ -7,9 +7,10 @@ int main()
 
     while (window.isOpen())
     {
-        while (const std::optional event = window.pollEvent())
+        sf::Event event;
+        while (window.pollEvent(event))
         {
-            if (event->is<sf::Event::Closed>())
+            if (event.type == sf::Event::Closed)
             {
                 window.close();
             }
@@ -18,4 +19,6 @@ int main()
         window.clear();
         window.display();
     }
+
+    return 0;
 }
