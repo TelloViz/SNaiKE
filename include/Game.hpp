@@ -12,7 +12,7 @@ private:
 
     sf::RenderWindow window;
     std::unique_ptr<State> currentState;
-    //sf::Font font;  // Comment out font member
+    sf::Font font;
 
 public:
     Game();
@@ -21,7 +21,7 @@ public:
     void update();
     void render();
     void changeState(std::unique_ptr<State> newState);
-    //const sf::Font& getFont() const { return font; }  // Comment out font getter
+    const sf::Font& getFont() const { return font; }
 
     static int getCellSize() { return CELL_SIZE; }
     static int getGridWidth() { return GRID_WIDTH; }

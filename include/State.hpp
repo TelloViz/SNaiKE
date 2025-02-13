@@ -5,7 +5,7 @@
 class Game;
 
 struct StateContext {
-    //const sf::Font& font;  // Comment out font reference
+    const sf::Font& font;
     int width;
     int height;
     int cellSize;

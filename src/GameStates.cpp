@@ -4,24 +4,17 @@
 
 MenuState::MenuState(Game* game, const StateContext& context) 
 : State(game, context) {
-    //titleText.setFont(context.font);
-    //titleText.setString("Snake Game");
-   // titleText.setCharacterSize(50);
+    titleText.setFont(context.font);
+    titleText.setString("PLAY");
+    titleText.setCharacterSize(50);
+    titleText.setFillColor(sf::Color::Green);
     
-    //sf::FloatRect textBounds = titleText.getLocalBounds();
-    // titleText.setPosition(
-    //     (context.width * context.cellSize - textBounds.width) / 2,
-    //     context.height * context.cellSize * 0.3f
-    // );
-
-    // startText.setFont(context.font);
-    // startText.setString("Press Enter to Start");
-    // startText.setCharacterSize(30);
-    // textBounds = startText.getLocalBounds();
-    // startText.setPosition(
-    //     (context.width * context.cellSize - textBounds.width) / 2,
-    //     context.height * context.cellSize * 0.6f
-    // );
+    // Center the text
+    sf::FloatRect textBounds = titleText.getLocalBounds();
+    titleText.setPosition(
+        (context.width * context.cellSize - textBounds.width) / 2,
+        (context.height * context.cellSize - textBounds.height) / 2
+    );
 }
 
 void MenuState::handleInput(const sf::Event& event) {
@@ -36,16 +29,7 @@ void MenuState::update() {
 
 void MenuState::render(sf::RenderWindow& window) {
     window.clear(sf::Color::Black);
-    
-    // Draw a simple shape to represent "Press Enter to Start"
-    sf::RectangleShape menuIndicator(sf::Vector2f(200, 50));
-    menuIndicator.setFillColor(sf::Color::Green);
-    menuIndicator.setPosition(
-        (context.width * context.cellSize - 200) / 2,
-        (context.height * context.cellSize - 50) / 2
-    );
-    window.draw(menuIndicator);
-    
+    window.draw(titleText);
     window.display();
 }
 
