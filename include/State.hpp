@@ -24,4 +24,8 @@ public:
     virtual void handleInput(const sf::Event& event) = 0;
     virtual void update() = 0;
     virtual void render(sf::RenderWindow& window) = 0;
+    
+    // Add virtual methods for state management
+    virtual void pause() {} 
+    virtual void resume() {}
 };

@@ -27,7 +27,13 @@ void PausedState::update() {
 }
 
 void PausedState::render(sf::RenderWindow& window) {
-    window.clear(sf::Color::Black);
     window.draw(pausedText);
-    window.display();
+}
+
+void PausedState::pause() {
+    // Paused state pause implementation (can be empty)
+}
+
+void PausedState::resume() {
+    // Paused state resume implementation (can be empty)
 }

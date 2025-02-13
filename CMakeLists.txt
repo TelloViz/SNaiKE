@@ -24,6 +24,7 @@ add_executable(main
     src/main.cpp
     src/Game.cpp
     src/Snake.cpp
+    src/StateMachine.cpp
     src/states/MenuState.cpp
     src/states/PlayingState.cpp
     src/states/PausedState.cpp

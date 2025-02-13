@@ -27,7 +27,13 @@ void GameOverState::update() {
 }
 
 void GameOverState::render(sf::RenderWindow& window) {
-    window.clear(sf::Color::Black);
     window.draw(gameOverText);
-    window.display();
+}
+
+void GameOverState::pause() {
+    // Game over state pause implementation (can be empty)
+}
+
+void GameOverState::resume() {
+    // Game over state resume implementation (can be empty)
 }

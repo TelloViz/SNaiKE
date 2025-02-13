@@ -16,4 +16,6 @@ public:
     void handleInput(const sf::Event& event) override;
     void update() override;
     void render(sf::RenderWindow& window) override;
+    void pause() override;
+    void resume() override;
 };

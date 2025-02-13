@@ -3,7 +3,8 @@
 #include <memory>
 #include "Snake.hpp"
 #include "State.hpp"
-#include "states/States.hpp" 
+#include "states/States.hpp"
+#include "StateMachine.hpp"
 
 class Game {
 private:
@@ -12,7 +13,7 @@ private:
     static const int GRID_HEIGHT = 30;
 
     sf::RenderWindow window;
-    std::unique_ptr<State> currentState;
+    StateMachine stateMachine;
     sf::Font font;
 
 public:

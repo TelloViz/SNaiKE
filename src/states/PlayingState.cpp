@@ -58,8 +58,6 @@ void PlayingState::update() {
 }
 
 void PlayingState::render(sf::RenderWindow& window) {
-    window.clear(sf::Color::Black);
-    
     // Draw snake
     for (const auto& segment : snake.getBody()) {
         sf::RectangleShape segmentShape(sf::Vector2f(context.cellSize - 2, context.cellSize - 2));
@@ -73,6 +71,12 @@ void PlayingState::render(sf::RenderWindow& window) {
     foodShape.setPosition(food.x * context.cellSize + 1, food.y * context.cellSize + 1);
     foodShape.setFillColor(sf::Color::Red);
     window.draw(foodShape);
-    
-    window.display();
+}
+
+void PlayingState::pause() {
+    // Save game state or pause game logic if needed
+}
+
+void PlayingState::resume() {
+    // Restore game state or resume game logic if needed
 }

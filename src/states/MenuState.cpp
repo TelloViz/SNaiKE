@@ -71,10 +71,17 @@ void MenuState::update() {
 }
 
 void MenuState::render(sf::RenderWindow& window) {
-    window.clear(sf::Color::Black);
+    // Just draw elements, no clear/display
     window.draw(titleText);
     for (const auto& option : menuOptions) {
         window.draw(option);
     }
-    window.display();
+}
+
+void MenuState::pause() {
+    // Menu state pause implementation (can be empty)
+}
+
+void MenuState::resume() {
+    // Menu state resume implementation (can be empty)
 }

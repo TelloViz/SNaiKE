@@ -32,11 +32,12 @@ Game::Game()
         GameConfig::CELL_SIZE
     };
     
-    currentState = std::make_unique<MenuState>(this, context);
+    // Use stateMachine instead of currentState
+    stateMachine.addState(std::make_unique<MenuState>(this, context));
 }
 
 void Game::changeState(std::unique_ptr<State> newState) {
-    currentState = std::move(newState);
+    stateMachine.addState(std::move(newState), true);
 }
 
 void Game::processEvents() {
@@ -45,16 +46,28 @@ void Game::processEvents() {
         if (event.type == sf::Event::Closed) {
             window.close();
         }
-        currentState->handleInput(event);
+        
+        if (stateMachine.hasState()) {
+            stateMachine.getCurrentState()->handleInput(event);
+        }
     }
 }
 
 void Game::update() {
-    currentState->update();
+    stateMachine.processStateChanges();
+    if (stateMachine.hasState()) {
+        stateMachine.getCurrentState()->update();
+    }
 }
 
 void Game::render() {
-    currentState->render(window);
+    window.clear(sf::Color::Black);
+    
+    if (stateMachine.hasState()) {
+        stateMachine.getCurrentState()->render(window);
+    }
+    
+    window.display();
 }
 
 void Game::run() {
