@@ -3,7 +3,7 @@
 #include <memory>
 #include "Snake.hpp"
 #include "State.hpp"
-#include "states/States.hpp"  // Update this line
+#include "states/States.hpp" 
 
 class Game {
 private:
