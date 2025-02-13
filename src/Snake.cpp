@@ -6,6 +6,24 @@ Snake::Snake() : direction(Direction::Right), hasEaten(false) {
     body.push_front(sf::Vector2i(7, 5));
 }
 
+Snake::Snake(int x, int y) 
+    : direction(Direction::Right)
+    , hasEaten(false) {
+    // Initialize with 3 segments
+    body.push_front(sf::Vector2i(x-2, y));
+    body.push_front(sf::Vector2i(x-1, y));
+    body.push_front(sf::Vector2i(x, y));
+}
+
+Snake::Snake(const sf::Vector2i& startPos)
+    : direction(Direction::Right)
+    , hasEaten(false) {
+    // Initialize with 3 segments
+    body.push_front(sf::Vector2i(startPos.x-2, startPos.y));
+    body.push_front(sf::Vector2i(startPos.x-1, startPos.y));
+    body.push_front(sf::Vector2i(startPos.x, startPos.y));
+}
+
 void Snake::setDirection(Direction newDir) {
     if ((direction == Direction::Up && newDir != Direction::Down) ||
         (direction == Direction::Down && newDir != Direction::Up) ||
@@ -16,18 +34,24 @@ void Snake::setDirection(Direction newDir) {
 }
 
 void Snake::move() {
-    sf::Vector2i head = body.front();
+    // Create new head position based on current direction
+    sf::Vector2i newHead = body.front();
     switch (direction) {
-        case Direction::Up: head.y--; break;
-        case Direction::Down: head.y++; break;
-        case Direction::Left: head.x--; break;
-        case Direction::Right: head.x++; break;
+        case Direction::Up:    newHead.y--; break;
+        case Direction::Down:  newHead.y++; break;
+        case Direction::Left:  newHead.x--; break;
+        case Direction::Right: newHead.x++; break;
     }
-    body.push_front(head);
+    
+    // Add new head
+    body.push_front(newHead);
+    
+    // Only remove tail if we haven't eaten
     if (!hasEaten) {
         body.pop_back();
+    } else {
+        hasEaten = false;  // Reset the flag
     }
-    hasEaten = false;
 }
 
 bool Snake::checkCollision(const int gridWidth, const int gridHeight) {
@@ -59,4 +83,9 @@ void Snake::draw(sf::RenderWindow& window, const int cellSize) {
         rect.setFillColor(sf::Color::Green);
         window.draw(rect);
     }
+}
+
+void Snake::grow() {
+    // Set the flag that will be checked in the next move()
+    hasEaten = true;
 }
