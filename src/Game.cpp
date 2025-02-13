@@ -7,7 +7,7 @@
 
 Game::Game() 
     : window(sf::VideoMode(GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE), "Snake Game") {
-    window.setFramerateLimit(10);  // Make sure this is set to control game speed
+    window.setFramerateLimit(10);
     
     StateContext context{
         GameConfig::GRID_WIDTH,
