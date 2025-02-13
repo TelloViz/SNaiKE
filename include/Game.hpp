@@ -22,6 +22,7 @@ public:
     void render();
     void changeState(std::unique_ptr<State> newState);
     const sf::Font& getFont() const { return font; }
+    void quit() { window.close(); }
 
     static int getCellSize() { return CELL_SIZE; }
     static int getGridWidth() { return GRID_WIDTH; }

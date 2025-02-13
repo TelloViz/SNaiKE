@@ -8,7 +8,8 @@
 class MenuState : public State {
 private:
     sf::Text titleText;
-    sf::Text startText;
+    std::vector<sf::Text> menuOptions;
+    int selectedOption;
 
 public:
     explicit MenuState(Game* game, const StateContext& context);
