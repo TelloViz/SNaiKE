@@ -1,18 +1,27 @@
 #include "StateMachine.hpp"
 
-void StateMachine::addState(std::unique_ptr<State> state, bool replace) {
+void StateMachine::pushState(std::unique_ptr<State> state) {
     isAdding = true;
-    isReplacing = replace;
+    isReplacing = false;
     pendingState = std::move(state);
 }
 
-void StateMachine::removeState() {
+void StateMachine::popState() {
     isRemoving = true;
+}
+
+void StateMachine::replaceState(std::unique_ptr<State> state) {
+    isAdding = true;
+    isReplacing = true;
+    pendingState = std::move(state);
 }
 
 void StateMachine::processStateChanges() {
     if (isRemoving && !states.empty()) {
         states.pop();
+        if (!states.empty()) {
+            states.top()->resume();  // Resume the previous state
+        }
         isRemoving = false;
     }
 
@@ -22,7 +31,7 @@ void StateMachine::processStateChanges() {
         }
 
         if (!states.empty()) {
-            states.top()->pause();
+            states.top()->pause();  // Pause the current state
         }
 
         states.push(std::move(pendingState));
@@ -30,9 +39,9 @@ void StateMachine::processStateChanges() {
     }
 }
 
-std::unique_ptr<State>& StateMachine::getCurrentState() {
+State* StateMachine::getCurrentState() const {
     if (states.empty()) {
         throw std::runtime_error("State stack is empty");
     }
-    return states.top();
+    return states.top().get();
 }

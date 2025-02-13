@@ -1,9 +1,12 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "GameConfig.hpp"
 
-class Game;
+class GameController;
+class StateMachine;
 
+
+// Contextual information for the state
+// This struct is passed to each state to provide necessary information
 struct StateContext {
     const sf::Font& font;
     int width;
@@ -13,19 +16,24 @@ struct StateContext {
 
 class State {
 protected:
-    Game* game;
+    GameController* gameController;
+    StateMachine* stateMachine;
     StateContext context;
 
 public:
-    State(Game* game, const StateContext& context) 
-        : game(game), context(context) {}
+    State(GameController* controller, const StateContext& ctx, StateMachine* machine)
+        : gameController(controller), context(ctx), stateMachine(machine) {}
+    
     virtual ~State() = default;
 
+    // Game Loop Functions
     virtual void handleInput(const sf::Event& event) = 0;
     virtual void update() = 0;
     virtual void render(sf::RenderWindow& window) = 0;
     
-    // Add virtual methods for state management
+    // Pause State (Not Game)
     virtual void pause() {} 
+
+    // Resume State (Not Game)
     virtual void resume() {}
 };

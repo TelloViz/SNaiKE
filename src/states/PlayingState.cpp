@@ -1,10 +1,11 @@
 #include "states/PlayingState.hpp"
 #include "states/GameOverState.hpp"
 #include "states/PausedState.hpp"
-#include "Game.hpp"
+#include "GameController.hpp"
+#include "StateMachine.hpp"
 
-PlayingState::PlayingState(Game* game, const StateContext& context) 
-    : State(game, context)
+PlayingState::PlayingState(GameController* controller, const StateContext& context, StateMachine* machine)
+    : State(controller, context, machine)
     , snake(context.width / 2, context.height / 2)
     , rng(std::random_device{}())
 {
@@ -37,7 +38,8 @@ void PlayingState::handleInput(const sf::Event& event) {
             case sf::Keyboard::Left: snake.setDirection(Direction::Left); break;
             case sf::Keyboard::Right: snake.setDirection(Direction::Right); break;
             case sf::Keyboard::Escape:
-                game->changeState(std::make_unique<PausedState>(game, context));
+                stateMachine->pushState(
+                    std::make_unique<PausedState>(gameController, context, stateMachine));
                 break;
         }
     }
@@ -47,7 +49,8 @@ void PlayingState::update() {
     snake.move();
     
     if (snake.checkCollision(context.width, context.height)) {
-        game->changeState(std::make_unique<GameOverState>(game, context));
+        stateMachine->replaceState(
+            std::make_unique<GameOverState>(gameController, context, stateMachine));
         return;
     }
 

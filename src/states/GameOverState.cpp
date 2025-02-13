@@ -1,9 +1,11 @@
 #include "states/GameOverState.hpp"
 #include "states/MenuState.hpp"
-#include "Game.hpp"
+#include "GameController.hpp"
+#include "StateMachine.hpp"
 
-GameOverState::GameOverState(Game* game, const StateContext& context) 
-    : State(game, context) {
+GameOverState::GameOverState(GameController* controller, const StateContext& context, StateMachine* machine)
+    : State(controller, context, machine) {
+    
     gameOverText.setFont(context.font);
     gameOverText.setString("GAME OVER");
     gameOverText.setCharacterSize(50);
@@ -18,7 +20,7 @@ GameOverState::GameOverState(Game* game, const StateContext& context)
 
 void GameOverState::handleInput(const sf::Event& event) {
     if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
-        game->changeState(std::make_unique<MenuState>(game, context));
+        stateMachine->replaceState(std::make_unique<MenuState>(gameController, context, stateMachine));
     }
 }
 
@@ -28,12 +30,13 @@ void GameOverState::update() {
 
 void GameOverState::render(sf::RenderWindow& window) {
     window.draw(gameOverText);
+    window.draw(scoreText);
 }
 
 void GameOverState::pause() {
-    // Game over state pause implementation (can be empty)
+    // Nothing to pause in game over state
 }
 
 void GameOverState::resume() {
-    // Game over state resume implementation (can be empty)
+    // Nothing to resume in game over state
 }

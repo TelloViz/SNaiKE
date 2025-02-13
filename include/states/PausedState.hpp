@@ -6,10 +6,8 @@ private:
     sf::Text pausedText;
 
 public:
-    explicit PausedState(Game* game, const StateContext& context);
+    PausedState(GameController* controller, const StateContext& context, StateMachine* machine);
     void handleInput(const sf::Event& event) override;
     void update() override;
     void render(sf::RenderWindow& window) override;
-    void pause() override;
-    void resume() override;
 };

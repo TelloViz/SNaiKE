@@ -23,6 +23,7 @@ FetchContent_MakeAvailable(SFML)
 add_executable(main 
     src/main.cpp
     src/Game.cpp
+    src/GameController.cpp
     src/Snake.cpp
     src/StateMachine.cpp
     src/states/MenuState.cpp

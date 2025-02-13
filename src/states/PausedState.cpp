@@ -1,9 +1,8 @@
 #include "states/PausedState.hpp"
-#include "states/PlayingState.hpp"
-#include "Game.hpp"
+#include "GameController.hpp"
 
-PausedState::PausedState(Game* game, const StateContext& context) 
-    : State(game, context) {
+PausedState::PausedState(GameController* controller, const StateContext& context, StateMachine* machine)
+    : State(controller, context, machine) {
     pausedText.setFont(context.font);
     pausedText.setString("PAUSED");
     pausedText.setCharacterSize(50);
@@ -18,7 +17,7 @@ PausedState::PausedState(Game* game, const StateContext& context)
 
 void PausedState::handleInput(const sf::Event& event) {
     if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
-        game->changeState(std::make_unique<PlayingState>(game, context));
+        stateMachine->popState();
     }
 }
 
@@ -28,12 +27,4 @@ void PausedState::update() {
 
 void PausedState::render(sf::RenderWindow& window) {
     window.draw(pausedText);
-}
-
-void PausedState::pause() {
-    // Paused state pause implementation (can be empty)
-}
-
-void PausedState::resume() {
-    // Paused state resume implementation (can be empty)
 }

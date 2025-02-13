@@ -1,9 +1,11 @@
 #include "Game.hpp"
 #include "states/MenuState.hpp"
+#include "states/PlayingState.hpp"
+#include "GameController.hpp"
+#include "StateMachine.hpp"
 
-
-MenuState::MenuState(Game* game, const StateContext& context) 
-: State(game, context), selectedOption(0) {
+MenuState::MenuState(GameController* controller, const StateContext& context, StateMachine* machine) 
+    : State(controller, context, machine), selectedOption(0) {
     // Title setup
     titleText.setFont(context.font);
     titleText.setString("SNAKE GAME");
@@ -57,9 +59,11 @@ void MenuState::handleInput(const sf::Event& event) {
                 
             case sf::Keyboard::Enter:
                 if (selectedOption == 0) {
-                    game->changeState(std::make_unique<PlayingState>(game, context));
+                    stateMachine->replaceState(
+                        std::make_unique<PlayingState>(gameController, context, stateMachine));
                 } else if (selectedOption == 1) {
-                    game->quit(); // We'll need to add this method
+                    // Handle quit through GameController
+                    gameController->quitGame();
                 }
                 break;
         }
