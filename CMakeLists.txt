@@ -24,16 +24,15 @@ add_executable(main
     src/main.cpp
     src/Game.cpp
     src/Snake.cpp
-    src/GameStates.cpp)
+    src/states/MenuState.cpp
+    src/states/PlayingState.cpp
+    src/states/PausedState.cpp
+    src/states/GameOverState.cpp)
 
 # Configure include directories
-target_include_directories(main 
-    PRIVATE 
-        include
-        ${SFML_SOURCE_DIR}/include)
-
-# Copy resources
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+target_include_directories(main PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${SFML_SOURCE_DIR}/include)
 
 # Link libraries
 target_link_libraries(main PRIVATE sfml-graphics)

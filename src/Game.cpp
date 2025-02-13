@@ -1,5 +1,5 @@
 #include "Game.hpp"
-#include "GameStates.hpp"
+#include "states/States.hpp"
 #include <random>
 #include <iostream>
 #include <filesystem>
