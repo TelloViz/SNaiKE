@@ -82,10 +82,10 @@ void MenuState::render(sf::RenderWindow& window) {
     }
 }
 
-void MenuState::pause() {
-    // Menu state pause implementation (can be empty)
+void MenuState::freeze() {
+    // Menu state freeze implementation (can be empty)
 }
 
-void MenuState::resume() {
-    // Menu state resume implementation (can be empty)
+void MenuState::unfreeze() {
+    // Menu state unfreeze implementation (can be empty)
 }

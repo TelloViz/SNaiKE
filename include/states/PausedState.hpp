@@ -54,4 +54,16 @@ public:
      * - Optional: semi-transparent overlay
      */
     void render(sf::RenderWindow& window) override;
+
+        /**
+     * @brief Freezes the game state
+     * 
+     */
+    void freeze() override {}
+
+    /**
+     * @brief Unfreezes the game state
+     * 
+     */
+    void unfreeze() override {}
 };

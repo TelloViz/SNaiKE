@@ -56,16 +56,14 @@ public:
     void render(sf::RenderWindow& window) override;
 
     /**
-     * @brief Called when state is paused
+     * @brief Freezes the game state
      * 
-     * Currently empty as state cannot be paused
      */
-    void pause() override;
+    void freeze() override;
 
     /**
-     * @brief Called when state is resumed
+     * @brief Unfreezes the game state
      * 
-     * Currently empty as state cannot be resumed
      */
-    void resume() override;
+    void unfreeze() override;
 };

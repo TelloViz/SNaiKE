@@ -20,7 +20,7 @@ void StateMachine::processStateChanges() {
     if (isRemoving && !states.empty()) {
         states.pop();
         if (!states.empty()) {
-            states.top()->resume();  // Resume the previous state
+            states.top()->unfreeze();  // unfreeze the previous state
         }
         isRemoving = false;
     }
@@ -31,7 +31,7 @@ void StateMachine::processStateChanges() {
         }
 
         if (!states.empty()) {
-            states.top()->pause();  // Pause the current state
+            states.top()->freeze();  // freeze the current state
         }
 
         states.push(std::move(pendingState));

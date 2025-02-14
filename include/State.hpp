@@ -67,12 +67,17 @@ public:
     virtual void render(sf::RenderWindow& window) = 0;
     
     /**
-     * @brief Called when state is paused (another state pushed)
+     * @brief Called when state is frozen (another state pushed on top)
+     * 
+     * States should stop processing input and updates when frozen,
+     * but may continue background animations or effects
      */
-    virtual void pause() {} 
+    virtual void freeze() {} 
 
     /**
-     * @brief Called when state is resumed (top state popped)
+     * @brief Called when state is unfrozen (top state popped)
+     * 
+     * States should resume normal operation when unfrozen
      */
-    virtual void resume() {}
+    virtual void unfreeze() {}
 };

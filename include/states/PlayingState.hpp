@@ -80,16 +80,16 @@ public:
     void render(sf::RenderWindow& window) override;
 
     /**
-     * @brief Called when game is paused
+     * @brief Freezes the game state
      * 
-     * Preserves current game state
+     * Preserves game state, stops snake movement, and pauses game timer if any
      */
-    void pause() override;
+    void freeze() override;
 
     /**
-     * @brief Called when game is resumed
+     * @brief Unfreezes the game state
      * 
-     * Restores game state from pause
+     * Restores game state, resumes snake movement, and resumes game timer if any
      */
-    void resume() override;
+    void unfreeze() override;
 };

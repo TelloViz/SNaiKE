@@ -76,10 +76,10 @@ void PlayingState::render(sf::RenderWindow& window) {
     window.draw(foodShape);
 }
 
-void PlayingState::pause() {
-    // Save game state or pause game logic if needed
+void PlayingState::freeze() {
+    // Save game state or freeze game logic if needed
 }
 
-void PlayingState::resume() {
-    // Restore game state or resume game logic if needed
+void PlayingState::unfreeze() {
+    // Restore game state or unfreeze game logic if needed
 }

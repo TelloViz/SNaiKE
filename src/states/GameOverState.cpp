@@ -33,10 +33,10 @@ void GameOverState::render(sf::RenderWindow& window) {
     window.draw(scoreText);
 }
 
-void GameOverState::pause() {
-    // Nothing to pause in game over state
+void GameOverState::freeze() {
+    // Nothing to freeze in game over state
 }
 
-void GameOverState::resume() {
-    // Nothing to resume in game over state
+void GameOverState::unfreeze() {
+    // Nothing to unfreeze in game over state
 }

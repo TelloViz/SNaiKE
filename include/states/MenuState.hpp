@@ -61,16 +61,14 @@ public:
     void render(sf::RenderWindow& window) override;
 
     /**
-     * @brief Called when menu is paused
+     * @brief Freezes the game state
      * 
-     * Currently empty as menu state is base state
      */
-    void pause() override;
+    void freeze() override;
 
     /**
-     * @brief Called when menu is resumed
+     * @brief Unfreezes the game state
      * 
-     * Resets selection state when returning from game
      */
-    void resume() override;
+    void unfreeze() override;
 };
