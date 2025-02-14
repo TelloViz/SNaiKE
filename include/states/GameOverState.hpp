@@ -1,5 +1,6 @@
 #pragma once
 #include "../State.hpp"
+#include "../GameResources.hpp"
 
 // Forward declarations
 class GameController;
@@ -22,12 +23,12 @@ public:
     /**
      * @brief Constructs game over state
      * @param controller Pointer to game controller
-     * @param context Shared state context
+     * @param resources Reference to game resources
      * @param machine Pointer to state machine
      * 
      * Initializes text elements and positions them on screen
      */
-    GameOverState(GameController* controller, const StateContext& context, StateMachine* machine);
+    GameOverState(GameController* controller, const GameResources& resources, StateMachine* machine);
 
     /**
      * @brief Handles input events

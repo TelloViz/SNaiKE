@@ -2,25 +2,29 @@
 #include "states/MenuState.hpp"
 #include "GameController.hpp"
 #include "StateMachine.hpp"
+#include "GameConfig.hpp"
+#include "states/StateFactory.hpp"
 
-GameOverState::GameOverState(GameController* controller, const StateContext& context, StateMachine* machine)
-    : State(controller, context, machine) {
+GameOverState::GameOverState(GameController* controller, const GameResources& resources, StateMachine* machine)
+    : State(controller, resources, machine) {
     
-    gameOverText.setFont(context.font);
+    gameOverText.setFont(resources.font);
     gameOverText.setString("GAME OVER");
     gameOverText.setCharacterSize(50);
     gameOverText.setFillColor(sf::Color::Red);
     
     sf::FloatRect textBounds = gameOverText.getLocalBounds();
     gameOverText.setPosition(
-        (context.width * context.cellSize - textBounds.width) / 2,
-        (context.height * context.cellSize - textBounds.height) / 2
+        (GameConfig::GRID_WIDTH * GameConfig::CELL_SIZE - textBounds.width) / 2,
+        (GameConfig::GRID_HEIGHT * GameConfig::CELL_SIZE - textBounds.height) / 2
     );
 }
 
 void GameOverState::handleInput(const sf::Event& event) {
     if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
-        stateMachine->replaceState(std::make_unique<MenuState>(gameController, context, stateMachine));
+        stateMachine->replaceState(
+            StateFactory::createState(StateType::Menu, gameController, resources, stateMachine)
+        );
     }
 }
 

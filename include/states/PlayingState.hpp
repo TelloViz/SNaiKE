@@ -1,6 +1,7 @@
 #pragma once
 #include "../State.hpp"
 #include "../Snake.hpp"
+#include "../GameResources.hpp"
 #include <random>
 
 // Forward declarations
@@ -37,7 +38,7 @@ public:
     /**
      * @brief Constructs playing state
      * @param controller Pointer to game controller
-     * @param context Shared state context
+     * @param resources Reference to game resources
      * @param machine Pointer to state machine
      * 
      * Initializes:
@@ -45,7 +46,7 @@ public:
      * - Random number generator
      * - Initial food placement
      */
-    PlayingState(GameController* controller, const StateContext& context, StateMachine* machine);
+    PlayingState(GameController* controller, const GameResources& resources, StateMachine* machine);
 
     /**
      * @brief Handles input events

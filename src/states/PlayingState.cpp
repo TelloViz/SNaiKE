@@ -3,18 +3,20 @@
 #include "states/PausedState.hpp"
 #include "GameController.hpp"
 #include "StateMachine.hpp"
+#include "GameConfig.hpp"
+#include "states/StateFactory.hpp"
 
-PlayingState::PlayingState(GameController* controller, const StateContext& context, StateMachine* machine)
-    : State(controller, context, machine)
-    , snake(context.width / 2, context.height / 2)
+PlayingState::PlayingState(GameController* controller, const GameResources& resources, StateMachine* machine)
+    : State(controller, resources, machine)
+    , snake(GameConfig::GRID_WIDTH / 2, GameConfig::GRID_HEIGHT / 2)
     , rng(std::random_device{}())
 {
     spawnFood();
 }
 
 void PlayingState::spawnFood() {
-    std::uniform_int_distribution<int> disX(0, context.width - 1);
-    std::uniform_int_distribution<int> disY(0, context.height - 1);
+    std::uniform_int_distribution<int> disX(0, GameConfig::GRID_WIDTH - 1);
+    std::uniform_int_distribution<int> disY(0, GameConfig::GRID_HEIGHT - 1);
     bool validPosition;
     do {
         food.x = disX(rng);
@@ -39,7 +41,8 @@ void PlayingState::handleInput(const sf::Event& event) {
             case sf::Keyboard::Right: snake.setDirection(Direction::Right); break;
             case sf::Keyboard::Escape:
                 stateMachine->pushState(
-                    std::make_unique<PausedState>(gameController, context, stateMachine));
+                    StateFactory::createState(StateType::Paused, gameController, resources, stateMachine)
+                );
                 break;
         }
     }
@@ -48,9 +51,10 @@ void PlayingState::handleInput(const sf::Event& event) {
 void PlayingState::update() {
     snake.move();
     
-    if (snake.checkCollision(context.width, context.height)) {
+    if (snake.checkCollision(GameConfig::GRID_WIDTH, GameConfig::GRID_HEIGHT)) {
         stateMachine->replaceState(
-            std::make_unique<GameOverState>(gameController, context, stateMachine));
+            StateFactory::createState(StateType::GameOver, gameController, resources, stateMachine)
+        );
         return;
     }
 
@@ -63,15 +67,15 @@ void PlayingState::update() {
 void PlayingState::render(sf::RenderWindow& window) {
     // Draw snake
     for (const auto& segment : snake.getBody()) {
-        sf::RectangleShape segmentShape(sf::Vector2f(context.cellSize - 2, context.cellSize - 2));
-        segmentShape.setPosition(segment.x * context.cellSize + 1, segment.y * context.cellSize + 1);
+        sf::RectangleShape segmentShape(sf::Vector2f(GameConfig::CELL_SIZE - 2, GameConfig::CELL_SIZE - 2));
+        segmentShape.setPosition(segment.x * GameConfig::CELL_SIZE + 1, segment.y * GameConfig::CELL_SIZE + 1);
         segmentShape.setFillColor(sf::Color::Green);
         window.draw(segmentShape);
     }
     
     // Draw food
-    sf::RectangleShape foodShape(sf::Vector2f(context.cellSize - 2, context.cellSize - 2));
-    foodShape.setPosition(food.x * context.cellSize + 1, food.y * context.cellSize + 1);
+    sf::RectangleShape foodShape(sf::Vector2f(GameConfig::CELL_SIZE - 2, GameConfig::CELL_SIZE - 2));
+    foodShape.setPosition(food.x * GameConfig::CELL_SIZE + 1, food.y * GameConfig::CELL_SIZE + 1);
     foodShape.setFillColor(sf::Color::Red);
     window.draw(foodShape);
 }

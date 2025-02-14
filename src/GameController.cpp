@@ -1,16 +1,15 @@
 #include "GameController.hpp"
 #include "states/MenuState.hpp"
 #include "GameConfig.hpp"
+#include "states/StateFactory.hpp"
+#include "GameResources.hpp"
 
 void GameController::initializeGame() {
-    StateContext context{
-        font,
-        GameConfig::GRID_WIDTH,
-        GameConfig::GRID_HEIGHT,
-        GameConfig::CELL_SIZE
-    };
+    GameResources resources{font};  // Now only passing font since we removed config from GameResources
     
-    stateMachine.replaceState(std::make_unique<MenuState>(this, context, &stateMachine));
+    stateMachine.replaceState(
+        StateFactory::createState(StateType::Menu, this, resources, &stateMachine)
+    );
 }
 
 void GameController::handleInput(const sf::Event& event) {

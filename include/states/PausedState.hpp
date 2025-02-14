@@ -1,5 +1,6 @@
 #pragma once
 #include "../State.hpp"
+#include "../GameResources.hpp"
 
 // Forward declarations
 class GameController;
@@ -22,12 +23,12 @@ public:
     /**
      * @brief Constructs pause state
      * @param controller Pointer to game controller
-     * @param context Shared state context
+     * @param resources Reference to game resources
      * @param machine Pointer to state machine
      * 
      * Initializes pause message and positions it centrally
      */
-    PausedState(GameController* controller, const StateContext& context, StateMachine* machine);
+    PausedState(GameController* controller, const GameResources& resources, StateMachine* machine);
 
     /**
      * @brief Handles input events

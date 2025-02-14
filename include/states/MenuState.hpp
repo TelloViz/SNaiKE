@@ -1,5 +1,6 @@
 #pragma once
 #include "../State.hpp"
+#include "../GameResources.hpp"
 #include <vector>
 
 // Forward declarations
@@ -25,12 +26,12 @@ public:
     /**
      * @brief Constructs menu state
      * @param controller Pointer to game controller
-     * @param context Shared state context
+     * @param resources Reference to game resources
      * @param machine Pointer to state machine
      * 
      * Initializes menu elements and positions them on screen
      */
-    MenuState(GameController* controller, const StateContext& context, StateMachine* machine);
+    MenuState(GameController* controller, const GameResources& resources, StateMachine* machine);
 
     /**
      * @brief Handles input events
