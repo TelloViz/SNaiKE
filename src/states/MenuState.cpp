@@ -3,9 +3,16 @@
 #include "states/PlayingState.hpp"
 #include "GameController.hpp"
 #include "StateMachine.hpp"
+#include "debug/DebugOverlay.hpp"
+#include "debug/DebugLogger.hpp"
+#include "GameConfig.hpp"
 
-MenuState::MenuState(GameController* controller, const StateContext& context, StateMachine* machine) 
-    : State(controller, context, machine), selectedOption(0) {
+MenuState::MenuState(GameController* ctrl, const StateContext& ctx, StateMachine* mach) 
+    : State(ctrl, ctx, mach)
+    , selectedOption(0)
+    , controller(ctrl)
+    , context(ctx)
+    , machine(mach) {
     // Title setup
     titleText.setFont(context.font);
     titleText.setString("SNAKE GAME");
@@ -40,6 +47,22 @@ MenuState::MenuState(GameController* controller, const StateContext& context, St
     
     // Highlight initial selection
     menuOptions[selectedOption].setFillColor(sf::Color::Green);
+
+    menuText.setFont(context.font);
+    menuText.setString("Press ENTER to Start\nPress ESC to Exit");
+    menuText.setCharacterSize(24);
+    menuText.setFillColor(sf::Color::White);
+    
+    // Center the text
+    textBounds = menuText.getLocalBounds();
+    menuText.setOrigin(textBounds.width / 2.0f, textBounds.height / 2.0f);
+    menuText.setPosition(
+        context.width * GameConfig::CELL_SIZE / 2.0f,
+        context.height * GameConfig::CELL_SIZE / 2.0f
+    );
+    
+    DebugOverlay::getInstance().setValue("MenuState", "Initialized");
+    DebugOverlay::getInstance().setValue("Font Loaded", context.font.getInfo().family);
 }
 
 void MenuState::handleInput(const sf::Event& event) {
@@ -57,16 +80,31 @@ void MenuState::handleInput(const sf::Event& event) {
                 menuOptions[selectedOption].setFillColor(sf::Color::Green);
                 break;
                 
-            case sf::Keyboard::Enter:
+            case sf::Keyboard::Return:
                 if (selectedOption == 0) {
-                    stateMachine->replaceState(
-                        std::make_unique<PlayingState>(gameController, context, stateMachine));
+                    handlePlaySelected();
                 } else if (selectedOption == 1) {
-                    // Handle quit through GameController
-                    gameController->quitGame();
+                    controller->quitGame();
                 }
                 break;
         }
+    }
+}
+
+void MenuState::handlePlaySelected() {
+    DebugLogger::log("=== Handling Play Selection ===");
+    try {
+        auto playingState = std::make_unique<PlayingState>(controller, context, machine);
+        if (!playingState) {
+            throw std::runtime_error("Failed to create PlayingState");
+        }
+        DebugLogger::log("Created PlayingState successfully");
+        
+        machine->replaceState(std::move(playingState));
+        DebugLogger::log("Requested state replacement");
+    } catch (const std::exception& e) {
+        DebugLogger::log("Exception creating PlayingState: " + std::string(e.what()));
+        DebugOverlay::getInstance().setValue("Error", "Failed to create PlayingState");
     }
 }
 
@@ -75,11 +113,23 @@ void MenuState::update() {
 }
 
 void MenuState::render(sf::RenderWindow& window) {
-    // Just draw elements, no clear/display
+    DebugOverlay::getInstance().setValue("MenuState", "Rendering menu...");
+    
+    // Draw title
     window.draw(titleText);
+    
+    // Draw all menu options
     for (const auto& option : menuOptions) {
         window.draw(option);
     }
+    
+    // Debug info
+    DebugOverlay::getInstance().setValue("Title Pos", 
+        "x: " + std::to_string(titleText.getPosition().x) + 
+        " y: " + std::to_string(titleText.getPosition().y));
+    
+    DebugOverlay::getInstance().setValue("Selected Option", 
+        std::to_string(selectedOption));
 }
 
 void MenuState::freeze() {

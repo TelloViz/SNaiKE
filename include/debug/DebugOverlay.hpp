@@ -97,4 +97,16 @@ public:
 
         debugWindow.display();
     }
+
+    // Add method to update state stack display
+    void updateStateStack(const std::vector<std::string>& stackInfo) {
+        std::string stackDisplay;
+        for (size_t i = 0; i < stackInfo.size(); ++i) {
+            stackDisplay += std::string(i * 2, ' ') + "└─ " + stackInfo[i];
+            if (i < stackInfo.size() - 1) {
+                stackDisplay += "\n";
+            }
+        }
+        setValue("State Stack", stackDisplay);
+    }
 };

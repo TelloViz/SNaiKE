@@ -1,7 +1,7 @@
 #pragma once
-#include "../State.hpp"
+#include "State.hpp"
+#include <SFML/Graphics.hpp>
 
-// Forward declarations
 class GameController;
 class StateMachine;
 
@@ -16,7 +16,10 @@ class StateMachine;
  */
 class PausedState : public State {
 private:
-    sf::Text pausedText;    ///< Centered "PAUSED" message
+    GameController* controller;
+    StateContext context;
+    StateMachine* machine;
+    sf::Text pauseText;    ///< Centered "PAUSED" message
 
 public:
     /**
@@ -27,7 +30,7 @@ public:
      * 
      * Initializes pause message and positions it centrally
      */
-    PausedState(GameController* controller, const StateContext& context, StateMachine* machine);
+    PausedState(GameController* ctrl, const StateContext& ctx, StateMachine* mach);
 
     /**
      * @brief Handles input events
@@ -55,15 +58,10 @@ public:
      */
     void render(sf::RenderWindow& window) override;
 
-        /**
-     * @brief Freezes the game state
-     * 
-     */
-    void freeze() override {}
-
     /**
-     * @brief Unfreezes the game state
+     * @brief Returns the state name
      * 
+     * @return std::string State name
      */
-    void unfreeze() override {}
+    std::string getStateName() const override { return "PausedState"; }
 };

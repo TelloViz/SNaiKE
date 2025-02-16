@@ -76,4 +76,8 @@ public:
      * @return Const reference to the game's font
      */
     const sf::Font& getFont() const { return font; }
+
+    State* getCurrentState() const { 
+        return stateMachine.getCurrentState(); 
+    }
 };

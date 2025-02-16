@@ -1,7 +1,12 @@
 #pragma once
 #include <memory>
 #include <stack>
+#include <vector>
+#include <string>
 #include "State.hpp"
+
+// Forward declare DebugOverlay to avoid circular dependency
+class DebugOverlay;
 
 /**
  * @brief Manages game state transitions and stack
@@ -59,14 +64,52 @@ public:
      * @brief Checks if state stack has any states
      * @return true if states exist, false if empty
      */
-    bool hasState() const { return !states.empty(); }
+    bool hasState() const { 
+        return !states.empty();
+    }
 
     /**
      * @brief Gets pointer to current active state
      * @return Raw pointer to current state
      * @throws std::runtime_error if state stack is empty
      */
-    State* getCurrentState() const;
+    State* getCurrentState() const {
+        if (states.empty()) {
+            return nullptr;
+        }
+        return states.top().get();
+    }
+
+    /**
+     * @brief Gets information about the state stack
+     * @return Vector of state names in the stack
+     */
+    std::vector<std::string> getStateStackInfo() const {
+        std::vector<std::string> stackInfo;
+        size_t stackSize = states.size();
+        
+        // Reserve space to avoid reallocations
+        stackInfo.reserve(stackSize);
+        
+        // Create temporary vector of raw pointers
+        std::vector<const State*> tempStates;
+        tempStates.reserve(stackSize);
+        
+        // Get raw pointers from the stack without modifying it
+        {
+            auto& container = states._Get_container();
+            for (const auto& statePtr : container) {
+                tempStates.push_back(statePtr.get());
+            }
+        }
+        
+        // Convert to state names (reverse order to show bottom-to-top)
+        for (auto it = tempStates.rbegin(); it != tempStates.rend(); ++it) {
+            stackInfo.push_back((*it)->getStateName());
+        }
+        
+        return stackInfo;
+    }
 };
 
 // TODO (1): Integrate observer pattern for state changes

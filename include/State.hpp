@@ -80,4 +80,10 @@ public:
      * States should resume normal operation when unfrozen
      */
     virtual void unfreeze() {}
+
+    /**
+     * @brief Returns the name of the state
+     * @return State name as a string
+     */
+    virtual std::string getStateName() const = 0;
 };

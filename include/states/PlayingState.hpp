@@ -1,5 +1,6 @@
 #pragma once
-#include "../State.hpp"
+#include "State.hpp"
+#include <SFML/Graphics.hpp>
 #include "../Snake.hpp"
 #include "states/StateClock.hpp"
 #include <random>
@@ -20,6 +21,9 @@ class StateMachine;
  */
 class PlayingState : public State {
 private:
+    GameController* controller;
+    StateContext context;
+    StateMachine* machine;
     Snake snake;              ///< Player-controlled snake entity
     sf::Vector2i food;       ///< Current food position
     StateClock gameTime;     ///< Game time tracking
@@ -52,7 +56,7 @@ public:
      * - Random number generator
      * - Initial food placement
      */
-    PlayingState(GameController* controller, const StateContext& context, StateMachine* machine);
+    PlayingState(GameController* ctrl, const StateContext& ctx, StateMachine* mach);
 
     /**
      * @brief Handles input events
@@ -99,4 +103,10 @@ public:
      * Restores game state, resumes snake movement, and resumes game timer if any
      */
     void unfreeze() override;
+
+    /**
+     * @brief Returns the name of the state
+     * @return State name as a string
+     */
+    std::string getStateName() const override { return "PlayingState"; }
 };

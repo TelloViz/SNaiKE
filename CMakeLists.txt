@@ -29,7 +29,8 @@ add_executable(main
     src/states/MenuState.cpp
     src/states/PlayingState.cpp
     src/states/PausedState.cpp
-    src/states/GameOverState.cpp)
+    src/states/GameOverState.cpp
+    src/debug/DebugLogger.cpp)
 
 # Configure include directories
 target_include_directories(main PRIVATE 

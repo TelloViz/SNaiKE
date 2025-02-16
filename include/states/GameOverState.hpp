@@ -66,4 +66,11 @@ public:
      * 
      */
     void unfreeze() override;
+
+    /**
+     * @brief Returns the name of the state
+     * 
+     * @return std::string State name
+     */
+    std::string getStateName() const override { return "GameOverState"; }
 };
