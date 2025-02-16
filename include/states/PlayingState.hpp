@@ -22,13 +22,13 @@ class PlayingState : public State {
 private:
     Snake snake;              ///< Player-controlled snake entity
     sf::Vector2i food;       ///< Current food position
-    std::mt19937 rng;        ///< Random number generator for food placement
     StateClock gameTime;     ///< Game time tracking
     bool isFrozen{false};    ///< Game freeze state
-
+    
     // Game timing properties
-    const float SNAKE_MOVE_INTERVAL = 0.15f;
+    static constexpr float SNAKE_MOVE_INTERVAL = 0.1f;  // Faster interval for smoother movement
     float lastMoveTime{0.0f};
+    std::mt19937 rng;        ///< Random number generator for food placement
 
     /**
      * @brief Spawns new food in valid position

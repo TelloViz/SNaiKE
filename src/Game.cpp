@@ -3,12 +3,14 @@
 #include <random>
 #include <iostream>
 #include <filesystem>
+#include "debug/DebugOverlay.hpp"
 
 Game::Game() 
     : window(sf::VideoMode(GameConfig::GRID_WIDTH * GameConfig::CELL_SIZE, 
                           GameConfig::GRID_HEIGHT * GameConfig::CELL_SIZE), "Snake Game")
     , gameController(font, &window) {
     window.setFramerateLimit(GameConfig::FRAME_RATE);
+    DebugOverlay::getInstance().initialize(&window);
     
     // Get executable path and construct relative resource path
     std::filesystem::path exePath = std::filesystem::current_path() / "build" / "bin";
@@ -54,5 +56,9 @@ void Game::run() {
         processEvents();
         update();
         render();
+        
+        // Update and render debug overlay
+        DebugOverlay::getInstance().update();
+        DebugOverlay::getInstance().render();
     }
 }

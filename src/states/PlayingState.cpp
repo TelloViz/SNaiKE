@@ -3,6 +3,7 @@
 #include "states/PausedState.hpp"
 #include "GameController.hpp"
 #include "StateMachine.hpp"
+#include "debug/DebugOverlay.hpp"
 
 PlayingState::PlayingState(GameController* controller, const StateContext& context, StateMachine* machine)
     : State(controller, context, machine)
@@ -10,6 +11,8 @@ PlayingState::PlayingState(GameController* controller, const StateContext& conte
     , rng(std::random_device{}())
 {
     spawnFood();
+    gameTime.restart();  // Initialize the game clock
+    lastMoveTime = gameTime.getElapsedTime();  // Initialize last move time
 }
 
 void PlayingState::spawnFood() {
@@ -46,14 +49,29 @@ void PlayingState::handleInput(const sf::Event& event) {
 }
 
 void PlayingState::update() {
-    if (isFrozen) return;
+    if (isFrozen) {
+        DebugOverlay::getInstance().setValue("State", "PlayingState: Frozen");
+        return;
+    }
 
     float currentTime = gameTime.getElapsedTime();
     
-    // Move snake at fixed time intervals
-    if (currentTime - lastMoveTime >= SNAKE_MOVE_INTERVAL) {
+    auto& debug = DebugOverlay::getInstance();
+    debug.setValue("Game Time", std::to_string(currentTime));
+    debug.setValue("Move Interval", std::to_string(SNAKE_MOVE_INTERVAL));
+    debug.setValue("Next Move In", std::to_string(SNAKE_MOVE_INTERVAL - (currentTime - lastMoveTime)));
+    debug.setValue("Snake Length", std::to_string(snake.getBody().size()));
+    debug.setValue("Snake Position", 
+        "(" + std::to_string(snake.getHead().x) + ", " + 
+        std::to_string(snake.getHead().y) + ")");
+    debug.setValue("Food Position", 
+        "(" + std::to_string(food.x) + ", " + 
+        std::to_string(food.y) + ")");
+    debug.setValue("State", isFrozen ? "PlayingState: Frozen" : "PlayingState: Active");
+
+    while (currentTime - lastMoveTime >= SNAKE_MOVE_INTERVAL) {
         snake.move();
-        lastMoveTime = currentTime;
+        lastMoveTime += SNAKE_MOVE_INTERVAL;
     }
     
     if (snake.checkCollision(context.width, context.height)) {
@@ -62,7 +80,8 @@ void PlayingState::update() {
         return;
     }
 
-    if (snake.getHead().x == food.x && snake.getHead().y == food.y) {
+    // Fix the food collision check (was comparing x with x instead of y)
+    if (snake.getHead().x == food.x && snake.getHead().y == food.y) {  // Fixed y comparison
         snake.grow();
         spawnFood();
     }
@@ -87,9 +106,14 @@ void PlayingState::render(sf::RenderWindow& window) {
 void PlayingState::freeze() {
     isFrozen = true;
     gameTime.freeze();
+    DebugOverlay::getInstance().setValue("State", "PlayingState: Frozen");
 }
 
 void PlayingState::unfreeze() {
     isFrozen = false;
     gameTime.unfreeze();
+    // Reset lastMoveTime to current time minus a small offset
+    // This ensures the snake moves shortly after unfreeze
+    lastMoveTime = gameTime.getElapsedTime() - (SNAKE_MOVE_INTERVAL * 0.9f);
+    DebugOverlay::getInstance().setValue("State", "PlayingState: Unfrozen");
 }

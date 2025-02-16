@@ -4,30 +4,37 @@
 class StateClock {
 private:
     sf::Clock clock;
-    float frozenTimeElapsed{0.0f};
+    float totalElapsedTime{0.0f};  // Track total time including pauses
+    float timeAtFreeze{0.0f};      // Time when freeze was called
     bool wasFrozen{false};
 
 public:
     void freeze() {
-        frozenTimeElapsed = clock.getElapsedTime().asSeconds();
-        wasFrozen = true;
+        if (!wasFrozen) {
+            timeAtFreeze = clock.getElapsedTime().asSeconds();
+            totalElapsedTime += timeAtFreeze;  // Add current time to total
+            wasFrozen = true;
+        }
     }
 
     void unfreeze() {
         if (wasFrozen) {
-            clock.restart();
+            clock.restart();  // Reset clock but keep total time
             wasFrozen = false;
         }
     }
 
     float getElapsedTime() const {
-        return clock.getElapsedTime().asSeconds() + 
-               (wasFrozen ? frozenTimeElapsed : 0.0f);
+        if (wasFrozen) {
+            return totalElapsedTime;  // Return cached total time while frozen
+        }
+        return totalElapsedTime + clock.getElapsedTime().asSeconds();
     }
 
     void restart() {
         clock.restart();
-        frozenTimeElapsed = 0.0f;
+        totalElapsedTime = 0.0f;
+        timeAtFreeze = 0.0f;
         wasFrozen = false;
     }
 };
