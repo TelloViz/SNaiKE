@@ -46,7 +46,15 @@ void PlayingState::handleInput(const sf::Event& event) {
 }
 
 void PlayingState::update() {
-    snake.move();
+    if (isFrozen) return;
+
+    float currentTime = gameTime.getElapsedTime();
+    
+    // Move snake at fixed time intervals
+    if (currentTime - lastMoveTime >= SNAKE_MOVE_INTERVAL) {
+        snake.move();
+        lastMoveTime = currentTime;
+    }
     
     if (snake.checkCollision(context.width, context.height)) {
         stateMachine->replaceState(
@@ -77,9 +85,11 @@ void PlayingState::render(sf::RenderWindow& window) {
 }
 
 void PlayingState::freeze() {
-    // Save game state or freeze game logic if needed
+    isFrozen = true;
+    gameTime.freeze();
 }
 
 void PlayingState::unfreeze() {
-    // Restore game state or unfreeze game logic if needed
+    isFrozen = false;
+    gameTime.unfreeze();
 }

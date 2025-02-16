@@ -1,6 +1,7 @@
 #pragma once
 #include "../State.hpp"
 #include "../Snake.hpp"
+#include "states/StateClock.hpp"
 #include <random>
 
 // Forward declarations
@@ -22,6 +23,12 @@ private:
     Snake snake;              ///< Player-controlled snake entity
     sf::Vector2i food;       ///< Current food position
     std::mt19937 rng;        ///< Random number generator for food placement
+    StateClock gameTime;     ///< Game time tracking
+    bool isFrozen{false};    ///< Game freeze state
+
+    // Game timing properties
+    const float SNAKE_MOVE_INTERVAL = 0.15f;
+    float lastMoveTime{0.0f};
 
     /**
      * @brief Spawns new food in valid position
