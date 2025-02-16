@@ -45,3 +45,14 @@ State* StateMachine::getCurrentState() const {
     }
     return states.top().get();
 }
+
+void StateMachine::clearStates() {
+    while (!states.empty()) {
+        states.pop();
+    }
+    // Reset pending state and flags
+    pendingState.reset();
+    isRemoving = false;
+    isAdding = false;
+    isReplacing = false;
+}

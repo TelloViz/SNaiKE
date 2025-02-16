@@ -32,6 +32,9 @@ void GameController::render(sf::RenderWindow& window) {
 }
 
 void GameController::quitGame() {
+    // Clear any states before closing
+    stateMachine.clearStates();
+    
     if (window) {
         window->close();
     }

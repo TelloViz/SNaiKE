@@ -33,7 +33,8 @@ void Game::processEvents() {
     sf::Event event;
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
-            window.close();
+            gameController.quitGame();  // Call quitGame instead of directly closing window
+            return;  // Exit the process events loop
         }
         gameController.handleInput(event);
     }

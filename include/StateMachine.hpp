@@ -67,6 +67,13 @@ public:
      * @throws std::runtime_error if state stack is empty
      */
     State* getCurrentState() const;
+
+    /**
+     * @brief Clears all states from the stack
+     * 
+     * Removes all states from the stack and clears pending changes
+     */
+    void clearStates();
 };
 
 // TODO (1): Integrate observer pattern for state changes
