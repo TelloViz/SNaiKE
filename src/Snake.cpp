@@ -54,17 +54,30 @@ void Snake::move() {
     }
 }
 
-bool Snake::checkCollision(const int gridWidth, const int gridHeight) {
-    sf::Vector2i head = body.front();
+bool Snake::checkCollision(int gridWidth, int gridHeight) const {
+    const auto& head = body.front();
     
-    if (head.x < 0 || head.x >= gridWidth || 
+    // Check wall collision
+    if (head.x < 0 || head.x >= gridWidth ||
         head.y < 0 || head.y >= gridHeight) {
         return true;
     }
+    
+    return checkSelfCollision();
+}
 
-    for (size_t i = 1; i < body.size(); i++) {
-        if (head == body[i]) return true;
+bool Snake::checkSelfCollision() const {
+    if (body.size() < 2) return false;
+    
+    const auto& head = body.front();
+    
+    // Check self collision (excluding head)
+    for (auto it = std::next(body.begin()); it != body.end(); ++it) {
+        if (head.x == it->x && head.y == it->y) {
+            return true;
+        }
     }
+    
     return false;
 }
 

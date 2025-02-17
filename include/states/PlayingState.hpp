@@ -28,6 +28,7 @@ private:
     sf::Vector2i food;       ///< Current food position
     StateClock gameTime;     ///< Game time tracking
     bool isFrozen{false};    ///< Game freeze state
+    int score = 0;           ///< Current player score
     
     // Game timing properties
     static constexpr float SNAKE_MOVE_INTERVAL = 0.1f;  // Faster interval for smoother movement

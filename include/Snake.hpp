@@ -70,7 +70,7 @@ public:
      * @param gridHeight Height of game grid
      * @return true if collision detected, false otherwise
      */
-    bool checkCollision(const int gridWidth, const int gridHeight);
+    bool checkCollision(int gridWidth, int gridHeight) const;
 
     /**
      * @brief Checks if snake head collides with food
@@ -97,4 +97,10 @@ public:
      * @return Vector representing head position
      */
     const sf::Vector2i& getHead() const { return body.front(); }
+
+    /**
+     * @brief Checks for self-collision
+     * @return true if self-collision detected, false otherwise
+     */
+    bool checkSelfCollision() const;
 };

@@ -4,12 +4,15 @@
 
 
 void GameController::initializeGame() {
-    
     StateContext context{
         font,
         GameConfig::GRID_WIDTH,
         GameConfig::GRID_HEIGHT,
-        GameConfig::CELL_SIZE
+        GameConfig::CELL_SIZE,
+        GameConfig::MARGIN_TOP,
+        GameConfig::MARGIN_BOTTOM,
+        GameConfig::MARGIN_SIDES,
+        GameConfig::BORDER_THICKNESS
     };
     
     auto menuState = std::make_unique<MenuState>(this, context, &stateMachine);

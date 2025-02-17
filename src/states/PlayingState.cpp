@@ -3,6 +3,7 @@
 #include "states/PausedState.hpp"
 #include "GameController.hpp"
 #include "StateMachine.hpp"
+#include "GameConfig.hpp"
 
 PlayingState::PlayingState(GameController* ctrl, const StateContext& ctx, StateMachine* mach)
     : State(ctrl, ctx, mach)
@@ -57,43 +58,97 @@ void PlayingState::handleInput(const sf::Event& event) {
 
 void PlayingState::update() {
     if (!isFrozen) {
-        // Update game logic only when not frozen
         float currentTime = gameTime.getElapsedTime();
-
 
         while (currentTime - lastMoveTime >= SNAKE_MOVE_INTERVAL) {
             snake.move();
             lastMoveTime += SNAKE_MOVE_INTERVAL;
-        }
-        
-        if (snake.checkCollision(context.width, context.height)) {
-            stateMachine->replaceState(
-                std::make_unique<GameOverState>(gameController, context, stateMachine));
-            return;
-        }
+            
+            // Check all collisions using single method
+            if (snake.checkCollision(context.width, context.height)) {
+                stateMachine->replaceState(
+                    std::make_unique<GameOverState>(gameController, context, stateMachine));
+                return;
+            }
 
-        // Fix the food collision check (was comparing x with x instead of y)
-        if (snake.getHead().x == food.x && snake.getHead().y == food.y) {  // Fixed y comparison
-            snake.grow();
-            spawnFood();
+            // Check food collision
+            if (snake.getHead().x == food.x && snake.getHead().y == food.y) {
+                snake.grow();
+                score += 10;
+                spawnFood();
+            }
         }
     }
 }
 
 void PlayingState::render(sf::RenderWindow& window) {
+    // Draw border around gameplay area
+    sf::RectangleShape border;
+    border.setPosition(context.marginSides - context.borderThickness,
+                      context.marginTop - context.borderThickness);
+    border.setSize(sf::Vector2f(context.width * context.cellSize + context.borderThickness * 2,
+                               context.height * context.cellSize + context.borderThickness * 2));
+    border.setFillColor(sf::Color::Transparent);
+    border.setOutlineColor(sf::Color::White);
+    border.setOutlineThickness(context.borderThickness);
+    window.draw(border);
+    
     // Draw snake
     for (const auto& segment : snake.getBody()) {
         sf::RectangleShape segmentShape(sf::Vector2f(context.cellSize - 2, context.cellSize - 2));
-        segmentShape.setPosition(segment.x * context.cellSize + 1, segment.y * context.cellSize + 1);
+        segmentShape.setPosition(
+            context.marginSides + segment.x * context.cellSize + 1,
+            context.marginTop + segment.y * context.cellSize + 1
+        );
         segmentShape.setFillColor(sf::Color::Green);
         window.draw(segmentShape);
     }
     
     // Draw food
     sf::RectangleShape foodShape(sf::Vector2f(context.cellSize - 2, context.cellSize - 2));
-    foodShape.setPosition(food.x * context.cellSize + 1, food.y * context.cellSize + 1);
+    foodShape.setPosition(
+        context.marginSides + food.x * context.cellSize + 1,
+        context.marginTop + food.y * context.cellSize + 1
+    );
     foodShape.setFillColor(sf::Color::Red);
     window.draw(foodShape);
+
+    // Draw Score
+    sf::Text scoreText;
+    scoreText.setFont(context.font);
+    scoreText.setCharacterSize(20);
+    scoreText.setFillColor(sf::Color::White);
+    scoreText.setString("Score: " + std::to_string(score));
+    scoreText.setPosition(
+        context.marginSides,
+        context.marginTop / 2.0f - scoreText.getGlobalBounds().height / 2.0f
+    );
+    window.draw(scoreText);
+
+    // Draw FPS (updated every frame)
+    static sf::Clock fpsClock;
+    static float fpsUpdateTime = 0;
+    static int frameCount = 0;
+    static float currentFps = 0;
+    
+    frameCount++;
+    if (fpsClock.getElapsedTime().asSeconds() >= 0.5f) { // Update FPS every 0.5 seconds
+        currentFps = frameCount / fpsClock.getElapsedTime().asSeconds();
+        frameCount = 0;
+        fpsClock.restart();
+    }
+
+    sf::Text fpsText;
+    fpsText.setFont(context.font);
+    fpsText.setCharacterSize(16);
+    fpsText.setFillColor(sf::Color::White);
+    fpsText.setString("FPS: " + std::to_string(static_cast<int>(currentFps)));
+    fpsText.setPosition(
+        context.marginSides + context.width * context.cellSize - fpsText.getGlobalBounds().width,
+        context.marginTop + context.height * context.cellSize + context.marginBottom / 2.0f - 
+            fpsText.getGlobalBounds().height / 2.0f
+    );
+    window.draw(fpsText);
 }
 
 void PlayingState::freeze() {

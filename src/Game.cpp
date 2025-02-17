@@ -6,11 +6,9 @@
 
 
 Game::Game() 
-    : window(sf::VideoMode(GameConfig::GRID_WIDTH * GameConfig::CELL_SIZE, 
-                          GameConfig::GRID_HEIGHT * GameConfig::CELL_SIZE), "Snake Game")
+    : window(sf::VideoMode(GameConfig::WINDOW_WIDTH, GameConfig::WINDOW_HEIGHT), "Snake Game")
     , gameController(font, &window) {
 
-    window.setFramerateLimit(GameConfig::FRAME_RATE);    
     // Get executable path and construct relative resource path
     std::filesystem::path exePath = std::filesystem::current_path() / "build" / "bin";
     std::filesystem::path fontPath = exePath / "resources" / "fonts" / "arial.ttf";
@@ -59,13 +57,23 @@ void Game::render() {
 }
 
 void Game::run() {
-    
+    const sf::Time timePerFrame = sf::seconds(1.0f / GameConfig::FRAME_RATE);
+    sf::Clock clock;
+    sf::Time timeSinceLastUpdate = sf::Time::Zero;
+
     while (window.isOpen()) {
         processEvents();
-        update();
+        
+        timeSinceLastUpdate += clock.restart();
+        
+        while (timeSinceLastUpdate > timePerFrame) {
+            timeSinceLastUpdate -= timePerFrame;
+            update();
+        }
+        
         render();
         
-        // Update and render debug overlay
-    
+        // Add VSync or sleep to limit frame rate
+        window.setVerticalSyncEnabled(true);  // Enable VSync
     }
 }

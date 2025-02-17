@@ -11,10 +11,15 @@ class StateMachine;
  * to common resources and configuration values.
  */
 struct StateContext {
-    const sf::Font& font;    ///< Reference to global font resource
+    sf::Font& font;    ///< Reference to global font resource
     int width;              ///< Grid width in cells
     int height;             ///< Grid height in cells
     int cellSize;           ///< Size of each cell in pixels
+    // Add new UI configuration
+    int marginTop;
+    int marginBottom;
+    int marginSides;
+    int borderThickness;
 };
 
 /**
