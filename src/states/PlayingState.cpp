@@ -3,8 +3,6 @@
 #include "states/PausedState.hpp"
 #include "GameController.hpp"
 #include "StateMachine.hpp"
-#include "debug/DebugOverlay.hpp"
-#include "debug/DebugLogger.hpp"
 
 PlayingState::PlayingState(GameController* ctrl, const StateContext& ctx, StateMachine* mach)
     : State(ctrl, ctx, mach)
@@ -41,14 +39,11 @@ void PlayingState::handleInput(const sf::Event& event) {
     if (event.type == sf::Event::KeyPressed) {
         switch (event.key.code) {
             case sf::Keyboard::Escape:
-                DebugLogger::log("Pausing game");
                 freeze();  // Make sure we freeze before pushing pause state
                 machine->pushState(std::make_unique<PausedState>(controller, context, machine));
                 break;
                 
             case sf::Keyboard::L:  // Changed from F1 to L
-                DebugLogger::toggleDebug();
-                DebugLogger::log("Debug toggle pressed");
                 break;
                 
             // Handle other game inputs
@@ -64,19 +59,7 @@ void PlayingState::update() {
     if (!isFrozen) {
         // Update game logic only when not frozen
         float currentTime = gameTime.getElapsedTime();
-        
-        auto& debug = DebugOverlay::getInstance();
-        debug.setValue("Game Time", std::to_string(currentTime));
-        debug.setValue("Move Interval", std::to_string(SNAKE_MOVE_INTERVAL));
-        debug.setValue("Next Move In", std::to_string(SNAKE_MOVE_INTERVAL - (currentTime - lastMoveTime)));
-        debug.setValue("Snake Length", std::to_string(snake.getBody().size()));
-        debug.setValue("Snake Position", 
-            "(" + std::to_string(snake.getHead().x) + ", " + 
-            std::to_string(snake.getHead().y) + ")");
-        debug.setValue("Food Position", 
-            "(" + std::to_string(food.x) + ", " + 
-            std::to_string(food.y) + ")");
-        debug.setValue("State", isFrozen ? "PlayingState: Frozen" : "PlayingState: Active");
+
 
         while (currentTime - lastMoveTime >= SNAKE_MOVE_INTERVAL) {
             snake.move();
@@ -114,18 +97,14 @@ void PlayingState::render(sf::RenderWindow& window) {
 }
 
 void PlayingState::freeze() {
-    DebugLogger::log("Freezing playing state");
     isFrozen = true;
     gameTime.freeze();
-    DebugOverlay::getInstance().setValue("State", "PlayingState: Frozen");
 }
 
 void PlayingState::unfreeze() {
-    DebugLogger::log("Unfreezing playing state");
     isFrozen = false;
     gameTime.unfreeze();
     // Reset lastMoveTime to current time minus a small offset
     // This ensures the snake moves shortly after unfreeze
     lastMoveTime = gameTime.getElapsedTime() - (SNAKE_MOVE_INTERVAL * 0.9f);
-    DebugOverlay::getInstance().setValue("State", "PlayingState: Unfrozen");
 }

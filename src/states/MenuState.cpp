@@ -3,8 +3,7 @@
 #include "states/PlayingState.hpp"
 #include "GameController.hpp"
 #include "StateMachine.hpp"
-#include "debug/DebugOverlay.hpp"
-#include "debug/DebugLogger.hpp"
+
 #include "GameConfig.hpp"
 
 MenuState::MenuState(GameController* ctrl, const StateContext& ctx, StateMachine* mach) 
@@ -61,8 +60,6 @@ MenuState::MenuState(GameController* ctrl, const StateContext& ctx, StateMachine
         context.height * GameConfig::CELL_SIZE / 2.0f
     );
     
-    DebugOverlay::getInstance().setValue("MenuState", "Initialized");
-    DebugOverlay::getInstance().setValue("Font Loaded", context.font.getInfo().family);
 }
 
 void MenuState::handleInput(const sf::Event& event) {
@@ -92,19 +89,14 @@ void MenuState::handleInput(const sf::Event& event) {
 }
 
 void MenuState::handlePlaySelected() {
-    DebugLogger::log("=== Handling Play Selection ===");
     try {
         auto playingState = std::make_unique<PlayingState>(controller, context, machine);
         if (!playingState) {
             throw std::runtime_error("Failed to create PlayingState");
         }
-        DebugLogger::log("Created PlayingState successfully");
         
         machine->replaceState(std::move(playingState));
-        DebugLogger::log("Requested state replacement");
     } catch (const std::exception& e) {
-        DebugLogger::log("Exception creating PlayingState: " + std::string(e.what()));
-        DebugOverlay::getInstance().setValue("Error", "Failed to create PlayingState");
     }
 }
 
@@ -113,7 +105,6 @@ void MenuState::update() {
 }
 
 void MenuState::render(sf::RenderWindow& window) {
-    DebugOverlay::getInstance().setValue("MenuState", "Rendering menu...");
     
     // Draw title
     window.draw(titleText);
@@ -123,13 +114,7 @@ void MenuState::render(sf::RenderWindow& window) {
         window.draw(option);
     }
     
-    // Debug info
-    DebugOverlay::getInstance().setValue("Title Pos", 
-        "x: " + std::to_string(titleText.getPosition().x) + 
-        " y: " + std::to_string(titleText.getPosition().y));
-    
-    DebugOverlay::getInstance().setValue("Selected Option", 
-        std::to_string(selectedOption));
+
 }
 
 void MenuState::freeze() {

@@ -1,7 +1,6 @@
 #include "states/PausedState.hpp"
 #include "GameController.hpp"
-#include "debug/DebugLogger.hpp"
-#include "debug/DebugOverlay.hpp"
+
 #include <iostream>
 
 PausedState::PausedState(GameController* ctrl, const StateContext& ctx, StateMachine* mach)
@@ -27,18 +26,13 @@ void PausedState::handleInput(const sf::Event& event) {
     if (event.type == sf::Event::KeyPressed) {
         switch (event.key.code) {
             case sf::Keyboard::Escape: {
-                DebugLogger::log("Resuming from pause state");
                 if (machine) {
                     machine->popState();
-                    DebugLogger::log("Popped pause state");
                 } else {
-                    DebugLogger::log("Error: No state machine!");
                 }
                 break;
             }
             case sf::Keyboard::L:
-                DebugLogger::toggleDebug();
-                DebugLogger::log("Debug toggle pressed");
                 break;
         }
     }
