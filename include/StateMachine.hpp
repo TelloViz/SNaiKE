@@ -5,9 +5,6 @@
 #include <string>
 #include "State.hpp"
 
-// Forward declare DebugOverlay to avoid circular dependency
-class DebugOverlay;
-
 /**
  * @brief Manages game state transitions and stack
  * 
