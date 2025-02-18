@@ -24,8 +24,10 @@ enum class Direction {
 class Snake {
 private:
     std::deque<sf::Vector2i> body;    ///< Snake body segments, front() is head
-    Direction direction;               ///< Current movement direction
+    Direction currentDirection;       ///< Current movement direction
+    Direction nextDirection;          ///< Next movement direction
     bool hasEaten;                    ///< Flag for pending growth
+    bool isGrowing;                   ///< Flag for ongoing growth
 
 public:
     /**
@@ -52,6 +54,8 @@ public:
      * @note Cannot reverse directly into opposite direction
      */
     void setDirection(Direction newDir);
+    Direction getCurrentDirection() const { return currentDirection; }
+    void updateDirection() { currentDirection = nextDirection; }
 
     /**
      * @brief Updates snake position based on current direction

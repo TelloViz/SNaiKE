@@ -1,56 +1,80 @@
 #include "Snake.hpp"
 
-Snake::Snake() : direction(Direction::Right), hasEaten(false) {
+Snake::Snake() 
+    : currentDirection(Direction::Right)
+    , nextDirection(Direction::Right)
+    , hasEaten(false)
+    , isGrowing(false) {
     body.push_front(sf::Vector2i(5, 5));
     body.push_front(sf::Vector2i(6, 5));
     body.push_front(sf::Vector2i(7, 5));
 }
 
 Snake::Snake(int x, int y) 
-    : direction(Direction::Right)
-    , hasEaten(false) {
-    // Initialize with 3 segments
+    : currentDirection(Direction::Right)
+    , nextDirection(Direction::Right)
+    , hasEaten(false)
+    , isGrowing(false) {
     body.push_front(sf::Vector2i(x-2, y));
     body.push_front(sf::Vector2i(x-1, y));
     body.push_front(sf::Vector2i(x, y));
 }
 
 Snake::Snake(const sf::Vector2i& startPos)
-    : direction(Direction::Right)
-    , hasEaten(false) {
-    // Initialize with 3 segments
+    : currentDirection(Direction::Right)
+    , nextDirection(Direction::Right)
+    , hasEaten(false)
+    , isGrowing(false) {
     body.push_front(sf::Vector2i(startPos.x-2, startPos.y));
     body.push_front(sf::Vector2i(startPos.x-1, startPos.y));
     body.push_front(sf::Vector2i(startPos.x, startPos.y));
 }
 
 void Snake::setDirection(Direction newDir) {
-    if ((direction == Direction::Up && newDir != Direction::Down) ||
-        (direction == Direction::Down && newDir != Direction::Up) ||
-        (direction == Direction::Left && newDir != Direction::Right) ||
-        (direction == Direction::Right && newDir != Direction::Left)) {
-        direction = newDir;
+    // Prevent 180-degree turns
+    bool isValidMove = false;
+    
+    switch (currentDirection) {
+        case Direction::Up:
+            isValidMove = (newDir != Direction::Down);
+            break;
+        case Direction::Down:
+            isValidMove = (newDir != Direction::Up);
+            break;
+        case Direction::Left:
+            isValidMove = (newDir != Direction::Right);
+            break;
+        case Direction::Right:
+            isValidMove = (newDir != Direction::Left);
+            break;
+    }
+    
+    if (isValidMove) {
+        nextDirection = newDir;
     }
 }
 
 void Snake::move() {
-    // Create new head position based on current direction
-    sf::Vector2i newHead = body.front();
-    switch (direction) {
-        case Direction::Up:    newHead.y--; break;
-        case Direction::Down:  newHead.y++; break;
-        case Direction::Left:  newHead.x--; break;
-        case Direction::Right: newHead.x++; break;
+    // Update current direction before moving
+    updateDirection();
+    
+    // Get the current head position
+    sf::Vector2i head = body.front();
+    
+    // Move based on current direction
+    switch (currentDirection) {
+        case Direction::Up:    head.y--; break;
+        case Direction::Down:  head.y++; break;
+        case Direction::Left:  head.x--; break;
+        case Direction::Right: head.x++; break;
     }
     
-    // Add new head
-    body.push_front(newHead);
-    
-    // Only remove tail if we haven't eaten
-    if (!hasEaten) {
+    // Add new head and remove tail (unless growing)
+    body.push_front(head);
+    if (!isGrowing) {
         body.pop_back();
     } else {
-        hasEaten = false;  // Reset the flag
+        isGrowing = false;
     }
 }
 
@@ -99,6 +123,5 @@ void Snake::draw(sf::RenderWindow& window, const int cellSize) {
 }
 
 void Snake::grow() {
-    // Set the flag that will be checked in the next move()
-    hasEaten = true;
+    isGrowing = true;
 }
