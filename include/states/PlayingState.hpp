@@ -4,6 +4,8 @@
 #include "../Snake.hpp"
 #include "states/StateClock.hpp"
 #include <random>
+#include "input/InputHandler.hpp"
+
 
 // Forward declarations
 class GameController;
@@ -67,7 +69,7 @@ public:
      * - Arrow keys for snake direction
      * - Escape for pause
      */
-    void handleInput(const sf::Event& event) override;
+    void handleInput(const GameInput& input) override;
 
     /**
      * @brief Updates game logic

@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "StateMachine.hpp"
 #include "Snake.hpp"
+#include "Input/InputHandler.hpp"  // Add this include
 
 /**
  * @brief Controls game logic and manages state transitions
@@ -39,11 +40,11 @@ public:
 
     /**
      * @brief Processes a single input event
-     * @param event SFML event to process
+     * @param input Game input to process
      * 
      * Delegates event handling to current game state
      */
-    void handleInput(const sf::Event& event);
+    void handleInput(const GameInput& input);
 
     /**
      * @brief Updates game logic for current frame

@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "input/InputHandler.hpp"
 
 class GameController;
 class StateMachine;
@@ -58,7 +59,7 @@ public:
      * @brief Handles input events for the state
      * @param event SFML event to process
      */
-    virtual void handleInput(const sf::Event& event) = 0;
+    virtual void handleInput(const GameInput& input) = 0;
 
     /**
      * @brief Updates state logic for current frame

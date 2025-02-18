@@ -22,17 +22,15 @@ PausedState::PausedState(GameController* ctrl, const StateContext& ctx, StateMac
     );
 }
 
-void PausedState::handleInput(const sf::Event& event) {
-    if (event.type == sf::Event::KeyPressed) {
-        switch (event.key.code) {
-            case sf::Keyboard::Escape: {
+void PausedState::handleInput(const GameInput& input) {
+    if (input.type == InputType::ButtonPressed) {
+        switch (input.button) {
+            case GameButton::Back:
                 if (machine) {
                     machine->popState();
-                } else {
                 }
                 break;
-            }
-            case sf::Keyboard::L:
+            default:
                 break;
         }
     }

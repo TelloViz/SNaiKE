@@ -62,22 +62,22 @@ MenuState::MenuState(GameController* ctrl, const StateContext& ctx, StateMachine
     
 }
 
-void MenuState::handleInput(const sf::Event& event) {
-    if (event.type == sf::Event::KeyPressed) {
-        switch (event.key.code) {
-            case sf::Keyboard::Up:
+void MenuState::handleInput(const GameInput& input) {
+    if (input.type == InputType::ButtonPressed) {
+        switch (input.button) {
+            case GameButton::Up:
                 menuOptions[selectedOption].setFillColor(sf::Color::White);
                 selectedOption = (selectedOption - 1 + menuOptions.size()) % menuOptions.size();
                 menuOptions[selectedOption].setFillColor(sf::Color::Green);
                 break;
                 
-            case sf::Keyboard::Down:
+            case GameButton::Down:
                 menuOptions[selectedOption].setFillColor(sf::Color::White);
                 selectedOption = (selectedOption + 1) % menuOptions.size();
                 menuOptions[selectedOption].setFillColor(sf::Color::Green);
                 break;
                 
-            case sf::Keyboard::Return:
+            case GameButton::Select:
                 if (selectedOption == 0) {
                     handlePlaySelected();
                 } else if (selectedOption == 1) {

@@ -18,8 +18,8 @@ GameOverState::GameOverState(GameController* controller, const StateContext& con
     );
 }
 
-void GameOverState::handleInput(const sf::Event& event) {
-    if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
+void GameOverState::handleInput(const GameInput& input) {
+    if (input.type == InputType::ButtonPressed && input.button == GameButton::Select) {
         stateMachine->replaceState(std::make_unique<MenuState>(gameController, context, stateMachine));
     }
 }

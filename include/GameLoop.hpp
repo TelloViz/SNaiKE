@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "GameController.hpp"
 #include "GameConfig.hpp"
+#include "Input/InputHandler.hpp"
 
 /**
  * @class GameLoop
@@ -28,6 +29,7 @@ private:
     sf::RenderWindow window;       ///< SFML window for rendering
     sf::Font font;                 ///< Global font resource
     GameController gameController; ///< Manages game states and logic
+    InputHandler inputHandler;     ///< Handles input events
 
 public:
     GameLoop();

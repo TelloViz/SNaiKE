@@ -36,22 +36,25 @@ void PlayingState::spawnFood() {
     } while (!validPosition);
 }
 
-void PlayingState::handleInput(const sf::Event& event) {
-    if (event.type == sf::Event::KeyPressed) {
-        switch (event.key.code) {
-            case sf::Keyboard::Escape:
+void PlayingState::handleInput(const GameInput& input) {
+    if (input.type == InputType::ButtonPressed) {
+        switch (input.button) {
+            case GameButton::Back:
                 freeze();  // Make sure we freeze before pushing pause state
                 machine->pushState(std::make_unique<PausedState>(controller, context, machine));
                 break;
-                
-            case sf::Keyboard::L:  // Changed from F1 to L
+            case GameButton::Up: 
+                snake.setDirection(Direction::Up); 
                 break;
-                
-            // Handle other game inputs
-            case sf::Keyboard::Up: snake.setDirection(Direction::Up); break;
-            case sf::Keyboard::Down: snake.setDirection(Direction::Down); break;
-            case sf::Keyboard::Left: snake.setDirection(Direction::Left); break;
-            case sf::Keyboard::Right: snake.setDirection(Direction::Right); break;
+            case GameButton::Down: 
+                snake.setDirection(Direction::Down); 
+                break;
+            case GameButton::Left: 
+                snake.setDirection(Direction::Left); 
+                break;
+            case GameButton::Right: 
+                snake.setDirection(Direction::Right); 
+                break;
         }
     }
 }

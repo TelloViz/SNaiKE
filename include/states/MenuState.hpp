@@ -2,6 +2,8 @@
 #include "State.hpp"
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include "input/InputHandler.hpp"
+
 
 class MenuState : public State {
 private:
@@ -20,7 +22,7 @@ public:
     
     void update() override;
     void render(sf::RenderWindow& window) override;
-    void handleInput(const sf::Event& event) override;
+    void handleInput(const GameInput& input) override;
     void freeze() override;    // Add override keyword
     void unfreeze() override;  // Add override keyword
     std::string getStateName() const override { return "MenuState"; }

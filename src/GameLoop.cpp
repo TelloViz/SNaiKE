@@ -1,5 +1,6 @@
 #include "GameLoop.hpp"
 #include "states/States.hpp"
+#include "Input/InputHandler.hpp"
 #include <random>
 #include <iostream>
 #include <filesystem>
@@ -33,8 +34,44 @@ void GameLoop::processEvents() {
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
             window.close();
+            GameInput gameInput{InputType::WindowClosed, GameButton::Quit};
+            inputHandler.pushEvent(gameInput);
         }
-        gameController.handleInput(event);
+        else if (event.type == sf::Event::KeyPressed) {
+            GameInput gameInput;
+            gameInput.type = InputType::ButtonPressed;
+            
+            // Map SFML keys to game buttons
+            switch (event.key.code) {
+                case sf::Keyboard::Up:
+                    gameInput.button = GameButton::Up;
+                    break;
+                case sf::Keyboard::Down:
+                    gameInput.button = GameButton::Down;
+                    break;
+                case sf::Keyboard::Left:
+                    gameInput.button = GameButton::Left;
+                    break;
+                case sf::Keyboard::Right:
+                    gameInput.button = GameButton::Right;
+                    break;
+                case sf::Keyboard::Return:
+                    gameInput.button = GameButton::Select;
+                    break;
+                case sf::Keyboard::Escape:
+                    gameInput.button = GameButton::Back;
+                    break;
+                default:
+                    continue; // Skip pushing event for unmapped keys
+            }
+            
+            inputHandler.pushEvent(gameInput);
+        }
+    }
+
+    while (inputHandler.hasInput()) {
+        auto gameInput = inputHandler.getNextInput();
+        gameController.handleInput(gameInput);
     }
 }
 
@@ -43,17 +80,17 @@ void GameLoop::update() {
 }
 
 void GameLoop::render() {
-    window.clear(sf::Color::Black);
+    window.clear(sf::Color::Black);  // Use dot instead of arrow
     
     auto currentState = gameController.getCurrentState();
     if (currentState) {
         currentState->render(window);
         
     } else {
-        
+        std::cerr << "No valid game state to render!" << std::endl;
     }
     
-    window.display();
+    window.display();  // Use dot instead of arrow
 }
 
 void GameLoop::run() {

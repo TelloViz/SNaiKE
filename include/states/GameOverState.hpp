@@ -1,5 +1,7 @@
 #pragma once
 #include "../State.hpp"
+#include "input/InputHandler.hpp"
+
 
 // Forward declarations
 class GameController;
@@ -36,7 +38,7 @@ public:
      * Processes:
      * - Enter key to return to menu
      */
-    void handleInput(const sf::Event& event) override;
+    void handleInput(const GameInput& input) override;
 
     /**
      * @brief Updates game over state

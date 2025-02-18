@@ -1,6 +1,8 @@
 #pragma once
 #include "State.hpp"
 #include <SFML/Graphics.hpp>
+#include "input/InputHandler.hpp"
+
 
 class GameController;
 class StateMachine;
@@ -39,7 +41,7 @@ public:
      * Processes:
      * - Escape key to resume game
      */
-    void handleInput(const sf::Event& event) override;
+    void handleInput(const GameInput& input) override;
 
     /**
      * @brief Updates pause state

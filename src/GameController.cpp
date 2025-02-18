@@ -32,9 +32,9 @@ void GameController::initializeGame() {
     }
 }
 
-void GameController::handleInput(const sf::Event& event) {
+void GameController::handleInput(const GameInput& input) {
     if (stateMachine.hasState()) {
-        stateMachine.getCurrentState()->handleInput(event);
+        stateMachine.getCurrentState()->handleInput(input);
     }
 }
 
