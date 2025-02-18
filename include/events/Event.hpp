@@ -6,13 +6,13 @@
  * Abstract base class that enforces proper event inheritance.
  * Private constructor prevents instantiation of bare GameEvents.
  */
-class GameEvent {
+class Event {
 public:
-    virtual ~GameEvent() = default;
+    virtual ~Event() = default;
 
 protected:
     // Allow derived classes to construct
-    GameEvent() = default;
+    Event() = default;
 
 private:
     // Prevent direct instantiation

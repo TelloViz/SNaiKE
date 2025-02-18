@@ -1,11 +1,11 @@
 #pragma once
-#include "GameEvent.hpp"
+#include "Event.hpp"
 #include <string>
 
 /**
  * @brief Event triggered when state transitions should occur
  */
-class StateTransitionEvent : public GameEvent {
+class StateTransitionEvent : public Event {
 public:
     enum class Type {
         Push,

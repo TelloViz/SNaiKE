@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <typeindex>
 #include <vector>
-#include "GameEvent.hpp"
+#include "Event.hpp"
 
 /**
  * @brief Manages event subscriptions and dispatching
@@ -17,7 +17,7 @@
 class EventManager {
 private:
     /** Function type for event handlers that can handle any GameEvent */
-    using HandlerFn = std::function<void(const GameEvent&)>;
+    using HandlerFn = std::function<void(const Event&)>;
 
     /** 
      * Map of event types to their handlers
@@ -44,7 +44,7 @@ public:
     template<typename T>
     void subscribe(std::function<void(const T&)> handler) {
         handlers[typeid(T)].push_back(
-            [handler](const GameEvent& e) {
+            [handler](const Event& e) {
                 handler(static_cast<const T&>(e));
             }
         );
@@ -59,7 +59,7 @@ public:
      * eventManager.publish(GameLifecycleEvent(GameLifecycleEvent::Type::GameOver));
      * @endcode
      */
-    void publish(const GameEvent& event) {
+    void publish(const Event& event) {
         auto it = handlers.find(typeid(event));
         if (it != handlers.end()) {
             for (auto& handler : it->second) {

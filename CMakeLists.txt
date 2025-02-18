@@ -22,7 +22,7 @@ FetchContent_MakeAvailable(SFML)
 # Create executable
 add_executable(main 
     src/main.cpp
-    src/Game.cpp
+    src/GameLoop.cpp
     src/GameController.cpp
     src/Snake.cpp
     src/StateMachine.cpp

@@ -1,5 +1,5 @@
 
-#include "Game.hpp"
+#include "GameLoop.hpp"
 
 int main() {
     GameLoop game;

@@ -1,4 +1,4 @@
-#include "Game.hpp"
+#include "GameLoop.hpp"
 #include "states/MenuState.hpp"
 #include "states/PlayingState.hpp"
 #include "GameController.hpp"

@@ -1,10 +1,10 @@
 #pragma once
-#include "GameEvent.hpp"
+#include "Event.hpp"
 
 /**
  * @brief Game lifecycle events
  */
-class GameLifecycleEvent : public GameEvent {
+class GameLifecycleEvent : public Event {
 public:
     enum class Type {
         GameStart,

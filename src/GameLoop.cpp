@@ -1,4 +1,4 @@
-#include "Game.hpp"
+#include "GameLoop.hpp"
 #include "states/States.hpp"
 #include <random>
 #include <iostream>
@@ -13,8 +13,8 @@ GameLoop::GameLoop()
     std::filesystem::path exePath = std::filesystem::current_path() / "build" / "bin";
     std::filesystem::path fontPath = exePath / "resources" / "fonts" / "arial.ttf";
     
-    std::cout << "Executable path: " << exePath << std::endl;
-    std::cout << "Trying to load font from: " << fontPath << std::endl;
+    //std::cout << "Executable path: " << exePath << std::endl;
+    //std::cout << "Trying to load font from: " << fontPath << std::endl;
     
     if (!font.loadFromFile(fontPath.string())) {
         // Try fallback to relative path
@@ -73,7 +73,6 @@ void GameLoop::run() {
         
         render();
         
-        // Add VSync or sleep to limit frame rate
         window.setVerticalSyncEnabled(true);  // Enable VSync
     }
 }
