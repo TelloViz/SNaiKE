@@ -32,40 +32,9 @@ GameLoop::GameLoop()
 void GameLoop::processEvents() {
     sf::Event event;
     while (window.pollEvent(event)) {
+        inputHandler.handleSFMLEvent(event);
         if (event.type == sf::Event::Closed) {
             window.close();
-            GameInput gameInput{InputType::WindowClosed, GameButton::Quit};
-            inputHandler.pushEvent(gameInput);
-        }
-        else if (event.type == sf::Event::KeyPressed) {
-            GameInput gameInput;
-            gameInput.type = InputType::ButtonPressed;
-            
-            // Map SFML keys to game buttons
-            switch (event.key.code) {
-                case sf::Keyboard::Up:
-                    gameInput.button = GameButton::Up;
-                    break;
-                case sf::Keyboard::Down:
-                    gameInput.button = GameButton::Down;
-                    break;
-                case sf::Keyboard::Left:
-                    gameInput.button = GameButton::Left;
-                    break;
-                case sf::Keyboard::Right:
-                    gameInput.button = GameButton::Right;
-                    break;
-                case sf::Keyboard::Return:
-                    gameInput.button = GameButton::Select;
-                    break;
-                case sf::Keyboard::Escape:
-                    gameInput.button = GameButton::Back;
-                    break;
-                default:
-                    continue; // Skip pushing event for unmapped keys
-            }
-            
-            inputHandler.pushEvent(gameInput);
         }
     }
 
@@ -99,17 +68,28 @@ void GameLoop::run() {
     sf::Time timeSinceLastUpdate = sf::Time::Zero;
 
     while (window.isOpen()) {
-        processEvents();
+        // Poll window events (must happen outside to not miss any)
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            }
+            inputHandler.handleSFMLEvent(event);
+        }
         
         timeSinceLastUpdate += clock.restart();
         
         while (timeSinceLastUpdate > timePerFrame) {
             timeSinceLastUpdate -= timePerFrame;
-            update();
+            
+            // Process exactly one input per fixed update
+            if (inputHandler.hasInput()) {
+                gameController.handleInput(inputHandler.getNextInput());
+            }
+            
+            gameController.update();
         }
         
         render();
-        
-        window.setVerticalSyncEnabled(true);  // Enable VSync
     }
 }

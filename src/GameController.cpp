@@ -33,6 +33,7 @@ void GameController::initializeGame() {
 }
 
 void GameController::handleInput(const GameInput& input) {
+    // Process exactly one input
     if (stateMachine.hasState()) {
         stateMachine.getCurrentState()->handleInput(input);
     }

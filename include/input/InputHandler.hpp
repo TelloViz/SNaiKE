@@ -5,7 +5,7 @@
 enum class GameButton {
     Up, Down, Left, Right,
     Select, Back, Start,
-    Quit
+    Quit, None
 };
 
 enum class InputType {
@@ -21,11 +21,12 @@ struct GameInput {
 
 class InputHandler {
 public:
-    void pushEvent(const GameInput& input);
+    void handleSFMLEvent(const sf::Event& event);
     bool hasInput() const;
     GameInput getNextInput();
 
 private:
     std::queue<GameInput> inputQueue;
+    GameInput translateSFMLEvent(const sf::Event& event);
 };
 
