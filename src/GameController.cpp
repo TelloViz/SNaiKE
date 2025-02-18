@@ -1,6 +1,8 @@
 #include "GameController.hpp"
 #include "states/MenuState.hpp"
 #include "GameConfig.hpp"
+#include "input/InputHandler.hpp"
+#include <iostream>
 
 
 void GameController::initializeGame() {
@@ -40,29 +42,31 @@ void GameController::handleInput(const GameInput& input) {
 }
 
 void GameController::update() {
-    static bool firstUpdate = true;
-    if (firstUpdate) {
-        firstUpdate = false;
+    // Process one input per update if available
+    if (inputHandler.hasInput()) {
+        auto gameInput = inputHandler.getNextInput();
+        if (stateMachine.hasState()) {
+            stateMachine.getCurrentState()->handleInput(gameInput);
+        }
     }
 
+    // Update game state
     if (stateMachine.hasState()) {
-        // Process state changes before updating current state
-        stateMachine.processStateChanges();
-        
-        auto* currentState = stateMachine.getCurrentState();
-        if (currentState) {
-            try {
-                currentState->update();
-            } catch (const std::exception& e) {
-            }
-        } else {
-        }
+        stateMachine.getCurrentState()->update();
     }
 }
 
 void GameController::render(sf::RenderWindow& window) {
+    static bool errorPrinted = false;  // Static flag to track if error was printed
+
     if (stateMachine.hasState()) {
         stateMachine.getCurrentState()->render(window);
+        errorPrinted = false;  // Reset flag when we have a valid state
+    } else {
+        if (!errorPrinted) {
+            std::cerr << "No valid game state to render!" << std::endl;
+            errorPrinted = true;  // Set flag after printing once
+        }
     }
 }
 

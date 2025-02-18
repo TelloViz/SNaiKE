@@ -23,4 +23,7 @@ struct GameConfig {
     static const int WINDOW_HEIGHT = (GRID_HEIGHT * CELL_SIZE) + MARGIN_TOP + MARGIN_BOTTOM;
     
     static const int FRAME_RATE = 60;
+
+    static constexpr float SNAKE_SPEED = 10.0f;  // Moves per second
+
 };

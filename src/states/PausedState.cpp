@@ -26,8 +26,10 @@ void PausedState::handleInput(const GameInput& input) {
     if (input.type == InputType::ButtonPressed) {
         switch (input.button) {
             case GameButton::Back:
+                std::cout << "PausedState: Back pressed, popping state" << std::endl;
                 if (machine) {
                     machine->popState();
+                    machine->processStateChanges();  // Important: Process the state change
                 }
                 break;
             default:

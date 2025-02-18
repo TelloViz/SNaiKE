@@ -1,10 +1,11 @@
 #pragma once
 #include "State.hpp"
+#include "Snake.hpp"
+#include "GameClock.hpp"
 #include <SFML/Graphics.hpp>
-#include "../Snake.hpp"
-#include "states/StateClock.hpp"
 #include <random>
 #include "input/InputHandler.hpp"
+#include "GameConfig.hpp"
 
 
 // Forward declarations
@@ -28,14 +29,13 @@ private:
     StateMachine* machine;
     Snake snake;              ///< Player-controlled snake entity
     sf::Vector2i food;       ///< Current food position
-    StateClock gameTime;     ///< Game time tracking
-    bool isFrozen{false};    ///< Game freeze state
-    int score = 0;           ///< Current player score
-    
-    // Game timing properties
-    static constexpr float SNAKE_MOVE_INTERVAL = 0.1f;  // Faster interval for smoother movement
-    float lastMoveTime{0.0f};
+    GameClock gameTime;     ///< Game time tracking
+    sf::Time lastMoveTime;  ///< Last move time
     std::mt19937 rng;        ///< Random number generator for food placement
+    bool isFrozen;
+    int score;
+    
+    static constexpr float SNAKE_MOVE_INTERVAL = 1.0f / GameConfig::SNAKE_SPEED;
 
     /**
      * @brief Spawns new food in valid position
@@ -46,6 +46,12 @@ private:
      * - Within grid bounds
      */
     void spawnFood();
+
+    /**
+     * @brief Checks for collision
+     * @return True if collision detected, otherwise false
+     */
+    bool checkCollision();
 
 public:
     /**

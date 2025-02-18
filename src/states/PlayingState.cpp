@@ -4,15 +4,18 @@
 #include "GameController.hpp"
 #include "StateMachine.hpp"
 #include "GameConfig.hpp"
+#include <iostream>
 
 PlayingState::PlayingState(GameController* ctrl, const StateContext& ctx, StateMachine* mach)
     : State(ctrl, ctx, mach)
     , controller(ctrl)
     , context(ctx)
     , machine(mach)
-    , snake(ctx.width / 2, ctx.height / 2)
-    , rng(std::random_device{}())
-{
+    , isFrozen(false)
+    , score(0) {
+    std::cout << "PlayingState constructed successfully" << std::endl;
+    snake = Snake(ctx.width / 2, ctx.height / 2);
+    rng = std::mt19937(std::random_device{}());
     spawnFood();
     gameTime.restart();  // Initialize the game clock
     lastMoveTime = gameTime.getElapsedTime();  // Initialize last move time
@@ -40,8 +43,9 @@ void PlayingState::handleInput(const GameInput& input) {
     if (input.type == InputType::ButtonPressed) {
         switch (input.button) {
             case GameButton::Back:
-                freeze();  // Make sure we freeze before pushing pause state
+                std::cout << "Playing: Back pressed, pushing PausedState" << std::endl;
                 machine->pushState(std::make_unique<PausedState>(controller, context, machine));
+                machine->processStateChanges();  // Important: Process the state change immediately
                 break;
             case GameButton::Up: 
                 snake.setDirection(Direction::Up); 
@@ -60,28 +64,48 @@ void PlayingState::handleInput(const GameInput& input) {
 }
 
 void PlayingState::update() {
-    if (!isFrozen) {
-        float currentTime = gameTime.getElapsedTime();
+    sf::Time currentTime = gameTime.getElapsedTime();
+    sf::Time moveInterval = sf::seconds(1.0f / GameConfig::SNAKE_SPEED);
+    
+    if (currentTime.asSeconds() - lastMoveTime.asSeconds() >= moveInterval.asSeconds()) {
+        snake.move();
+        lastMoveTime = currentTime;
 
-        while (currentTime - lastMoveTime >= SNAKE_MOVE_INTERVAL) {
-            snake.move();
-            lastMoveTime += SNAKE_MOVE_INTERVAL;
-            
-            // Check all collisions using single method
-            if (snake.checkCollision(context.width, context.height)) {
-                stateMachine->replaceState(
-                    std::make_unique<GameOverState>(gameController, context, stateMachine));
-                return;
-            }
+        if (checkCollision()) {
+            std::cout << "Collision detected! Transitioning to GameOver state..." << std::endl;
+            machine->replaceState(std::make_unique<GameOverState>(controller, context, machine));
+            machine->processStateChanges();
+            return;
+        }
 
-            // Check food collision
-            if (snake.getHead().x == food.x && snake.getHead().y == food.y) {
-                snake.grow();
-                score += 10;
-                spawnFood();
-            }
+        if (snake.getHead() == food) {
+            snake.grow();
+            score += 10;  // Increment score when food is eaten
+            spawnFood();
         }
     }
+}
+
+bool PlayingState::checkCollision() {
+    const sf::Vector2i& head = snake.getHead();
+    
+    // Wall collision
+    if (head.x < 0 || head.x >= context.width ||
+        head.y < 0 || head.y >= context.height) {
+        std::cout << "Wall collision detected!" << std::endl;
+        return true;
+    }
+    
+    // Self collision
+    const auto& body = snake.getBody();
+    for (size_t i = 1; i < body.size(); ++i) {
+        if (head == body[i]) {
+            std::cout << "Self collision detected!" << std::endl;
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 void PlayingState::render(sf::RenderWindow& window) {
@@ -162,7 +186,6 @@ void PlayingState::freeze() {
 void PlayingState::unfreeze() {
     isFrozen = false;
     gameTime.unfreeze();
-    // Reset lastMoveTime to current time minus a small offset
-    // This ensures the snake moves shortly after unfreeze
-    lastMoveTime = gameTime.getElapsedTime() - (SNAKE_MOVE_INTERVAL * 0.9f);
+    // Convert SNAKE_MOVE_INTERVAL to sf::Time before subtraction
+    lastMoveTime = gameTime.getElapsedTime() - sf::seconds(SNAKE_MOVE_INTERVAL * 0.9f);
 }

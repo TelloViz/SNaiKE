@@ -3,6 +3,7 @@
 #include "states/PlayingState.hpp"
 #include "GameController.hpp"
 #include "StateMachine.hpp"
+#include <iostream>
 
 #include "GameConfig.hpp"
 
@@ -66,18 +67,21 @@ void MenuState::handleInput(const GameInput& input) {
     if (input.type == InputType::ButtonPressed) {
         switch (input.button) {
             case GameButton::Up:
+                std::cout << "Menu: Up pressed" << std::endl;
                 menuOptions[selectedOption].setFillColor(sf::Color::White);
                 selectedOption = (selectedOption - 1 + menuOptions.size()) % menuOptions.size();
                 menuOptions[selectedOption].setFillColor(sf::Color::Green);
                 break;
                 
             case GameButton::Down:
+                std::cout << "Menu: Down pressed" << std::endl;
                 menuOptions[selectedOption].setFillColor(sf::Color::White);
                 selectedOption = (selectedOption + 1) % menuOptions.size();
                 menuOptions[selectedOption].setFillColor(sf::Color::Green);
                 break;
                 
             case GameButton::Select:
+                std::cout << "Menu: Select pressed on option " << selectedOption << std::endl;
                 if (selectedOption == 0) {
                     handlePlaySelected();
                 } else if (selectedOption == 1) {
@@ -90,13 +94,18 @@ void MenuState::handleInput(const GameInput& input) {
 
 void MenuState::handlePlaySelected() {
     try {
+        std::cout << "Creating PlayingState..." << std::endl;
         auto playingState = std::make_unique<PlayingState>(controller, context, machine);
         if (!playingState) {
             throw std::runtime_error("Failed to create PlayingState");
         }
         
+        std::cout << "Replacing state with PlayingState..." << std::endl;
         machine->replaceState(std::move(playingState));
+        machine->processStateChanges();  // Add this line to process the state change
+        std::cout << "State replaced and processed" << std::endl;
     } catch (const std::exception& e) {
+        std::cerr << "Error in handlePlaySelected: " << e.what() << std::endl;
     }
 }
 

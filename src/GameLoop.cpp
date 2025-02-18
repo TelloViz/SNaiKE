@@ -8,7 +8,8 @@
 
 GameLoop::GameLoop() 
     : window(sf::VideoMode(GameConfig::WINDOW_WIDTH, GameConfig::WINDOW_HEIGHT), "Snake Game")
-    , gameController(font, &window) {
+    , inputHandler()  // Initialize InputHandler
+    , gameController(font, &window, inputHandler) {  // Pass InputHandler reference
 
     // Get executable path and construct relative resource path
     std::filesystem::path exePath = std::filesystem::current_path() / "build" / "bin";
@@ -74,20 +75,14 @@ void GameLoop::run() {
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
-            inputHandler.handleSFMLEvent(event);
+            inputHandler.handleSFMLEvent(event);  // Queue raw events
         }
         
         timeSinceLastUpdate += clock.restart();
         
         while (timeSinceLastUpdate > timePerFrame) {
             timeSinceLastUpdate -= timePerFrame;
-            
-            // Process exactly one input per fixed update
-            if (inputHandler.hasInput()) {
-                gameController.handleInput(inputHandler.getNextInput());
-            }
-            
-            gameController.update();
+            gameController.update();  // GameController handles both input and update
         }
         
         render();

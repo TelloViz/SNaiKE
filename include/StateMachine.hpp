@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include "State.hpp"
+#include <iostream>
 
 /**
  * @brief Manages game state transitions and stack
@@ -70,8 +71,9 @@ public:
      * @return Raw pointer to current state
      * @throws std::runtime_error if state stack is empty
      */
-    State* getCurrentState() const {
+    State* StateMachine::getCurrentState() const {
         if (states.empty()) {
+            std::cout << "getCurrentState: Stack is empty!" << std::endl;
             return nullptr;
         }
         return states.top().get();

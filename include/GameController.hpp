@@ -20,15 +20,22 @@ private:
     sf::Vector2i food;           ///< Current food position
     sf::Font& font;              ///< Reference to global font resource
     sf::RenderWindow* window;    ///< Pointer to game window for control
+    InputHandler& inputHandler;  ///< Add reference to InputHandler
 
 public:
     /**
      * @brief Constructs the game controller
      * @param gameFont Reference to the global font resource
      * @param gameWindow Pointer to the main game window
+     * @param handler Reference to the input handler
      */
-    explicit GameController(sf::Font& gameFont, sf::RenderWindow* gameWindow) 
-        : font(gameFont), window(gameWindow) {}
+    explicit GameController(
+        sf::Font& gameFont, 
+        sf::RenderWindow* gameWindow,
+        InputHandler& handler  // Add InputHandler parameter
+    ) : font(gameFont)
+      , window(gameWindow)
+      , inputHandler(handler) {}
     
     /**
      * @brief Initializes the game state and resources
