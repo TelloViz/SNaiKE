@@ -12,7 +12,7 @@
  * - Running the main game loop
  * - Delegating game logic to GameController
  */
-class Game {
+class GameLoop {
 private:
     sf::RenderWindow window;     ///< SFML window for rendering
     sf::Font font;              ///< Global font resource
@@ -25,7 +25,7 @@ public:
      * Initializes the SFML window, loads resources,
      * and sets up the GameController
      */
-    Game();
+    GameLoop();
 
     /**
      * @brief Starts and runs the main game loop

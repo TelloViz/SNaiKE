@@ -2,7 +2,7 @@
 #include "Game.hpp"
 
 int main() {
-    Game game;
+    GameLoop game;
     game.run();
     return 0;
 }

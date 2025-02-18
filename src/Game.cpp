@@ -5,7 +5,7 @@
 #include <filesystem>
 
 
-Game::Game() 
+GameLoop::GameLoop() 
     : window(sf::VideoMode(GameConfig::WINDOW_WIDTH, GameConfig::WINDOW_HEIGHT), "Snake Game")
     , gameController(font, &window) {
 
@@ -28,7 +28,7 @@ Game::Game()
     gameController.initializeGame();
 }
 
-void Game::processEvents() {
+void GameLoop::processEvents() {
     sf::Event event;
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
@@ -38,11 +38,11 @@ void Game::processEvents() {
     }
 }
 
-void Game::update() {
+void GameLoop::update() {
     gameController.update();
 }
 
-void Game::render() {
+void GameLoop::render() {
     window.clear(sf::Color::Black);
     
     auto currentState = gameController.getCurrentState();
@@ -56,7 +56,7 @@ void Game::render() {
     window.display();
 }
 
-void Game::run() {
+void GameLoop::run() {
     const sf::Time timePerFrame = sf::seconds(1.0f / GameConfig::FRAME_RATE);
     sf::Clock clock;
     sf::Time timeSinceLastUpdate = sf::Time::Zero;
