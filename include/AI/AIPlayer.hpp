@@ -5,6 +5,8 @@
 #include <vector>
 #include <set>
 #include <map>
+#include "AI/HeatMap.hpp"
+#include "AI/GridHeatMap.hpp"
 
 struct Position {
     sf::Vector2i pos{0, 0};  // Initialize with default values
@@ -53,6 +55,10 @@ private:
     const Snake& snake;
     const sf::Vector2i& food;
     AIStrategy currentStrategy;
+    HeatMap heatMap;
+    GridHeatMap gridHeatMap;
+    sf::Vector2i lastSnakePosition;  // Track last position for update triggering
+    std::vector<Direction> lastPath;  // Cache for pathfinding results
     
     void planNextMove();
     Direction calculateDirectionToFood();
@@ -60,25 +66,27 @@ private:
     Direction calculateAdvancedMove();
     Direction calculateRandomMove();
     
+    void updateHeatMap();  // Add this declaration
+
     // Helper functions
     bool isMoveSafe(Direction dir);
     bool isMoveSafe(Direction dir, int lookAhead);
     bool isMoveSafeInFuture(Direction dir, int lookAhead = 5);  // Add default argument
     bool willTailMove(const sf::Vector2i& pos, int segmentIndex);
-    int countAccessibleSpace(const Position& from);  // Changed signature
+    int countAccessibleSpace(const Position& from) const;  // Make const
     bool canReachFood(const Position& from);        // Changed signature
     std::vector<Direction> findPathToFood();
     
     // A* helper functions
-    int getManhattanDistance(const Position& a, const Position& b) {
-        return std::abs(a.pos.x - b.pos.x) + std::abs(a.pos.y - b.pos.y);
-    }
+    int getManhattanDistance(const Position& a, const Position& b) const;  // Add const
     
     std::vector<Position> getNeighbors(const Position& pos);
     Direction getDirectionToNeighbor(const Position& from, const Position& to);
 
     bool isPositionBlocked(const Position& pos);
     int getDistanceToTail(const sf::Vector2i& pos);
+
+    float calculatePositionScore(int x, int y) const;  // Add declaration
 
 public:
     AIPlayer(const Snake& snakeRef, const sf::Vector2i& foodRef) 
@@ -89,4 +97,6 @@ public:
     GameInput getNextInput();
     void setStrategy(AIStrategy strategy) { currentStrategy = strategy; }
     AIStrategy getStrategy() const { return currentStrategy; }
+    const HeatMap& getHeatMap() const { return heatMap; }
+    const GridHeatMap& getGridHeatMap() const { return gridHeatMap; }
 };

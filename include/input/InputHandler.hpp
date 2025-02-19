@@ -6,7 +6,7 @@ enum class GameButton {
     Up, Down, Left, Right,
     Select, Back, Start,
     Quit, ToggleAI, 
-    Num1, Num2, Num3, 
+    Num1, Num2, Num3, H, G,
     None  // Added ToggleAI
 };
 

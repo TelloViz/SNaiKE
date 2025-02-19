@@ -38,6 +38,8 @@ private:
 
     std::unique_ptr<AIPlayer> aiPlayer;
     bool aiControlled{false};
+    bool showHeatMap{false};
+    sf::Clock heatMapUpdateClock;  // Add update clock for throttling
     
     static constexpr float SNAKE_MOVE_INTERVAL = 1.0f / GameConfig::SNAKE_SPEED;
 
@@ -56,6 +58,8 @@ private:
      * @return True if collision detected, otherwise false
      */
     bool checkCollision();
+
+    void renderFood(sf::RenderWindow& window) const;  // Add the helper function declaration
 
 public:
 

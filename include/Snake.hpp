@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <deque>
+#include "GameConfig.hpp"
 
 /**
  * @brief Represents possible movement directions for the snake
@@ -107,4 +108,27 @@ public:
      * @return true if self-collision detected, false otherwise
      */
     bool checkSelfCollision() const;
+
+    void render(sf::RenderWindow& window) const {
+        // Draw snake body
+        sf::RectangleShape segment(sf::Vector2f(GameConfig::CELL_SIZE, GameConfig::CELL_SIZE));
+        
+        // Draw body segments
+        segment.setFillColor(sf::Color::Green);
+        for (size_t i = 1; i < body.size(); ++i) {
+            segment.setPosition(
+                body[i].x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES,
+                body[i].y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP
+            );
+            window.draw(segment);
+        }
+        
+        // Draw head in different color
+        segment.setFillColor(sf::Color::Yellow);
+        segment.setPosition(
+            body[0].x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES,
+            body[0].y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP
+        );
+        window.draw(segment);
+    }
 };

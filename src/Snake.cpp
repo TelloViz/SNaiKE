@@ -114,12 +114,33 @@ bool Snake::eat(const sf::Vector2i& food) {
 }
 
 void Snake::draw(sf::RenderWindow& window, const int cellSize) {
-    for (const auto& segment : body) {
-        sf::RectangleShape rect(sf::Vector2f(cellSize - 1, cellSize - 1));
-        rect.setPosition(segment.x * cellSize, segment.y * cellSize);
-        rect.setFillColor(sf::Color::Green);
-        window.draw(rect);
+    // Create much smaller segments with larger gaps
+    float segmentSize = cellSize * 0.6f;  // Make segments 60% of cell size
+    float offset = (cellSize - segmentSize) / 2;  // Center in cell
+    
+    sf::RectangleShape segment(sf::Vector2f(segmentSize, segmentSize));
+    
+    // Draw body segments
+    segment.setFillColor(sf::Color::Green);
+    auto it = std::next(body.begin());
+    for (; it != body.end(); ++it) {
+        segment.setPosition(
+            it->x * cellSize + offset + GameConfig::MARGIN_SIDES,
+            it->y * cellSize + offset + GameConfig::MARGIN_TOP
+        );
+        window.draw(segment);
     }
+    
+    // Draw head slightly larger
+    float headSize = segmentSize * 1.2f;
+    float headOffset = (cellSize - headSize) / 2;
+    sf::RectangleShape head(sf::Vector2f(headSize, headSize));
+    head.setFillColor(sf::Color::Yellow);
+    head.setPosition(
+        body.front().x * cellSize + headOffset + GameConfig::MARGIN_SIDES,
+        body.front().y * cellSize + headOffset + GameConfig::MARGIN_TOP
+    );
+    window.draw(head);
 }
 
 void Snake::grow() {

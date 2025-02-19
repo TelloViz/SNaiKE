@@ -84,6 +84,10 @@ void PlayingState::handleInput(const GameInput& input) {
                     std::cout << "AI Strategy: Random" << std::endl;
                 }
                 break;
+            case GameButton::H:  // Add new button for heat map toggle
+                showHeatMap = !showHeatMap;
+                std::cout << "Heat map display: " << (showHeatMap ? "ON" : "OFF") << std::endl;
+                break;
         }
     }
 }
@@ -138,6 +142,16 @@ bool PlayingState::checkCollision() {
     return false;
 }
 
+void PlayingState::renderFood(sf::RenderWindow& window) const {
+    sf::RectangleShape foodShape(sf::Vector2f(context.cellSize, context.cellSize));
+    foodShape.setFillColor(sf::Color::Red);
+    foodShape.setPosition(
+        food.x * context.cellSize + context.marginSides,
+        food.y * context.cellSize + context.marginTop
+    );
+    window.draw(foodShape);
+}
+
 void PlayingState::render(sf::RenderWindow& window) {
     // Draw border around gameplay area
     sf::RectangleShape border;
@@ -150,25 +164,9 @@ void PlayingState::render(sf::RenderWindow& window) {
     border.setOutlineThickness(context.borderThickness);
     window.draw(border);
     
-    // Draw snake
-    for (const auto& segment : snake.getBody()) {
-        sf::RectangleShape segmentShape(sf::Vector2f(context.cellSize - 2, context.cellSize - 2));
-        segmentShape.setPosition(
-            context.marginSides + segment.x * context.cellSize + 1,
-            context.marginTop + segment.y * context.cellSize + 1
-        );
-        segmentShape.setFillColor(sf::Color::Green);
-        window.draw(segmentShape);
-    }
-    
-    // Draw food
-    sf::RectangleShape foodShape(sf::Vector2f(context.cellSize - 2, context.cellSize - 2));
-    foodShape.setPosition(
-        context.marginSides + food.x * context.cellSize + 1,
-        context.marginTop + food.y * context.cellSize + 1
-    );
-    foodShape.setFillColor(sf::Color::Red);
-    window.draw(foodShape);
+    // Draw snake and food
+    snake.render(window);
+    renderFood(window);  // Use the new helper function
 
     // Draw Score
     sf::Text scoreText;
@@ -206,6 +204,13 @@ void PlayingState::render(sf::RenderWindow& window) {
             fpsText.getGlobalBounds().height / 2.0f
     );
     window.draw(fpsText);
+
+    // Only keep regular heat map visualization
+    if (showHeatMap && aiControlled && aiPlayer) {
+        const auto& heatMap = aiPlayer->getHeatMap();
+        heatMap.render(window, 
+            sf::Vector2f(context.cellSize, context.cellSize));
+    }
 }
 
 void PlayingState::freeze() {
