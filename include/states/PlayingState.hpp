@@ -6,6 +6,7 @@
 #include <random>
 #include "input/InputHandler.hpp"
 #include "GameConfig.hpp"
+#include "AI/AIPlayer.hpp"
 
 
 // Forward declarations
@@ -34,6 +35,9 @@ private:
     std::mt19937 rng;        ///< Random number generator for food placement
     bool isFrozen;
     int score;
+
+    std::unique_ptr<AIPlayer> aiPlayer;
+    bool aiControlled{false};
     
     static constexpr float SNAKE_MOVE_INTERVAL = 1.0f / GameConfig::SNAKE_SPEED;
 
@@ -54,6 +58,9 @@ private:
     bool checkCollision();
 
 public:
+
+void toggleAI() { aiControlled = !aiControlled; }
+
     /**
      * @brief Constructs playing state
      * @param controller Pointer to game controller

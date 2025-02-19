@@ -30,7 +30,8 @@ add_executable(main
     src/states/PlayingState.cpp
     src/states/PausedState.cpp
     src/states/GameOverState.cpp
-    src/Input/InputHandler.cpp)
+    src/Input/InputHandler.cpp
+    src/AI/AIPlayer.cpp)
 
 # Configure include directories
 target_include_directories(main PRIVATE 
