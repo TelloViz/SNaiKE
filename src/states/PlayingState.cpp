@@ -4,6 +4,7 @@
 #include "GameController.hpp"
 #include "StateMachine.hpp"
 #include "GameConfig.hpp"
+#include "ScoreLogger.hpp"  // Add this line
 #include <iostream>
 
 PlayingState::PlayingState(GameController* ctrl, const StateContext& ctx, StateMachine* mach)
@@ -12,13 +13,16 @@ PlayingState::PlayingState(GameController* ctrl, const StateContext& ctx, StateM
     , context(ctx)
     , machine(mach)
     , isFrozen(false)
-    , score(0) {
+    , score(0)
+    , gameLength(0) {
     std::cout << "PlayingState constructed successfully" << std::endl;
     snake = Snake(ctx.width / 2, ctx.height / 2);
     rng = std::mt19937(std::random_device{}());
     spawnFood();
     gameTime.restart();  // Initialize the game clock
     lastMoveTime = gameTime.getElapsedTime();  // Initialize last move time
+    lastStrategy = AIStrategy::Basic;  // Initialize with default strategy
+    strategyChanges.push_back({lastStrategy, 0});  // Log initial strategy
 }
 
 void PlayingState::spawnFood() {
@@ -93,29 +97,50 @@ void PlayingState::handleInput(const GameInput& input) {
 }
 
 void PlayingState::update() {
-    if (aiControlled && aiPlayer) {
-        // Let AI generate input
-        GameInput aiInput = aiPlayer->getNextInput();
-        handleInput(aiInput);
-    }
-    sf::Time currentTime = gameTime.getElapsedTime();
-    sf::Time moveInterval = sf::seconds(1.0f / GameConfig::SNAKE_SPEED);
-    
-    if (currentTime.asSeconds() - lastMoveTime.asSeconds() >= moveInterval.asSeconds()) {
-        snake.move();
-        lastMoveTime = currentTime;
-
-        if (checkCollision()) {
-            std::cout << "Collision detected! Transitioning to GameOver state..." << std::endl;
-            machine->replaceState(std::make_unique<GameOverState>(controller, context, machine));
-            machine->processStateChanges();
-            return;
+    gameLength++;
+    if (!isFrozen) {
+        // Check for strategy changes
+        if (aiPlayer && aiPlayer->getStrategy() != lastStrategy) {
+            strategyChanges.push_back({aiPlayer->getStrategy(), score});
+            lastStrategy = aiPlayer->getStrategy();
         }
 
-        if (snake.getHead() == food) {
-            snake.grow();
-            score += 10;  // Increment score when food is eaten
-            spawnFood();
+        if (aiControlled && aiPlayer) {
+            GameInput aiInput = aiPlayer->getNextInput();
+            handleInput(aiInput);
+        }
+
+        sf::Time currentTime = gameTime.getElapsedTime();
+        sf::Time moveInterval = sf::seconds(1.0f / GameConfig::SNAKE_SPEED);
+        
+        if (currentTime.asSeconds() - lastMoveTime.asSeconds() >= moveInterval.asSeconds()) {
+            snake.move();
+            lastMoveTime = currentTime;
+
+            // Check collisions after movement
+            if (checkCollision()) {
+                // Log the game data before transitioning
+                ScoreLogger::GameSession session;
+                session.finalScore = score;
+                session.gameLength = gameLength;
+                session.strategyChanges = strategyChanges;
+                ScoreLogger::logGame(session);
+
+                std::cout << "Game Over - Final Score: " << score 
+                         << ", Length: " << gameLength 
+                         << ", Strategy Changes: " << strategyChanges.size() << std::endl;
+
+                // Transition to game over
+                machine->replaceState(std::make_unique<GameOverState>(controller, context, machine, score));
+                machine->processStateChanges();
+                return;
+            }
+
+            if (snake.getHead() == food) {
+                snake.grow();
+                score += 10;
+                spawnFood();
+            }
         }
     }
 }

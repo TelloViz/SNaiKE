@@ -2,24 +2,40 @@
 #include "states/MenuState.hpp"
 #include "GameController.hpp"
 #include "StateMachine.hpp"
+#include "ScoreLogger.hpp"  // Add this include
 
-GameOverState::GameOverState(GameController* ctrl, const StateContext& ctx, StateMachine* mach)
+GameOverState::GameOverState(GameController* ctrl, const StateContext& ctx, StateMachine* mach, int score)
     : State(ctrl, ctx, mach)
     , controller(ctrl)
     , context(ctx)
-    , machine(mach) {
-    std::cout << "GameOverState constructed" << std::endl;
+    , machine(mach)
+    , finalScore(score)
+{
+    std::cout << "GameOverState constructed with score: " << score << std::endl;
     
     gameOverText.setFont(context.font);
     gameOverText.setString("GAME OVER\nPress ENTER to return to menu");
     gameOverText.setCharacterSize(30);
     gameOverText.setFillColor(sf::Color::Red);
     
-    // Center the text
+    // Center the game over text
     sf::FloatRect textBounds = gameOverText.getLocalBounds();
     gameOverText.setPosition(
         (context.width * context.cellSize - textBounds.width) / 2,
-        (context.height * context.cellSize - textBounds.height) / 2
+        (context.height * context.cellSize - textBounds.height) / 2 - 30 // Move up slightly
+    );
+
+    // Setup score text
+    scoreText.setFont(context.font);
+    scoreText.setString("Final Score: " + std::to_string(finalScore));
+    scoreText.setCharacterSize(24);
+    scoreText.setFillColor(sf::Color::White);
+    
+    // Center the score text below game over text
+    textBounds = scoreText.getLocalBounds();
+    scoreText.setPosition(
+        (context.width * context.cellSize - textBounds.width) / 2,
+        gameOverText.getPosition().y + gameOverText.getLocalBounds().height + 20
     );
 }
 

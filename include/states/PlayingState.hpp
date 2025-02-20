@@ -7,6 +7,7 @@
 #include "input/InputHandler.hpp"
 #include "GameConfig.hpp"
 #include "AI/AIPlayer.hpp"
+#include "ScoreLogger.hpp"
 
 
 // Forward declarations
@@ -35,11 +36,14 @@ private:
     std::mt19937 rng;        ///< Random number generator for food placement
     bool isFrozen;
     int score;
+    int gameLength;
 
     std::unique_ptr<AIPlayer> aiPlayer;
     bool aiControlled{false};
     bool showHeatMap{false};
     sf::Clock heatMapUpdateClock;  // Add update clock for throttling
+    std::vector<std::pair<AIStrategy, int>> strategyChanges;
+    AIStrategy lastStrategy;
     
     static constexpr float SNAKE_MOVE_INTERVAL = 1.0f / GameConfig::SNAKE_SPEED;
 
@@ -129,4 +133,6 @@ void toggleAI() { aiControlled = !aiControlled; }
      * @return State name as a string
      */
     std::string getStateName() const override { return "PlayingState"; }
+
+    void logStrategyChange();
 };
