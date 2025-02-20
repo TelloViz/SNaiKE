@@ -2,6 +2,14 @@
 #include "GameConfig.hpp"
 #include <iostream>
 #include "Debug.hpp"
+#include <algorithm>
+#include <limits>
+#include <queue>
+#include <set>
+#include <map>
+
+using std::min;
+using std::max;
 
 GameInput AIPlayer::getNextInput() {
     if (plannedMoves.empty()) {
@@ -37,12 +45,9 @@ void AIPlayer::planNextMove() {
 }
 
 Direction AIPlayer::calculateDirectionToFood() {
-    // Update heat map every time we calculate a move
-    updateHeatMap();
-    
     switch (currentStrategy) {
         case AIStrategy::Basic:
-            return calculateBasicMove();  // Current logic
+            return calculateBasicMove();
         case AIStrategy::Advanced:
             return calculateAdvancedMove();
         case AIStrategy::Random:
@@ -57,40 +62,38 @@ Direction AIPlayer::calculateAdvancedMove() {
     
     // Only update heat map every 200ms
     if (updateClock.getElapsedTime().asMilliseconds() > 200) {
-        gridHeatMap.clear();
-        AI_DEBUG("Updating grid heat map...");
-        
-        // Calculate scores for visible area only
-        const sf::Vector2i& head = snake.getHead();
-        const int VIEW_RADIUS = 8;
-        
-        for (int x = std::max(0, head.x - VIEW_RADIUS); 
-             x < std::min(GameConfig::GRID_WIDTH, head.x + VIEW_RADIUS); x++) {
-            for (int y = std::max(0, head.y - VIEW_RADIUS);
-                 y < std::min(GameConfig::GRID_HEIGHT, head.y + VIEW_RADIUS); y++) {
-                
-                float score = calculatePositionScore(x, y);
-                gridHeatMap.setValue(x, y, score);
-            }
-        }
-        
+        updateAdvancedHeatMap();  // Update advanced heat map
         updateClock.restart();
     }
 
     // Try to find a path to food first
     auto path = findPathToFood();
     if (!path.empty()) {
-        AI_DEBUG("Found path to food of length: " << path.size());
+        // Verify the path is actually safe
+        Position nextPos(snake.getHead());
+        for (const auto& dir : path) {
+            switch (dir) {
+                case Direction::Up:    nextPos.pos.y--; break;
+                case Direction::Down:  nextPos.pos.y++; break;
+                case Direction::Left:  nextPos.pos.x--; break;
+                case Direction::Right: nextPos.pos.x++; break;
+            }
+            
+            int space = countAccessibleSpace(nextPos);
+            if (space < snake.getBody().size()) {
+                goto fallback;  // Path leads to confined space, use fallback
+            }
+        }
         return path[0];
     }
 
-    // If no path to food, use scored moves as fallback
-    const sf::Vector2i& head = snake.getHead();
+fallback:
+    // Fallback logic with improved scoring
     std::vector<std::pair<Direction, float>> possibleMoves;
+    const sf::Vector2i& head = snake.getHead();
     
-    // Check each possible direction
     for (Direction dir : {Direction::Up, Direction::Down, Direction::Left, Direction::Right}) {
-        if (!isMoveSafeInFuture(dir)) continue;
+        if (!isMoveSafeInFuture(dir, 3)) continue;  // Look ahead further
         
         sf::Vector2i nextPos = head;
         switch (dir) {
@@ -101,17 +104,21 @@ Direction AIPlayer::calculateAdvancedMove() {
         }
         
         float moveScore = calculatePositionScore(nextPos.x, nextPos.y);
+        
+        // Prefer continuing in same direction to prevent loops
+        if (dir == snake.getCurrentDirection()) {
+            moveScore += 5.0f;
+        }
+        
         possibleMoves.push_back({dir, moveScore});
     }
     
     if (!possibleMoves.empty()) {
-        // Sort by score (lower is better)
         std::sort(possibleMoves.begin(), possibleMoves.end(),
-            [](const auto& a, const auto& b) { return a.second < b.second; });
+            [](const auto& a, const auto& b) { return a.second > b.second; });
         return possibleMoves[0].first;
     }
     
-    // If no safe moves found, return current direction (though this likely leads to death)
     return snake.getCurrentDirection();
 }
 
@@ -193,7 +200,7 @@ Direction AIPlayer::calculateRandomMove() {
 }
 
 Direction AIPlayer::calculateBasicMove() {
-    updateHeatMap();  // Update heat map every move
+    updateBasicHeatMap();
     const sf::Vector2i& head = snake.getHead();
     std::vector<std::pair<Direction, int>> possibleMoves;
     
@@ -334,7 +341,22 @@ bool AIPlayer::isMoveSafeInFuture(Direction dir, int lookAhead) {
             return false;  // Too risky, tail is too far away
         }
     }
-    
+
+    // More aggressive tunnel detection
+    if ((leftBlocked && rightBlocked) || (topBlocked && bottomBlocked)) {
+        int distanceToTail = getDistanceToTail(nextPos);
+        // More conservative threshold for tunnel entry
+        if (distanceToTail > snake.getBody().size() / 3) {
+            return false;  // Don't enter tunnels unless tail is very close
+        }
+    }
+
+    // Avoid moves that lead to confined spaces
+    int availableSpace = countAccessibleSpace(Position(nextPos));
+    if (availableSpace < snake.getBody().size()) {
+        return false;  // Don't move into spaces smaller than snake length
+    }
+
     // Check if we'll hit snake body that won't move in time
     const auto& body = snake.getBody();
     for (size_t i = 0; i < body.size(); ++i) {
@@ -463,28 +485,34 @@ float AIPlayer::calculatePositionScore(int x, int y) const {
     Position pos(x, y);
     float score = 0.0f;
     
-    // Distance to food (negative because closer is better)
-    score -= getManhattanDistance(pos, Position(food)) * 5.0f;
+    // Stronger weight for food distance
+    score -= getManhattanDistance(pos, Position(food)) * 8.0f;
     
-    // Distance from walls (positive because further is better)
+    // Increased penalty for wall proximity
     int wallDist = std::min({x, y, GameConfig::GRID_WIDTH - 1 - x, 
                            GameConfig::GRID_HEIGHT - 1 - y});
-    score += wallDist * 2.0f;
+    score += wallDist * 3.0f;
     
-    // Available space (positive because more is better)
+    // More weight on available space
     int spaceScore = countAccessibleSpace(pos);
-    score += spaceScore * 0.5f;
+    score += spaceScore * 1.0f;
     
-    // Distance to snake head
+    // Reduce head distance influence
     int distanceToHead = getManhattanDistance(pos, Position(snake.getHead()));
     if (distanceToHead > 0) {
-        score -= distanceToHead * 1.0f;  // Prefer positions closer to head
+        score -= distanceToHead * 0.5f;
     }
     
-    // Penalty for positions next to walls
+    // Stronger wall penalties
     if (x == 0 || x == GameConfig::GRID_WIDTH - 1 ||
         y == 0 || y == GameConfig::GRID_HEIGHT - 1) {
-        score -= 10.0f;
+        score -= 20.0f;
+    }
+
+    // Additional penalty for corner positions
+    if ((x == 0 || x == GameConfig::GRID_WIDTH - 1) &&
+        (y == 0 || y == GameConfig::GRID_HEIGHT - 1)) {
+        score -= 30.0f;
     }
     
     return score;
@@ -496,20 +524,20 @@ int AIPlayer::getManhattanDistance(const Position& a, const Position& b) const {
 
 void AIPlayer::updateHeatMap() {
     static sf::Clock updateClock;
-    // Only update every 100ms
     if (updateClock.getElapsedTime().asMilliseconds() < 100) {
         return;
     }
     updateClock.restart();
     
     heatMap.clear();
-    const sf::Vector2i& head = snake.getHead();
-    const auto& body = snake.getBody();
+    const sf::Vector2i& snakeHead = snake.getHead();
+    const auto& snakeBody = snake.getBody();
     
     // Pre-calculate snake body positions for faster lookup
     std::vector<std::vector<bool>> snakePositions(GameConfig::GRID_WIDTH, 
         std::vector<bool>(GameConfig::GRID_HEIGHT, false));
-    for (const auto& segment : body) {
+        
+    for (const auto& segment : snakeBody) {
         if (segment.x >= 0 && segment.x < GameConfig::GRID_WIDTH &&
             segment.y >= 0 && segment.y < GameConfig::GRID_HEIGHT) {
             snakePositions[segment.x][segment.y] = true;
@@ -518,10 +546,10 @@ void AIPlayer::updateHeatMap() {
     
     // Only calculate for positions near the snake and food
     const int VIEW_RADIUS = 8;
-    int minX = std::max(0, std::min(head.x, food.x) - VIEW_RADIUS);
-    int maxX = std::min(GameConfig::GRID_WIDTH, std::max(head.x, food.x) + VIEW_RADIUS);
-    int minY = std::max(0, std::min(head.y, food.y) - VIEW_RADIUS);
-    int maxY = std::min(GameConfig::GRID_HEIGHT, std::max(head.y, food.y) + VIEW_RADIUS);
+    int minX = std::max(0, std::min(snakeHead.x, food.x) - VIEW_RADIUS);
+    int maxX = std::min(GameConfig::GRID_WIDTH, std::max(snakeHead.x, food.x) + VIEW_RADIUS);
+    int minY = std::max(0, std::min(snakeHead.y, food.y) - VIEW_RADIUS);
+    int maxY = std::min(GameConfig::GRID_HEIGHT, std::max(snakeHead.y, food.y) + VIEW_RADIUS);
     
     for (int x = minX; x < maxX; x++) {
         for (int y = minY; y < maxY; y++) {
@@ -536,7 +564,7 @@ void AIPlayer::updateHeatMap() {
             
             // Simplified scoring
             score -= getManhattanDistance(pos, Position(food)) * 10;
-            score -= getManhattanDistance(pos, Position(head)) * 5;
+            score -= getManhattanDistance(pos, Position(snakeHead)) * 5;  // Use snakeHead instead of head
             
             // Quick wall distance check
             int wallDist = std::min({x, y, 
@@ -555,6 +583,65 @@ void AIPlayer::updateHeatMap() {
             }
             
             heatMap.setValue(x, y, score);
+        }
+    }
+}
+
+void AIPlayer::updateBasicHeatMap() {
+    basicHeatMap.clear();
+    
+    for (int x = 0; x < GameConfig::GRID_WIDTH; x++) {
+        for (int y = 0; y < GameConfig::GRID_HEIGHT; y++) {
+            Position pos(x, y);
+            float score = 0.1f;
+            
+            // Basic heat map scoring
+            score -= getManhattanDistance(pos, Position(food)) * 15.0f;
+            
+            // Wall penalties
+            if (x == 0 || x == GameConfig::GRID_WIDTH - 1 ||
+                y == 0 || y == GameConfig::GRID_HEIGHT - 1) {
+                score -= 50.0f;
+            }
+            
+            basicHeatMap.setValue(x, y, score);
+        }
+    }
+}
+
+void AIPlayer::updateAdvancedHeatMap() {
+    advancedHeatMap.clear();
+    const sf::Vector2i& head = snake.getHead();
+    const auto& body = snake.getBody();
+    
+    // Pre-calculate snake body positions
+    std::vector<std::vector<bool>> snakePositions(GameConfig::GRID_WIDTH, 
+        std::vector<bool>(GameConfig::GRID_HEIGHT, false));
+        
+    for (const auto& bodyPart : body) {
+        if (bodyPart.x >= 0 && bodyPart.x < GameConfig::GRID_WIDTH &&
+            bodyPart.y >= 0 && bodyPart.y < GameConfig::GRID_HEIGHT) {
+            snakePositions[bodyPart.x][bodyPart.y] = true;
+        }
+    }
+    
+    // Only update positions near snake and food for performance
+    const int VIEW_RADIUS = 8;
+    int minX = std::max(0, std::min(head.x, food.x) - VIEW_RADIUS);
+    int maxX = std::min(GameConfig::GRID_WIDTH - 1, std::max(head.x, food.x) + VIEW_RADIUS);
+    int minY = std::max(0, std::min(head.y, food.y) - VIEW_RADIUS);
+    int maxY = std::min(GameConfig::GRID_HEIGHT - 1, std::max(head.y, food.y) + VIEW_RADIUS);
+    
+    for (int x = minX; x <= maxX; x++) {
+        for (int y = minY; y <= maxY; y++) {
+            if (snakePositions[x][y]) {
+                advancedHeatMap.setValue(x, y, -150);
+                continue;
+            }
+            
+            Position pos(x, y);
+            float score = calculatePositionScore(x, y);
+            advancedHeatMap.setValue(x, y, score);
         }
     }
 }
