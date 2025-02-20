@@ -32,6 +32,10 @@ struct Position {
         return pos.x == other.pos.x && pos.y == other.pos.y;
     }
     
+    bool operator!=(const Position& other) const {
+        return pos != other.pos;
+    }
+    
     operator sf::Vector2i() const { return pos; }
 };
 
@@ -81,9 +85,9 @@ private:
     bool canReachFood(const Position& from);
     std::vector<Direction> findPathToFood();
     int getManhattanDistance(const Position& a, const Position& b) const;
-    std::vector<Position> getNeighbors(const Position& pos);
+    std::vector<Position> getNeighbors(const Position& pos) const;
     Direction getDirectionToNeighbor(const Position& from, const Position& to);
-    bool isPositionBlocked(const Position& pos);
+    bool isPositionBlocked(const Position& pos) const;
     int getDistanceToTail(const sf::Vector2i& pos);
     float calculatePositionScore(int x, int y) const;
 
@@ -100,4 +104,6 @@ public:
         return (currentStrategy == AIStrategy::Advanced) ? advancedHeatMap : basicHeatMap;
     }
     const GridHeatMap& getGridHeatMap() const { return gridHeatMap; }
+
+    int calculateHeuristic(const Position& pos) const;
 };

@@ -59,41 +59,54 @@ Direction AIPlayer::calculateDirectionToFood() {
 
 Direction AIPlayer::calculateAdvancedMove() {
     static sf::Clock updateClock;
+    static sf::Clock stuckClock;
+    static sf::Vector2i lastPosition;
+    static int stuckCount = 0;
     
-    // Only update heat map every 200ms
+    // Detect if snake is stuck
+    if (snake.getHead() == lastPosition) {
+        stuckCount++;
+        if (stuckCount > 3) { // If stuck for more than 3 moves
+            stuckCount = 0;
+            return calculateRandomMove(); // Try a random move to break out
+        }
+    } else {
+        stuckCount = 0;
+        lastPosition = snake.getHead();
+    }
+    
     if (updateClock.getElapsedTime().asMilliseconds() > 200) {
-        updateAdvancedHeatMap();  // Update advanced heat map
+        updateAdvancedHeatMap();
         updateClock.restart();
     }
 
     // Try to find a path to food first
     auto path = findPathToFood();
     if (!path.empty()) {
-        // Verify the path is actually safe
         Position nextPos(snake.getHead());
-        for (const auto& dir : path) {
-            switch (dir) {
-                case Direction::Up:    nextPos.pos.y--; break;
-                case Direction::Down:  nextPos.pos.y++; break;
-                case Direction::Left:  nextPos.pos.x--; break;
-                case Direction::Right: nextPos.pos.x++; break;
-            }
-            
-            int space = countAccessibleSpace(nextPos);
-            if (space < snake.getBody().size()) {
-                goto fallback;  // Path leads to confined space, use fallback
-            }
+        Direction firstMove = path[0];
+        
+        // Verify next position safety
+        switch (firstMove) {
+            case Direction::Up:    nextPos.pos.y--; break;
+            case Direction::Down:  nextPos.pos.y++; break;
+            case Direction::Left:  nextPos.pos.x--; break;
+            case Direction::Right: nextPos.pos.x++; break;
         }
-        return path[0];
+        
+        // Check if move is actually safe
+        int space = countAccessibleSpace(nextPos);
+        if (space >= snake.getBody().size()) {
+            return firstMove;
+        }
     }
 
-fallback:
-    // Fallback logic with improved scoring
+    // If no safe path to food, use improved fallback logic
     std::vector<std::pair<Direction, float>> possibleMoves;
     const sf::Vector2i& head = snake.getHead();
     
     for (Direction dir : {Direction::Up, Direction::Down, Direction::Left, Direction::Right}) {
-        if (!isMoveSafeInFuture(dir, 3)) continue;  // Look ahead further
+        if (!isMoveSafeInFuture(dir, 5)) continue;
         
         sf::Vector2i nextPos = head;
         switch (dir) {
@@ -105,9 +118,19 @@ fallback:
         
         float moveScore = calculatePositionScore(nextPos.x, nextPos.y);
         
-        // Prefer continuing in same direction to prevent loops
+        // Add stronger bias towards food direction
+        int distanceToFood = std::abs(nextPos.x - food.x) + std::abs(nextPos.y - food.y);
+        moveScore += (100.0f / (distanceToFood + 1));
+        
+        // Add bonus for moves that maintain distance from walls
+        int wallDist = std::min({nextPos.x, nextPos.y, 
+            GameConfig::GRID_WIDTH - 1 - nextPos.x, 
+            GameConfig::GRID_HEIGHT - 1 - nextPos.y});
+        moveScore += wallDist * 5.0f;
+        
+        // Reduced weight for continuing in same direction
         if (dir == snake.getCurrentDirection()) {
-            moveScore += 5.0f;
+            moveScore += 2.0f;
         }
         
         possibleMoves.push_back({dir, moveScore});
@@ -119,67 +142,92 @@ fallback:
         return possibleMoves[0].first;
     }
     
-    return snake.getCurrentDirection();
+    return calculateRandomMove(); // Last resort
 }
 
 std::vector<Direction> AIPlayer::findPathToFood() {
     static sf::Clock pathfindClock;
-    if (pathfindClock.getElapsedTime().asMilliseconds() < 100) {
-        return lastPath;  // Return cached path if called too frequently
+    static Position lastFoodPos;
+    
+    // Cache check
+    if (lastFoodPos == Position(food) && 
+        !lastPath.empty() && 
+        pathfindClock.getElapsedTime().asMilliseconds() < 100) {
+        Position current(snake.getHead());
+        for (const Direction& dir : lastPath) {
+            switch (dir) {
+                case Direction::Up:    current.pos.y--; break;
+                case Direction::Down:  current.pos.y++; break;
+                case Direction::Left:  current.pos.x--; break;
+                case Direction::Right: current.pos.x++; break;
+            }
+            if (isPositionBlocked(current)) {
+                break;
+            }
+        }
+        if (current == Position(food)) {
+            return lastPath;
+        }
     }
+    
+    lastFoodPos = Position(food);
     pathfindClock.restart();
-    
-    // Limit search space
-    const int MAX_ITERATIONS = 1000;
-    int iterations = 0;
-    
+
+    // A* implementation
     std::set<Node> openSet;
     std::map<Position, Position> cameFrom;
     std::map<Position, int> gScore;
+    std::map<Position, Direction> directionToParent;
     
     Position start(snake.getHead());
-    Node startNode(start, 0, getManhattanDistance(start, Position(food)));
+    Position goal(food);
+
+    Node startNode(start, 0, calculateHeuristic(start));
     openSet.insert(startNode);
     gScore[start] = 0;
-    
-    while (!openSet.empty() && iterations++ < MAX_ITERATIONS) {
+
+    while (!openSet.empty()) {
+        // Get node with lowest f score
         Node current = *openSet.begin();
         openSet.erase(openSet.begin());
-        
-        if (current.pos == Position(food)) {
+
+        // Check if we reached the goal
+        if (current.pos == goal) {
             // Reconstruct path
             std::vector<Direction> path;
-            Position current(food);
-            while (cameFrom.find(current) != cameFrom.end()) {
-                Position prev = cameFrom[current];
-                path.push_back(getDirectionToNeighbor(prev, current));
-                current = prev;
+            Position currentPos = current.pos;
+            while (currentPos != start) {
+                path.push_back(directionToParent[currentPos]);
+                currentPos = cameFrom[currentPos];
             }
             std::reverse(path.begin(), path.end());
-            lastPath = path;  // Cache the result
+            lastPath = path;
             return path;
         }
-        
-        for (const auto& neighbor : getNeighbors(current.pos)) {
-            // Skip if not safe
-            Direction dir = getDirectionToNeighbor(current.pos, neighbor);
-            if (!isMoveSafeInFuture(dir)) continue;  // Now uses default argument
-            
+
+        // Check neighbors
+        for (const Position& neighbor : getNeighbors(current.pos)) {
+            if (isPositionBlocked(neighbor)) continue;
+
             int tentativeG = gScore[current.pos] + 1;
             
-            if (gScore.find(neighbor) == gScore.end() || tentativeG < gScore[neighbor]) {
+            if (gScore.find(neighbor) == gScore.end() || 
+                tentativeG < gScore[neighbor]) {
+                // This path is better
+                Direction dir = getDirectionToNeighbor(current.pos, neighbor);
                 cameFrom[neighbor] = current.pos;
+                directionToParent[neighbor] = dir;
                 gScore[neighbor] = tentativeG;
-                int h = getManhattanDistance(neighbor, Position(food));
-                Node neighborNode{neighbor, tentativeG, h};
-                neighborNode.f = neighborNode.g + neighborNode.h;
-                neighborNode.dirFromParent = dir;
+                
+                Node neighborNode(neighbor, tentativeG, calculateHeuristic(neighbor));
                 openSet.insert(neighborNode);
             }
         }
     }
-    
-    return std::vector<Direction>();  // No path found
+
+    // No path found
+    lastPath.clear();
+    return std::vector<Direction>();
 }
 
 Direction AIPlayer::calculateRandomMove() {
@@ -425,7 +473,7 @@ bool AIPlayer::canReachFood(const Position& from) {
     return this->countAccessibleSpace(from) > 0;
 }
 
-std::vector<Position> AIPlayer::getNeighbors(const Position& pos) {
+std::vector<Position> AIPlayer::getNeighbors(const Position& pos) const {  // Add const
     std::vector<Position> neighbors;
     // Check all four directions
     neighbors.push_back(Position(pos.pos.x + 1, pos.pos.y));  // Right
@@ -461,7 +509,7 @@ Direction AIPlayer::getDirectionToNeighbor(const Position& from, const Position&
     return Direction::Right;
 }
 
-bool AIPlayer::isPositionBlocked(const Position& pos) {
+bool AIPlayer::isPositionBlocked(const Position& pos) const {  // Add const
     if (pos.pos.x < 0 || pos.pos.x >= GameConfig::GRID_WIDTH ||
         pos.pos.y < 0 || pos.pos.y >= GameConfig::GRID_HEIGHT) {
         return true;
@@ -518,8 +566,7 @@ float AIPlayer::calculatePositionScore(int x, int y) const {
     return score;
 }
 
-int AIPlayer::getManhattanDistance(const Position& a, const Position& b) const {
-    return std::abs(a.pos.x - b.pos.x) + std::abs(a.pos.y - b.pos.y);
+int AIPlayer::getManhattanDistance(const Position& a, const Position& b) const {    return std::abs(a.pos.x - b.pos.x) + std::abs(a.pos.y - b.pos.y);
 }
 
 void AIPlayer::updateHeatMap() {
@@ -644,5 +691,25 @@ void AIPlayer::updateAdvancedHeatMap() {
             advancedHeatMap.setValue(x, y, score);
         }
     }
+}
+
+int AIPlayer::calculateHeuristic(const Position& pos) const {
+    // Base cost is distance to food
+    int h = std::abs(pos.pos.x - food.x) + std::abs(pos.pos.y - food.y);
+    
+    // Add cost for confined spaces
+    int space = countAccessibleSpace(pos);
+    if (space < snake.getBody().size() * 1.5) {
+        h += 50;  // Heavy penalty for too small spaces
+    }
+    
+    // Add cost for positions that might trap the snake
+    int exits = 0;
+    for (const auto& neighbor : getNeighbors(pos)) {
+        if (!isPositionBlocked(neighbor)) exits++;
+    }
+    if (exits <= 1) h += 100;  // Heavy penalty for potential traps
+    
+    return h;
 }
 
