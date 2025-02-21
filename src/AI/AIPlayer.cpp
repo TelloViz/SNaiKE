@@ -63,3 +63,7 @@ GameButton AIPlayer::directionToButton(Direction dir) {
     }
 }
 
+// const HeatMap& AIPlayer::getHeatMap() const { 
+//     return strategy->getHeatMap();
+// }
+

@@ -6,11 +6,9 @@
 #include <iostream>
 
 Direction AdvancedStrategy::calculateNextMove(const Snake& snake, const sf::Vector2i& food) {
-    std::cout << "Advanced Strategy: Starting move calculation" << std::endl;
-    
-    // Handle stuck detection
-    if (snake.getHead() == lastPosition) {
-        std::cout << "Stuck detection triggered" << std::endl;
+    // Update position tracking
+    sf::Vector2i head = snake.getHead();
+    if (head == lastPosition) {
         stuckCount++;
         if (stuckCount > 3) {
             stuckCount = 0;
@@ -18,33 +16,33 @@ Direction AdvancedStrategy::calculateNextMove(const Snake& snake, const sf::Vect
         }
     } else {
         stuckCount = 0;
-        lastPosition = snake.getHead();
-    }
-    
-    // Try to find path to food
-    auto path = findPathToFood(snake, food);
-    if (!path.empty()) {
-        Position nextPos(snake.getHead());
-        Direction firstMove = path[0];
-        
-        switch (firstMove) {
-            case Direction::Up:    nextPos.pos.y--; break;
-            case Direction::Down:  nextPos.pos.y++; break;
-            case Direction::Left:  nextPos.pos.x--; break;
-            case Direction::Right: nextPos.pos.x++; break;
-        }
-        
-        if (countAccessibleSpace(nextPos, snake) >= snake.getBody().size()) {
-            return firstMove;
-        }
+        lastPosition = head;
     }
 
-    // Fallback to scored moves
-    std::vector<std::pair<Direction, float>> possibleMoves;
-    const sf::Vector2i& head = snake.getHead();
+    // Try to use existing path first
+    if (!lastPath.empty()) {
+        Direction nextDir = lastPath.front();
+        if (isMoveSafe(nextDir, snake)) {
+            lastPath.erase(lastPath.begin());
+            return nextDir;
+        }
+        lastPath.clear();
+    }
+
+    // Find new path to food
+    lastPath = findPathToFood(snake, food);
+    if (!lastPath.empty()) {
+        Direction nextDir = lastPath.front();
+        lastPath.erase(lastPath.begin());
+        return nextDir;
+    }
+
+    // If no path to food, evaluate immediate neighbors only
+    float bestScore = -std::numeric_limits<float>::max();
+    Direction bestDir = snake.getCurrentDirection();
     
     for (Direction dir : {Direction::Up, Direction::Down, Direction::Left, Direction::Right}) {
-        if (!isMoveSafeInFuture(dir, 5, snake)) continue;
+        if (!isMoveSafe(dir, snake)) continue;
         
         sf::Vector2i nextPos = head;
         switch (dir) {
@@ -54,17 +52,19 @@ Direction AdvancedStrategy::calculateNextMove(const Snake& snake, const sf::Vect
             case Direction::Right: nextPos.x++; break;
         }
         
-        float moveScore = calculatePositionScore(nextPos.x, nextPos.y, snake, food);
-        possibleMoves.push_back({dir, moveScore});
+        // Only calculate score for immediate moves
+        float score = calculatePositionScore(nextPos.x, nextPos.y, snake, food);
+        
+        // Update heat map for visualization
+        heatMap.setValue(nextPos.x, nextPos.y, score);
+        
+        if (score > bestScore) {
+            bestScore = score;
+            bestDir = dir;
+        }
     }
-    
-    if (!possibleMoves.empty()) {
-        std::sort(possibleMoves.begin(), possibleMoves.end(),
-            [](const auto& a, const auto& b) { return a.second > b.second; });
-        return possibleMoves[0].first;
-    }
-    
-    return snake.getCurrentDirection();
+
+    return bestDir;
 }
 
 void AdvancedStrategy::update() {
@@ -72,32 +72,47 @@ void AdvancedStrategy::update() {
 }
 
 std::vector<Direction> AdvancedStrategy::findPathToFood(const Snake& snake, const sf::Vector2i& food) {
-    std::cout << "Finding path to food" << std::endl;
-    std::cout << "Snake head: " << snake.getHead().x << "," << snake.getHead().y << std::endl;
-    std::cout << "Food: " << food.x << "," << food.y << std::endl;
-    
     Position start(snake.getHead());
     Position goal(food);
     
-    // Add a maximum number of iterations to prevent infinite loops
+    // Priority queue ordered by f-score (g + h)
+    auto compareScores = [this, &food](const std::pair<Position, std::vector<Direction>>& a,
+                                     const std::pair<Position, std::vector<Direction>>& b) {
+        int g_a = a.second.size(); // Path length so far
+        int h_a = this->getManhattanDistance(a.first, Position(food)); // Heuristic
+        int g_b = b.second.size();
+        int h_b = this->getManhattanDistance(b.first, Position(food));
+        return (g_a + h_a) > (g_b + h_b); // Priority queue is max-heap by default
+    };
+    
+    std::priority_queue<
+        std::pair<Position, std::vector<Direction>>,
+        std::vector<std::pair<Position, std::vector<Direction>>>,
+        decltype(compareScores)
+    > openSet(compareScores);
+    
+    std::set<Position> closedSet;
+    openSet.push({start, std::vector<Direction>()});
+    
     int maxIterations = GameConfig::GRID_WIDTH * GameConfig::GRID_HEIGHT;
     int iterations = 0;
     
-    std::set<Position> visited;
-    std::queue<std::pair<Position, std::vector<Direction>>> queue;
-    queue.push({start, std::vector<Direction>()});
-    visited.insert(start);
-    
-    while (!queue.empty() && iterations < maxIterations) {
+    while (!openSet.empty() && iterations < maxIterations) {
         iterations++;
-        auto [current, path] = queue.front();
-        queue.pop();
+        auto [current, path] = openSet.top();
+        openSet.pop();
         
         if (current.pos == food) {
-            std::cout << "Path found to food" << std::endl;
+            std::cout << "Path found to food in " << iterations << " iterations" << std::endl;
             return path;
         }
         
+        if (closedSet.count(current)) {
+            continue;
+        }
+        closedSet.insert(current);
+        
+        // Consider each possible direction
         for (Direction dir : {Direction::Up, Direction::Down, Direction::Left, Direction::Right}) {
             Position next = current;
             switch (dir) {
@@ -105,21 +120,19 @@ std::vector<Direction> AdvancedStrategy::findPathToFood(const Snake& snake, cons
                 case Direction::Down:  next.pos.y++; break;
                 case Direction::Left:  next.pos.x--; break;
                 case Direction::Right: next.pos.x++; break;
-                default: continue;
             }
             
-            if (visited.count(next) || !isMoveSafe(dir, snake)) {
+            if (closedSet.count(next) || !isMoveSafe(dir, snake)) {
                 continue;
             }
             
             auto nextPath = path;
             nextPath.push_back(dir);
-            queue.push({next, nextPath});
-            visited.insert(next);
+            openSet.push({next, nextPath});
         }
     }
     
-    std::cout << "Path finding completed after " << iterations << " iterations" << std::endl;
+    std::cout << "No path found after " << iterations << " iterations" << std::endl;
     return std::vector<Direction>();
 }
 
@@ -128,21 +141,17 @@ float AdvancedStrategy::calculatePositionScore(int x, int y, const Snake& snake,
     float score = 0.0f;
     
     // Distance to food
-    score -= getManhattanDistance(pos, Position(food)) * 5.0f;
+    score -= getManhattanDistance(pos, Position(food)) * 2.0f;
     
     // Wall proximity penalty
-    int wallDist = std::min({x, y, GameConfig::GRID_WIDTH - 1 - x, 
-                           GameConfig::GRID_HEIGHT - 1 - y});
-    score += wallDist * 2.0f;
-    
-    // Available space bonus
-    score += countAccessibleSpace(pos, snake) * 0.5f;
-    
-    // Penalty for being in corners
-    if ((x == 0 || x == GameConfig::GRID_WIDTH - 1) &&
-        (y == 0 || y == GameConfig::GRID_HEIGHT - 1)) {
-        score -= 50.0f;
+    if (x == 0 || x == GameConfig::GRID_WIDTH - 1 ||
+        y == 0 || y == GameConfig::GRID_HEIGHT - 1) {
+        score -= 10.0f;
     }
+    
+    // Only calculate accessible space for moves we're actually considering
+    int space = countAccessibleSpace(pos, snake);
+    score += space * 0.5f;
     
     return score;
 }
