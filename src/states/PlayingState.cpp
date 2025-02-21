@@ -236,11 +236,10 @@ void PlayingState::render(sf::RenderWindow& window) {
     );
     window.draw(fpsText);
 
-    // Only keep regular heat map visualization
+    // Heat map visualization
     if (showHeatMap && aiControlled && aiPlayer) {
         const auto& heatMap = aiPlayer->getHeatMap();
-        heatMap.render(window, 
-            sf::Vector2f(context.cellSize, context.cellSize));
+        heatMap.render(window);  // Use the simplified render method
     }
 }
 

@@ -5,11 +5,6 @@
 #include "GameConfig.hpp"
 
 class HeatMap {
-private:
-    std::vector<std::vector<float>> scores;
-    float maxValue{-std::numeric_limits<float>::max()};
-    float minValue{std::numeric_limits<float>::max()};
-
 public:
     HeatMap() {
         clear();
@@ -33,53 +28,53 @@ public:
         }
     }
 
-    void render(sf::RenderTarget& target, const sf::Vector2f& cellSize) const {
-        sf::RectangleShape cell(cellSize);
-        
-        for (int x = 0; x < GameConfig::GRID_WIDTH; ++x) {
-            for (int y = 0; y < GameConfig::GRID_HEIGHT; ++y) {
-                if (scores[x][y] != 0) {
-                    float normalizedScore = (maxValue != minValue) ?
-                        (scores[x][y] - minValue) / (maxValue - minValue) : 0.5f;
-                    
-                    // Enhanced color scheme
-                    sf::Color color;
-                    if (normalizedScore < 0.33f) {
-                        // Dark blue to blue
-                        color = sf::Color(
-                            0,                                               // R
-                            0,                                               // G
-                            static_cast<sf::Uint8>(128 + 127 * normalizedScore * 3), // B
-                            180                                              // A
-                        );
-                    } else if (normalizedScore < 0.66f) {
-                        // Blue to yellow
-                        float t = (normalizedScore - 0.33f) * 3;
-                        color = sf::Color(
-                            static_cast<sf::Uint8>(255 * t),     // R
-                            static_cast<sf::Uint8>(255 * t),     // G
-                            static_cast<sf::Uint8>(255 * (1-t)), // B
-                            180                                   // A
-                        );
-                    } else {
-                        // Yellow to red
-                        float t = (normalizedScore - 0.66f) * 3;
-                        color = sf::Color(
-                            255,                                 // R
-                            static_cast<sf::Uint8>(255 * (1-t)), // G
-                            0,                                   // B
-                            180                                  // A
-                        );
-                    }
-                    
-                    cell.setPosition(
-                        x * cellSize.x + GameConfig::MARGIN_SIDES,
-                        y * cellSize.y + GameConfig::MARGIN_TOP
-                    );
-                    cell.setFillColor(color);
-                    target.draw(cell);
+    float getValue(int x, int y) const {
+        if (x >= 0 && x < GameConfig::GRID_WIDTH && 
+            y >= 0 && y < GameConfig::GRID_HEIGHT) {
+            return scores[x][y];
+        }
+        return 0.0f;
+    }
+
+    void normalize() {
+        if (maxValue != minValue) {
+            for (int x = 0; x < GameConfig::GRID_WIDTH; ++x) {
+                for (int y = 0; y < GameConfig::GRID_HEIGHT; ++y) {
+                    scores[x][y] = (scores[x][y] - minValue) / (maxValue - minValue);
                 }
+            }
+            maxValue = 1.0f;
+            minValue = 0.0f;
+        }
+    }
+
+    void render(sf::RenderWindow& window) const {
+        for (int x = 0; x < GameConfig::GRID_WIDTH; x++) {
+            for (int y = 0; y < GameConfig::GRID_HEIGHT; y++) {
+                float normalizedValue = (scores[x][y] - minValue) / (maxValue - minValue);
+                
+                sf::RectangleShape cell(sf::Vector2f(GameConfig::CELL_SIZE, GameConfig::CELL_SIZE));
+                cell.setPosition(
+                    x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES,
+                    y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP
+                );
+                
+                // Create a heat color (red for high values, blue for low)
+                sf::Color cellColor(
+                    static_cast<sf::Uint8>(255 * normalizedValue),  // Red
+                    0,                                              // Green
+                    static_cast<sf::Uint8>(255 * (1-normalizedValue)) // Blue
+                );
+                cellColor.a = 128;  // 50% transparency
+                
+                cell.setFillColor(cellColor);
+                window.draw(cell);
             }
         }
     }
+    
+private:
+    std::vector<std::vector<float>> scores;
+    float maxValue{-std::numeric_limits<float>::max()};
+    float minValue{std::numeric_limits<float>::max()};
 };

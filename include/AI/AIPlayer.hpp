@@ -18,29 +18,6 @@ enum class AIStrategy {
     COUNT
 };
 
-// struct Position {
-//     sf::Vector2i pos{0, 0};  // Initialize with default values
-    
-//     // Add default constructor
-//     Position() : pos(0, 0) {}
-//     Position(const sf::Vector2i& p) : pos(p) {}
-//     Position(int x, int y) : pos(x, y) {}
-    
-//     bool operator<(const Position& other) const {
-//         return pos.x < other.pos.x || (pos.x == other.pos.x && pos.y < other.pos.y);
-//     }
-    
-//     bool operator==(const Position& other) const {
-//         return pos.x == other.pos.x && pos.y == other.pos.y;
-//     }
-    
-//     bool operator!=(const Position& other) const {
-//         return pos != other.pos;
-//     }
-    
-//     operator sf::Vector2i() const { return pos; }
-// };
-
 struct Node {
     Position pos;  // Change this from Vector2i to Position
     int g{0};  // Cost from start
@@ -62,10 +39,7 @@ private:
     std::queue<GameInput> plannedMoves;
     const Snake& snake;
     const sf::Vector2i& food;
-    HeatMap basicHeatMap;
-    HeatMap advancedHeatMap;
-    GridHeatMap gridHeatMap;
-    AIStrategy currentStrategy;  // Add this line to track current strategy
+    AIStrategy currentStrategy;
 
     void planNextMove();
     GameButton directionToButton(Direction dir);
@@ -80,13 +54,6 @@ public:
     
     GameInput getNextInput();
     void setStrategy(AIStrategy type);
-    AIStrategy getStrategy() const { return currentStrategy; }  // Add this getter
-    
-    // Heat map getters for visualization
-    const HeatMap& getHeatMap() const { 
-        return advancedHeatMap; 
-    }
-    const GridHeatMap& getGridHeatMap() const { 
-        return gridHeatMap; 
-    }
+    AIStrategy getStrategy() const { return currentStrategy; }
+    const HeatMap& getHeatMap() const { return strategy->getHeatMap(); }
 };

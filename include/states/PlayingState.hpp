@@ -40,7 +40,7 @@ private:
 
     std::unique_ptr<AIPlayer> aiPlayer;
     bool aiControlled{false};
-    bool showHeatMap{false};
+    bool showHeatMap{false};  // Initialize to false
     sf::Clock heatMapUpdateClock;  // Add update clock for throttling
     std::vector<std::pair<AIStrategy, int>> strategyChanges;
     AIStrategy lastStrategy;
