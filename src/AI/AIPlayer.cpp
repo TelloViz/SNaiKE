@@ -1,3 +1,4 @@
+#pragma once
 #include "AI/AIPlayer.hpp"
 #include "GameConfig.hpp"
 #include <iostream>
@@ -28,24 +29,24 @@ GameInput AIPlayer::getNextInput() {
     return GameInput{InputType::ButtonPressed, GameButton::None};
 }
 
-void AIPlayer::setStrategy(AIStrategy type) {
-    currentStrategy = type;  // Update the current strategy
-    switch (type) {
+void AIPlayer::setStrategy(AIStrategy strategy) {
+    switch (strategy) {
         case AIStrategy::Basic:
-            strategy = std::make_unique<BasicStrategy>();
+            currentStrategy = std::make_unique<BasicStrategy>();
             break;
         case AIStrategy::Advanced:
-            strategy = std::make_unique<AdvancedStrategy>();
+            currentStrategy = std::make_unique<AdvancedStrategy>();
             break;
         case AIStrategy::Random:
-            strategy = std::make_unique<RandomStrategy>();
+            currentStrategy = std::make_unique<RandomStrategy>();
             break;
     }
 }
 
 void AIPlayer::planNextMove() {
-    std::cout << "Planning next move with strategy type: " << static_cast<int>(currentStrategy) << std::endl;
-    Direction targetDir = strategy->calculateNextMove(snake, food);
+    std::cout << "Planning next move with strategy type: " 
+              << (currentStrategy ? "Active" : "None") << std::endl;
+    Direction targetDir = currentStrategy->calculateNextMove(snake, food);
     std::cout << "Got direction: " << static_cast<int>(targetDir) << std::endl;
     GameButton button = directionToButton(targetDir);
     if (button != GameButton::None) {

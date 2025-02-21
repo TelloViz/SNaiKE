@@ -3,11 +3,15 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <vector>
+#include "GridHeatMap.hpp"
 
 class AdvancedStrategy : public BaseStrategy {
 public:
     Direction calculateNextMove(const Snake& snake, const sf::Vector2i& food) override;
     void update() override;
+    void render(sf::RenderWindow& window) const override {
+        gridHeatMap.render(window, sf::Vector2f(GameConfig::CELL_SIZE, GameConfig::CELL_SIZE));
+    }
 
 private:
     sf::Vector2i lastPosition;
@@ -16,18 +20,21 @@ private:
     Position lastFoodPos;
     int stuckCount{0};
     std::vector<std::vector<float>> scoreCache;
-    sf::Clock gameTimer;  // Add this for the morphing effect
+    sf::Clock gameTimer;
+    GridHeatMap gridHeatMap;
+
+    // Constants for visualization and pathfinding
+    static constexpr int VIEW_RADIUS = 8;
+    static constexpr int MAX_PATH_LENGTH = 50;  // Limit path length
+    static constexpr int PATHFINDING_TIMEOUT_MS = 50;  // Limit pathfinding time
 
     std::vector<Direction> findPathToFood(const Snake& snake, const sf::Vector2i& food);
     void updateHeatMapVisualization(const Snake& snake, const sf::Vector2i& food);
-    void updateHeatMapForPath(const Snake& snake, const sf::Vector2i& food, 
-                            const std::vector<Direction>& path);
-    void updateHeatMap(const Snake& snake, const sf::Vector2i& food);
-    float calculatePositionScore(int x, int y, const Snake& snake, const sf::Vector2i& food) const;
     bool isMoveSafeInFuture(Direction dir, int lookAhead, const Snake& snake) const;
+    float calculatePositionScore(int x, int y, const Snake& snake, const sf::Vector2i& food) const;
+    float calculateSimpleScore(int x, int y, const Snake& snake, const sf::Vector2i& food) const;
 
-    using BaseStrategy::isPositionBlocked;  // Make base class method visible
-    using BaseStrategy::getManhattanDistance;  // Make base class method visible
-    using BaseStrategy::countAccessibleSpace;  // Make base class method visible
-    using BaseStrategy::heatMap;  // Make base class member visible
+    using BaseStrategy::isPositionBlocked;
+    using BaseStrategy::getManhattanDistance;
+    using BaseStrategy::countAccessibleSpace;
 };

@@ -14,16 +14,7 @@ bool BaseStrategy::isMoveSafe(Direction dir, const Snake& snake) const {
         case Direction::Right: nextPos.x++; break;
     }
     
-    // Check wall collision
-    if (nextPos.x < 0 || nextPos.x >= GameConfig::GRID_WIDTH ||
-        nextPos.y < 0 || nextPos.y >= GameConfig::GRID_HEIGHT) {
-        return false;
-    }
-    
-    // Check self collision
-    const auto& snakeBody = snake.getBody();
-    return std::none_of(snakeBody.begin(), snakeBody.end(),
-        [&nextPos](const auto& segment) { return nextPos == segment; });
+    return !isPositionBlocked(Position(nextPos), snake);
 }
 
 int BaseStrategy::getManhattanDistance(const Position& a, const Position& b) const {

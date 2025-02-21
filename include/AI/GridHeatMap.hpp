@@ -4,6 +4,7 @@
 #include <mutex>
 #include <atomic>
 #include "GameConfig.hpp"
+#include <iostream>
 
 class GridHeatMap {
 private:
@@ -15,16 +16,18 @@ private:
     mutable sf::Clock updateClock;  // Make clock mutable to allow modification in const methods
 
 public:
-    GridHeatMap() {
-        clear();
-    }
+    GridHeatMap()
+        : scores(GameConfig::GRID_WIDTH, std::vector<float>(GameConfig::GRID_HEIGHT, 0.0f))
+        , needsUpdate(true) {}
 
     void clear() {
         std::lock_guard<std::mutex> lock(scoreMutex);
-        scores.assign(GameConfig::GRID_WIDTH, 
-            std::vector<float>(GameConfig::GRID_HEIGHT, 0.0f));
+        for (auto& row : scores) {
+            std::fill(row.begin(), row.end(), 0.0f);
+        }
         maxValue = -std::numeric_limits<float>::max();
         minValue = std::numeric_limits<float>::max();
+        needsUpdate = true;
     }
 
     void setValue(int x, int y, float value) {
@@ -36,11 +39,31 @@ public:
                 maxValue = std::max(maxValue, value);
                 minValue = std::min(minValue, value);
             }
+            needsUpdate = true;
         }
     }
 
-    void render(sf::RenderTarget& target, const sf::Vector2f& cellSize, float opacity = 0.4f) const {
-        // Only update visual every 100ms
+    float getValue(int x, int y) const {
+        if (x >= 0 && x < GameConfig::GRID_WIDTH && y >= 0 && y < GameConfig::GRID_HEIGHT) {
+            return scores[x][y];
+        }
+        return 0.0f;
+    }
+
+    void render(sf::RenderTarget& target, const sf::Vector2f& cellSize, float opacity = 1.0f) const {
+        // Add at start of render method
+        std::cout << "\n=== GridHeatMap Render Start ===\n";
+        std::cout << "Cells with scores > 1.0f:\n";
+        int cellCount = 0;
+        for (int x = 0; x < GameConfig::GRID_WIDTH; ++x) {
+            for (int y = 0; y < GameConfig::GRID_HEIGHT; ++y) {
+                if (scores[x][y] > 1.0f) {
+                    cellCount++;
+                }
+            }
+        }
+        std::cout << "Total cells to render: " << cellCount << "\n";
+
         if (updateClock.getElapsedTime().asMilliseconds() < 100) {
             return;
         }
@@ -48,23 +71,35 @@ public:
 
         std::lock_guard<std::mutex> lock(scoreMutex);
         static sf::RectangleShape cell(cellSize);
-        
-        // Pre-calculate positions and colors
         static std::vector<std::pair<sf::Vector2f, sf::Color>> renderQueue;
         renderQueue.clear();
         
+        // Debug print
+        std::cout << "GridHeatMap rendering with min: " << minValue << " max: " << maxValue << "\n";
+        
         for (int x = 0; x < GameConfig::GRID_WIDTH; ++x) {
             for (int y = 0; y < GameConfig::GRID_HEIGHT; ++y) {
-                if (std::abs(scores[x][y]) > 0.001f) {
+                // Only process cells with significant positive values
+                if (scores[x][y] > 1.0f) {
                     float normalizedScore = (maxValue != minValue) ? 
                         (scores[x][y] - minValue) / (maxValue - minValue) : 0.5f;
 
-                    sf::Color color(
-                        static_cast<sf::Uint8>(255 * normalizedScore),
-                        0,
-                        static_cast<sf::Uint8>(255 * (1.0f - normalizedScore)),
-                        static_cast<sf::Uint8>(255 * opacity)
-                    );
+                    sf::Color color;
+                    if (scores[x][y] > 150.0f) {
+                        // Pure yellow for path and food
+                        color = sf::Color(255, 255, 0, 255);
+                        std::cout << "Yellow at " << x << "," << y << " score: " << scores[x][y] << "\n";
+                    } else {
+                        // Pure red-yellow gradient (no blue component at all)
+                        float t = normalizedScore;
+                        color = sf::Color(
+                            255,                                    // R always full
+                            static_cast<sf::Uint8>(255 * t),       // G varies from 0 to 255
+                            0,                                      // B always zero
+                            255                                     // A always full
+                        );
+                        std::cout << "Red-Yellow at " << x << "," << y << " score: " << scores[x][y] << "\n";
+                    }
 
                     renderQueue.emplace_back(
                         sf::Vector2f(
@@ -77,7 +112,6 @@ public:
             }
         }
 
-        // Batch render
         for (const auto& [pos, color] : renderQueue) {
             cell.setPosition(pos);
             cell.setFillColor(color);

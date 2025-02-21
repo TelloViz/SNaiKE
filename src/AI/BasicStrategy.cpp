@@ -1,14 +1,16 @@
 #include "AI/BasicStrategy.hpp"
 #include "GameConfig.hpp"
 
-Direction BasicStrategy::calculateNextMove(const Snake& snake, const sf::Vector2i& food) {
-    // Update heat map for visualization
-    for (int x = 0; x < GameConfig::GRID_WIDTH; x++) {
-        for (int y = 0; y < GameConfig::GRID_HEIGHT; y++) {
+void BasicStrategy::updateHeatMap(const Snake& snake, const sf::Vector2i& food) {
+    gridHeatMap.clear();
+    
+    // Calculate scores for ALL positions
+    for (int x = 0; x < GameConfig::GRID_WIDTH; ++x) {
+        for (int y = 0; y < GameConfig::GRID_HEIGHT; ++y) {
             Position pos(x, y);
             float score = 0.1f;
             
-            // Basic heat map scoring
+            // Basic heat map scoring - simpler than advanced
             score -= getManhattanDistance(pos, Position(food)) * 15.0f;
             
             // Wall penalties
@@ -16,16 +18,25 @@ Direction BasicStrategy::calculateNextMove(const Snake& snake, const sf::Vector2
                 y == 0 || y == GameConfig::GRID_HEIGHT - 1) {
                 score -= 50.0f;
             }
-            
+
+            // Snake body penalties
             if (isPositionBlocked(pos, snake)) {
-                score = -100.0f;
+                score = -150.0f;
             }
             
-            heatMap.setValue(x, y, score);
+            gridHeatMap.setValue(x, y, score);
         }
     }
-    heatMap.normalize();
+    
+    // Mark food with high value
+    gridHeatMap.setValue(food.x, food.y, 200.0f);
+    gridHeatMap.triggerUpdate();
+}
 
+Direction BasicStrategy::calculateNextMove(const Snake& snake, const sf::Vector2i& food) {
+    // Update heat map first
+    updateHeatMap(snake, food);
+    
     const sf::Vector2i& head = snake.getHead();
     std::vector<std::pair<Direction, int>> possibleMoves;
     

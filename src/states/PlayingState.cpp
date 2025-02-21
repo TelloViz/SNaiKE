@@ -236,10 +236,20 @@ void PlayingState::render(sf::RenderWindow& window) {
     );
     window.draw(fpsText);
 
-    // Heat map visualization
+    // Heat map visualization with debug output
     if (showHeatMap && aiControlled && aiPlayer) {
-        const auto& heatMap = aiPlayer->getHeatMap();
-        heatMap.render(window);  // Use the simplified render method
+        std::cout << "Attempting to render heat map...\n";
+        if (const auto* basicStrat = dynamic_cast<const BasicStrategy*>(aiPlayer->getStrategyPtr())) {
+            std::cout << "Found Basic Strategy, rendering heat map...\n";
+            basicStrat->render(window);
+        }
+        else if (const auto* advStrat = dynamic_cast<const AdvancedStrategy*>(aiPlayer->getStrategyPtr())) {
+            std::cout << "Found Advanced Strategy, rendering heat map...\n";
+            advStrat->render(window);
+        }
+        else {
+            std::cout << "No compatible strategy found for heat map rendering\n";
+        }
     }
 }
 
