@@ -60,22 +60,35 @@ public:
                     y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP
                 );
                 
-                // Yellow to red gradient for positive values, blue for negative
+                // Enhanced color scheme with blue-yellow-red gradient
                 sf::Color cellColor;
-                if (scores[x][y] > 0) {
+                if (normalizedValue < 0.33f) {
+                    // Dark blue to blue
                     cellColor = sf::Color(
-                        255,  // Red always max for positive values
-                        static_cast<sf::Uint8>(255 * (1.0f - normalizedValue)),  // Green decreases
-                        0     // No blue for positive values
+                        0,  // R
+                        0,  // G
+                        static_cast<sf::Uint8>(128 + 127 * normalizedValue * 3), // B
+                        180 // A
+                    );
+                } else if (normalizedValue < 0.66f) {
+                    // Blue to yellow transition
+                    float t = (normalizedValue - 0.33f) * 3;
+                    cellColor = sf::Color(
+                        static_cast<sf::Uint8>(255 * t),     // R
+                        static_cast<sf::Uint8>(255 * t),     // G
+                        static_cast<sf::Uint8>(255 * (1-t)), // B
+                        180                                   // A
                     );
                 } else {
+                    // Yellow to red transition
+                    float t = (normalizedValue - 0.66f) * 3;
                     cellColor = sf::Color(
-                        0,    // No red for negative values
-                        0,    // No green for negative values
-                        255   // Blue for negative values
+                        255,                                  // R
+                        static_cast<sf::Uint8>(255 * (1-t)), // G
+                        0,                                    // B
+                        180                                   // A
                     );
                 }
-                cellColor.a = 128;  // 50% transparency
                 
                 cell.setFillColor(cellColor);
                 window.draw(cell);
