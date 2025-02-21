@@ -2,6 +2,30 @@
 #include "GameConfig.hpp"
 
 Direction BasicStrategy::calculateNextMove(const Snake& snake, const sf::Vector2i& food) {
+    // Update heat map for visualization
+    for (int x = 0; x < GameConfig::GRID_WIDTH; x++) {
+        for (int y = 0; y < GameConfig::GRID_HEIGHT; y++) {
+            Position pos(x, y);
+            float score = 0.1f;
+            
+            // Basic heat map scoring
+            score -= getManhattanDistance(pos, Position(food)) * 15.0f;
+            
+            // Wall penalties
+            if (x == 0 || x == GameConfig::GRID_WIDTH - 1 ||
+                y == 0 || y == GameConfig::GRID_HEIGHT - 1) {
+                score -= 50.0f;
+            }
+            
+            if (isPositionBlocked(pos, snake)) {
+                score = -100.0f;
+            }
+            
+            heatMap.setValue(x, y, score);
+        }
+    }
+    heatMap.normalize();
+
     const sf::Vector2i& head = snake.getHead();
     std::vector<std::pair<Direction, int>> possibleMoves;
     

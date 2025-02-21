@@ -51,7 +51,8 @@ public:
     void render(sf::RenderWindow& window) const {
         for (int x = 0; x < GameConfig::GRID_WIDTH; x++) {
             for (int y = 0; y < GameConfig::GRID_HEIGHT; y++) {
-                float normalizedValue = (scores[x][y] - minValue) / (maxValue - minValue);
+                float normalizedValue = (maxValue != minValue) ? 
+                    (scores[x][y] - minValue) / (maxValue - minValue) : 0.0f;
                 
                 sf::RectangleShape cell(sf::Vector2f(GameConfig::CELL_SIZE, GameConfig::CELL_SIZE));
                 cell.setPosition(
@@ -59,12 +60,21 @@ public:
                     y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP
                 );
                 
-                // Create a heat color (red for high values, blue for low)
-                sf::Color cellColor(
-                    static_cast<sf::Uint8>(255 * normalizedValue),  // Red
-                    0,                                              // Green
-                    static_cast<sf::Uint8>(255 * (1-normalizedValue)) // Blue
-                );
+                // Yellow to red gradient for positive values, blue for negative
+                sf::Color cellColor;
+                if (scores[x][y] > 0) {
+                    cellColor = sf::Color(
+                        255,  // Red always max for positive values
+                        static_cast<sf::Uint8>(255 * (1.0f - normalizedValue)),  // Green decreases
+                        0     // No blue for positive values
+                    );
+                } else {
+                    cellColor = sf::Color(
+                        0,    // No red for negative values
+                        0,    // No green for negative values
+                        255   // Blue for negative values
+                    );
+                }
                 cellColor.a = 128;  // 50% transparency
                 
                 cell.setFillColor(cellColor);
