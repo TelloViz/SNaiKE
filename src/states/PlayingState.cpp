@@ -63,7 +63,7 @@ void PlayingState::handleInput(const GameInput& input) {
             case GameButton::Right: 
                 snake.setDirection(Direction::Right); 
                 break;
-                case GameButton::ToggleAI:
+            case GameButton::ToggleAI:
                 aiControlled = !aiControlled;
                 std::cout << "AI Control: " << (aiControlled ? "ON" : "OFF") << std::endl;
                 if (aiControlled && !aiPlayer) {
@@ -71,22 +71,28 @@ void PlayingState::handleInput(const GameInput& input) {
                 }
                 break;
             case GameButton::Num1:
-                if (aiPlayer) {
-                    aiPlayer->setStrategy(AIStrategy::Basic);
-                    std::cout << "AI Strategy: Basic" << std::endl;
+                if (!aiPlayer) {
+                    aiPlayer = std::make_unique<AIPlayer>(snake, food);
                 }
+                aiControlled = true;
+                aiPlayer->setStrategy(AIStrategy::Basic);
+                std::cout << "AI Control: ON, Strategy: Basic" << std::endl;
                 break;
             case GameButton::Num2:
-                if (aiPlayer) {
-                    aiPlayer->setStrategy(AIStrategy::Advanced);
-                    std::cout << "AI Strategy: Advanced" << std::endl;
+                if (!aiPlayer) {
+                    aiPlayer = std::make_unique<AIPlayer>(snake, food);
                 }
+                aiControlled = true;
+                aiPlayer->setStrategy(AIStrategy::Advanced);
+                std::cout << "AI Control: ON, Strategy: Advanced" << std::endl;
                 break;
             case GameButton::Num3:
-                if (aiPlayer) {
-                    aiPlayer->setStrategy(AIStrategy::Random);
-                    std::cout << "AI Strategy: Random" << std::endl;
+                if (!aiPlayer) {
+                    aiPlayer = std::make_unique<AIPlayer>(snake, food);
                 }
+                aiControlled = true;
+                aiPlayer->setStrategy(AIStrategy::Random);
+                std::cout << "AI Control: ON, Strategy: Random" << std::endl;
                 break;
             case GameButton::H:  // Add new button for heat map toggle
                 showHeatMap = !showHeatMap;
