@@ -50,39 +50,81 @@ public:
         return 0.0f;
     }
 
-    void render(sf::RenderWindow& window, const sf::Vector2f& cellSize) const {
+    void render(sf::RenderTarget& target, const sf::Vector2f& cellSize, float opacity = 0.85f) const {
         std::lock_guard<std::mutex> lock(scoreMutex);
-        sf::RectangleShape cell(cellSize);
-        float xOffset = GameConfig::MARGIN_SIDES;
-        float yOffset = GameConfig::MARGIN_TOP;
-
+        static sf::RectangleShape cell(cellSize);
+        
+        // First pass: Draw danger and safety zones
         for (int x = 0; x < GameConfig::GRID_WIDTH; ++x) {
             for (int y = 0; y < GameConfig::GRID_HEIGHT; ++y) {
                 float score = scores[x][y];
-                if (score == 0) continue;
+                if (std::abs(score) < 0.1f || score >= 500.0f) continue; // Skip path and markers
 
-                cell.setPosition(x * cellSize.x + xOffset, y * cellSize.y + yOffset);
-                
-                if (score >= 900.0f) {
-                    // Yellow for food and head
-                    cell.setFillColor(sf::Color(255, 255, 0, 255));
+                cell.setPosition(
+                    x * cellSize.x + GameConfig::MARGIN_SIDES,
+                    y * cellSize.y + GameConfig::MARGIN_TOP
+                );
+
+                if (score > 0) {
+                    // Safe spaces - Magenta to white gradient
+                    float normalized = std::min(1.0f, score / 300.0f);
+                    cell.setFillColor(sf::Color(
+                        static_cast<sf::Uint8>(180 + 75 * normalized),  // R (180-255)
+                        static_cast<sf::Uint8>(50 + 205 * normalized),  // G (50-255)
+                        static_cast<sf::Uint8>(180 + 75 * normalized),  // B (180-255)
+                        static_cast<sf::Uint8>(220 * opacity)           // More opaque
+                    ));
+                } else {
+                    // Danger zones - Deep red to bright red gradient
+                    float normalized = std::min(1.0f, -score / 500.0f);
+                    cell.setFillColor(sf::Color(
+                        static_cast<sf::Uint8>(180 + 75 * normalized),  // R (180-255)
+                        0,                                              // G
+                        static_cast<sf::Uint8>(50 * normalized),        // B (0-50)
+                        static_cast<sf::Uint8>(230 * opacity)           // Very opaque
+                    ));
                 }
-                else if (score > 0) {
-                    // Orange for planned path
-                    float alpha = std::min(255.0f, score / 2.0f);
-                    cell.setFillColor(sf::Color(255, 140, 0, static_cast<sf::Uint8>(alpha)));
-                }
-                else if (score <= -500.0f) {
-                    // Red for danger zones
-                    cell.setFillColor(sf::Color(255, 0, 0, 180));
-                }
-                else {
-                    // Cyan for safe movement areas
-                    float alpha = std::min(255.0f, -score / 2.0f);
-                    cell.setFillColor(sf::Color(0, 255, 255, static_cast<sf::Uint8>(alpha)));
-                }
-                
-                window.draw(cell);
+                target.draw(cell);
+            }
+        }
+
+        // Second pass: Draw planned path with bright cyan
+        for (int x = 0; x < GameConfig::GRID_WIDTH; ++x) {
+            for (int y = 0; y < GameConfig::GRID_HEIGHT; ++y) {
+                float score = scores[x][y];
+                if (score < 500.0f || score >= 900.0f) continue; // Only draw path
+
+                cell.setPosition(
+                    x * cellSize.x + GameConfig::MARGIN_SIDES,
+                    y * cellSize.y + GameConfig::MARGIN_TOP
+                );
+
+                // Planned path - Bright electric blue
+                float intensity = std::min(1.0f, (score - 500.0f) / 300.0f);
+                cell.setFillColor(sf::Color(
+                    static_cast<sf::Uint8>(50 * intensity),   // R (slight blue tint)
+                    static_cast<sf::Uint8>(200 * intensity),  // G
+                    255,                                      // B (always full)
+                    255                                       // Fully opaque
+                ));
+                target.draw(cell);
+            }
+        }
+
+        // Final pass: Draw critical positions
+        for (int x = 0; x < GameConfig::GRID_WIDTH; ++x) {
+            for (int y = 0; y < GameConfig::GRID_HEIGHT; ++y) {
+                float score = scores[x][y];
+                if (score < 900.0f) continue; // Only draw markers
+
+                cell.setPosition(
+                    x * cellSize.x + GameConfig::MARGIN_SIDES,
+                    y * cellSize.y + GameConfig::MARGIN_TOP
+                );
+
+                // Critical positions - Bright gold
+                cell.setFillColor(sf::Color(255, 215, 0, 255));  // More golden yellow
+                target.draw(cell);
             }
         }
     }

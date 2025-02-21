@@ -148,45 +148,66 @@ void AdvancedStrategy::updateHeatMapVisualization(const Snake& snake, const sf::
     gridHeatMap.clear();
     sf::Vector2i head = snake.getHead();
     Direction currentDir = snake.getCurrentDirection();
-    
-    // Danger zones first (negative values - will be red)
-    for (const auto& segment : snake.getBody()) {
-        gridHeatMap.setValue(segment.x, segment.y, -1000.0f);
-        // Add danger zone around snake body
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dy = -1; dy <= 1; dy++) {
-                int x = segment.x + dx;
-                int y = segment.y + dy;
-                if (x >= 0 && x < GameConfig::GRID_WIDTH && 
-                    y >= 0 && y < GameConfig::GRID_HEIGHT) {
-                    gridHeatMap.setValue(x, y, -500.0f);
+
+    // First pass: Calculate accessibility scores for visible area
+    const int VIEW_RADIUS = 8;  // Increased for better visibility
+    for (int x = std::max(0, head.x - VIEW_RADIUS); 
+         x <= std::min(GameConfig::GRID_WIDTH - 1, head.x + VIEW_RADIUS); ++x) {
+        for (int y = std::max(0, head.y - VIEW_RADIUS); 
+             y <= std::min(GameConfig::GRID_HEIGHT - 1, head.y + VIEW_RADIUS); ++y) {
+            Position pos{sf::Vector2i(x, y)};
+            float headDistance = getManhattanDistance(pos, Position{head});
+            if (headDistance > VIEW_RADIUS) continue;
+
+            float score = 0.0f;
+            
+            // Base safety score
+            if (isPositionBlocked(pos, snake)) {
+                score = -500.0f;  // Strong negative for blocked positions
+            } else {
+                // Food influence (gets stronger as distance decreases)
+                float foodDistance = getManhattanDistance(pos, Position{food});
+                score += 200.0f / (1.0f + foodDistance);
+
+                // Accessible space bonus (key decision factor)
+                if (headDistance <= 3) {  // Only calculate for immediate moves
+                    int space = countAccessibleSpace(pos, snake);
+                    float spaceRatio = static_cast<float>(space) / 
+                                     (GameConfig::GRID_WIDTH * GameConfig::GRID_HEIGHT);
+                    score += spaceRatio * 300.0f;  // Significant bonus for good space
                 }
+
+                // Movement direction preference
+                sf::Vector2i dirVec;
+                switch (currentDir) {
+                    case Direction::Up:    dirVec = {0, -1}; break;
+                    case Direction::Down:  dirVec = {0, 1}; break;
+                    case Direction::Left:  dirVec = {-1, 0}; break;
+                    case Direction::Right: dirVec = {1, 0}; break;
+                }
+                float dirScore = (dirVec.x * (x - head.x) + dirVec.y * (y - head.y)) * 10.0f;
+                score += dirScore;
+
+                // Edge avoidance (subtle penalty)
+                if (x == 0 || x == GameConfig::GRID_WIDTH - 1 || 
+                    y == 0 || y == GameConfig::GRID_HEIGHT - 1) {
+                    score *= 0.8f;
+                }
+            }
+
+            if (std::abs(score) > 0.1f) {
+                gridHeatMap.setValue(x, y, score);
             }
         }
     }
 
-    // Safe movement zones (negative values - will be cyan)
-    const int SCAN_RADIUS = 6;
-    for (int x = std::max(0, head.x - SCAN_RADIUS); x <= std::min(GameConfig::GRID_WIDTH - 1, head.x + SCAN_RADIUS); ++x) {
-        for (int y = std::max(0, head.y - SCAN_RADIUS); y <= std::min(GameConfig::GRID_HEIGHT - 1, head.y + SCAN_RADIUS); ++y) {
-            Position pos{sf::Vector2i(x, y)};
-            
-            // Skip if already marked as danger
-            if (gridHeatMap.getValue(x, y) < -100.0f) continue;
-            
-            float headDistance = getManhattanDistance(pos, Position{head});
-            if (headDistance > SCAN_RADIUS) continue;
-
-            // Calculate safety score
-            float safetyScore = -200.0f + (headDistance * 20.0f);
-            gridHeatMap.setValue(x, y, safetyScore);
-        }
-    }
-
-    // Planned path (positive values - will be orange)
+    // Overlay the planned path with distinct scoring
     if (!lastPath.empty()) {
         sf::Vector2i pathPos = head;
-        float pathScore = 500.0f;
+        float pathScore = 800.0f;  // Very high to stand out
+        
+        // Mark each step of the planned path
+        gridHeatMap.setValue(pathPos.x, pathPos.y, pathScore);
         for (const auto& dir : lastPath) {
             switch (dir) {
                 case Direction::Up:    pathPos.y--; break;
@@ -194,18 +215,18 @@ void AdvancedStrategy::updateHeatMapVisualization(const Snake& snake, const sf::
                 case Direction::Left:  pathPos.x--; break;
                 case Direction::Right: pathPos.x++; break;
             }
+            pathScore *= 0.85f;  // Decay for path visualization
             if (pathPos.x >= 0 && pathPos.x < GameConfig::GRID_WIDTH &&
                 pathPos.y >= 0 && pathPos.y < GameConfig::GRID_HEIGHT) {
                 gridHeatMap.setValue(pathPos.x, pathPos.y, pathScore);
-                pathScore *= 0.85f;
             }
         }
     }
 
-    // Key positions (highest values - will be yellow)
-    gridHeatMap.setValue(food.x, food.y, 1000.0f);    // Food
-    gridHeatMap.setValue(head.x, head.y, 900.0f);     // Head
-    
+    // Mark critical positions
+    gridHeatMap.setValue(food.x, food.y, 1000.0f);  // Food is highest priority
+    gridHeatMap.setValue(head.x, head.y, 900.0f);   // Head is next highest
+
     gridHeatMap.triggerUpdate();
 }
 
