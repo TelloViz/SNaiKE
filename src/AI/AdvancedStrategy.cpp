@@ -150,42 +150,43 @@ void AdvancedStrategy::updateHeatMapVisualization(const Snake& snake, const sf::
     gridHeatMap.clear();
     sf::Vector2i head = snake.getHead();
     
-    // Calculate scores in a gradient pattern
+    // Base heat map with stronger gradient
     for (int x = 0; x < GameConfig::GRID_WIDTH; ++x) {
         for (int y = 0; y < GameConfig::GRID_HEIGHT; ++y) {
             Position pos{sf::Vector2i(x, y)};
             
-            // Exponentially decaying base score from distance to food
+            // Calculate distance-based score with stronger falloff
             float foodDistance = getManhattanDistance(pos, Position{food});
-            float score = 150.0f * std::exp(-foodDistance / 8.0f);
-            
-            // Add exponential bonus for being near the head
             float headDistance = getManhattanDistance(pos, Position{head});
+            
+            // Quadratic falloff for better gradient
+            float score = 200.0f / (1.0f + (foodDistance * foodDistance / 100.0f));
+            
+            // Add head proximity bonus with cubic falloff
             if (headDistance <= VIEW_RADIUS) {
-                score += 100.0f * std::exp(-headDistance / 3.0f);
+                score += 150.0f / (1.0f + (headDistance * headDistance * headDistance / 100.0f));
             }
             
-            // Penalties and adjustments
+            // Penalties
             if (isPositionBlocked(pos, snake)) {
-                score = -100.0f;  // More negative to create contrast
+                score = -50.0f;  // Snake body
             } else if (x == 0 || x == GameConfig::GRID_WIDTH - 1 || 
                       y == 0 || y == GameConfig::GRID_HEIGHT - 1) {
-                score *= 0.3f;  // Stronger wall penalty
+                score *= 0.2f;  // Stronger wall penalty
             }
             
-            // Only set scores above threshold
-            if (score > 5.0f) {  // Increased minimum threshold
-                gridHeatMap.setValue(x, y, score);
+            // Only set scores above minimum threshold
+            if (score > 1.0f) {
+                // Use negative scores for base heat map (will be rendered as red gradient)
+                gridHeatMap.setValue(x, y, -score);
             }
         }
     }
     
-    // Highlight the path with stronger contrast
+    // Mark planned path with positive values (will be rendered as blue gradient)
     if (!lastPath.empty()) {
         sf::Vector2i pathPos = head;
-        float pathScore = 500.0f;  // Increased initial path score
-        
-        gridHeatMap.setValue(pathPos.x, pathPos.y, pathScore);
+        float pathScore = 800.0f;  // Higher value for path
         
         for (const auto& dir : lastPath) {
             switch (dir) {
@@ -194,30 +195,18 @@ void AdvancedStrategy::updateHeatMapVisualization(const Snake& snake, const sf::
                 case Direction::Left:  pathPos.x--; break;
                 case Direction::Right: pathPos.x++; break;
             }
-            pathScore *= 0.80f;  // Steeper falloff for more contrast
+            pathScore *= 0.85f;  // Steeper falloff
             if (pathPos.x >= 0 && pathPos.x < GameConfig::GRID_WIDTH &&
                 pathPos.y >= 0 && pathPos.y < GameConfig::GRID_HEIGHT) {
+                // Use positive scores for path (will be rendered as blue)
                 gridHeatMap.setValue(pathPos.x, pathPos.y, pathScore);
             }
         }
     }
     
-    // Emphasize important positions with higher values
-    gridHeatMap.setValue(food.x, food.y, 600.0f);  // Increased food visibility
-    gridHeatMap.setValue(head.x, head.y, 550.0f);  // Increased head visibility
-    
-    // Add stronger highlight around food
-    for (int dx = -1; dx <= 1; dx++) {
-        for (int dy = -1; dy <= 1; dy++) {
-            int fx = food.x + dx;
-            int fy = food.y + dy;
-            if (fx >= 0 && fx < GameConfig::GRID_WIDTH && 
-                fy >= 0 && fy < GameConfig::GRID_HEIGHT) {
-                float currentScore = gridHeatMap.getValue(fx, fy);
-                gridHeatMap.setValue(fx, fy, std::max(currentScore, 300.0f));
-            }
-        }
-    }
+    // Special markers for key positions (will be rendered as yellow)
+    gridHeatMap.setValue(food.x, food.y, 1000.0f);  // Food marker
+    gridHeatMap.setValue(head.x, head.y, 900.0f);   // Head marker
     
     gridHeatMap.triggerUpdate();
 }
