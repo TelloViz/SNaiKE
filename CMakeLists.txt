@@ -31,12 +31,24 @@ add_executable(main
     src/states/PausedState.cpp
     src/states/GameOverState.cpp
     src/Input/InputHandler.cpp
-    src/AI/AIPlayer.cpp)
+    src/AI/AIPlayer.cpp
+    src/AI/BaseStrategy.cpp
+    src/AI/BasicStrategy.cpp
+    src/AI/AdvancedStrategy.cpp
+    src/AI/RandomStrategy.cpp)
 
 # Configure include directories
 target_include_directories(main PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${SFML_SOURCE_DIR}/include)
+
+# Add these lines to your existing CMakeLists.txt
+target_include_directories(${PROJECT_NAME} 
+    PRIVATE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
 
 # Link libraries
 target_link_libraries(main PRIVATE sfml-graphics)

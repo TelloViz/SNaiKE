@@ -2,16 +2,17 @@
 #include <SFML/Graphics.hpp>
 #include <deque>
 #include "GameConfig.hpp"
+#include "Game/Direction.hpp"
 
 /**
  * @brief Represents possible movement directions for the snake
  */
-enum class Direction { 
-    Up,     ///< Moving upwards (-y)
-    Down,   ///< Moving downwards (+y)
-    Left,   ///< Moving left (-x)
-    Right   ///< Moving right (+x)
-};
+// enum class Direction { 
+//     Up,     ///< Moving upwards (-y)
+//     Down,   ///< Moving downwards (+y)
+//     Left,   ///< Moving left (-x)
+//     Right   ///< Moving right (+x)
+// };
 
 /**
  * @brief Represents the snake entity in the game

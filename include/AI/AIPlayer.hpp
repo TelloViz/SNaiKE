@@ -3,6 +3,8 @@
 #include "Snake.hpp"
 #include "AI/HeatMap.hpp"
 #include "AI/GridHeatMap.hpp"
+#include "AI/ISnakeStrategy.hpp"
+#include <memory>
 #include <queue>
 #include <SFML/System/Clock.hpp>
 #include <algorithm>
@@ -16,28 +18,28 @@ enum class AIStrategy {
     COUNT
 };
 
-struct Position {
-    sf::Vector2i pos{0, 0};  // Initialize with default values
+// struct Position {
+//     sf::Vector2i pos{0, 0};  // Initialize with default values
     
-    // Add default constructor
-    Position() : pos(0, 0) {}
-    Position(const sf::Vector2i& p) : pos(p) {}
-    Position(int x, int y) : pos(x, y) {}
+//     // Add default constructor
+//     Position() : pos(0, 0) {}
+//     Position(const sf::Vector2i& p) : pos(p) {}
+//     Position(int x, int y) : pos(x, y) {}
     
-    bool operator<(const Position& other) const {
-        return pos.x < other.pos.x || (pos.x == other.pos.x && pos.y < other.pos.y);
-    }
+//     bool operator<(const Position& other) const {
+//         return pos.x < other.pos.x || (pos.x == other.pos.x && pos.y < other.pos.y);
+//     }
     
-    bool operator==(const Position& other) const {
-        return pos.x == other.pos.x && pos.y == other.pos.y;
-    }
+//     bool operator==(const Position& other) const {
+//         return pos.x == other.pos.x && pos.y == other.pos.y;
+//     }
     
-    bool operator!=(const Position& other) const {
-        return pos != other.pos;
-    }
+//     bool operator!=(const Position& other) const {
+//         return pos != other.pos;
+//     }
     
-    operator sf::Vector2i() const { return pos; }
-};
+//     operator sf::Vector2i() const { return pos; }
+// };
 
 struct Node {
     Position pos;  // Change this from Vector2i to Position
@@ -56,54 +58,35 @@ struct Node {
 
 class AIPlayer {
 private:
+    std::unique_ptr<ISnakeStrategy> strategy;
     std::queue<GameInput> plannedMoves;
     const Snake& snake;
     const sf::Vector2i& food;
-    AIStrategy currentStrategy;
     HeatMap basicHeatMap;
     HeatMap advancedHeatMap;
-    HeatMap heatMap;  // Add this line
     GridHeatMap gridHeatMap;
-    sf::Vector2i lastSnakePosition;
-    std::vector<Direction> lastPath;
+    AIStrategy currentStrategy;  // Add this line to track current strategy
 
     void planNextMove();
-    Direction calculateDirectionToFood();
-    Direction calculateBasicMove();
-    Direction calculateAdvancedMove();
-    Direction calculateRandomMove();
-    
-    void updateBasicHeatMap();
-    void updateAdvancedHeatMap();
-    void updateHeatMap();  // Add the updateHeatMap declaration
-    
-    bool isMoveSafe(Direction dir);
-    bool isMoveSafe(Direction dir, int lookAhead);
-    bool isMoveSafeInFuture(Direction dir, int lookAhead = 5);
-    bool willTailMove(const sf::Vector2i& pos, int segmentIndex);
-    int countAccessibleSpace(const Position& from) const;
-    bool canReachFood(const Position& from);
-    std::vector<Direction> findPathToFood();
-    int getManhattanDistance(const Position& a, const Position& b) const;
-    std::vector<Position> getNeighbors(const Position& pos) const;
-    Direction getDirectionToNeighbor(const Position& from, const Position& to);
-    bool isPositionBlocked(const Position& pos) const;
-    int getDistanceToTail(const sf::Vector2i& pos);
-    float calculatePositionScore(int x, int y) const;
+    GameButton directionToButton(Direction dir);
 
 public:
     AIPlayer(const Snake& snakeRef, const sf::Vector2i& foodRef) 
         : snake(snakeRef)
         , food(foodRef)
-        , currentStrategy(AIStrategy::Basic) {}
+        , currentStrategy(AIStrategy::Advanced) {
+        setStrategy(AIStrategy::Advanced);  // Initialize with Advanced strategy
+    }
     
     GameInput getNextInput();
-    void setStrategy(AIStrategy strategy) { currentStrategy = strategy; }
-    AIStrategy getStrategy() const { return currentStrategy; }
-    const HeatMap& getHeatMap() const {
-        return (currentStrategy == AIStrategy::Advanced) ? advancedHeatMap : basicHeatMap;
+    void setStrategy(AIStrategy type);
+    AIStrategy getStrategy() const { return currentStrategy; }  // Add this getter
+    
+    // Heat map getters for visualization
+    const HeatMap& getHeatMap() const { 
+        return advancedHeatMap; 
     }
-    const GridHeatMap& getGridHeatMap() const { return gridHeatMap; }
-
-    int calculateHeuristic(const Position& pos) const;
+    const GridHeatMap& getGridHeatMap() const { 
+        return gridHeatMap; 
+    }
 };
