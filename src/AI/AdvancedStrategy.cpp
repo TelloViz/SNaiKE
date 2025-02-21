@@ -62,122 +62,151 @@ std::vector<Direction> AdvancedStrategy::findPathToFood(const Snake& snake, cons
     lastFoodPos = Position(food);
     pathfindClock.restart();
 
-    // A* implementation with priority queue
-    std::priority_queue<
-        std::pair<int, std::pair<Position, std::vector<Direction>>>,
-        std::vector<std::pair<int, std::pair<Position, std::vector<Direction>>>>,
-        std::greater<>
-    > openSet;
-    
-    std::set<Position> closedSet;
-    std::map<Position, int> gScore;
-    
     Position start(snake.getHead());
     Position goal(food);
-    
-    openSet.push({0, {start, std::vector<Direction>()}});
-    gScore[start] = 0;
-    
-    int maxIterations = GameConfig::GRID_WIDTH * GameConfig::GRID_HEIGHT;
-    int iterations = 0;
 
-    while (!openSet.empty() && iterations++ < maxIterations) {
-        auto [fScore, current] = openSet.top();
-        auto [pos, path] = current;
+    // More efficient implementation using only what we need
+    std::set<Position> closedSet;
+    std::map<Position, Position> cameFrom;
+    std::map<Position, int> gScore;
+    std::map<Position, Direction> directionToParent;
+    
+    // Priority queue using int for f-score (simpler, faster)
+    std::priority_queue<std::pair<int, Position>, 
+        std::vector<std::pair<int, Position>>, 
+        std::greater<>> openSet;
+    
+    openSet.push({0, start});
+    gScore[start] = 0;
+
+    int iterations = 0;
+    const int MAX_ITERATIONS = 1000; // Reasonable limit
+
+    while (!openSet.empty() && iterations++ < MAX_ITERATIONS) {
+        Position current = openSet.top().second;
         openSet.pop();
-        
-        if (pos.pos == food) {
+
+        if (current == goal) {
+            // Reconstruct path
+            std::vector<Direction> path;
+            Position currentPos = current;
+            
+            while (currentPos != start) {
+                path.push_back(directionToParent[currentPos]);
+                currentPos = cameFrom[currentPos];
+            }
+            
+            std::reverse(path.begin(), path.end());
             lastPath = path;
             return path;
         }
-        
-        if (closedSet.count(pos)) continue;
-        closedSet.insert(pos);
-        
+
+        if (closedSet.count(current)) continue;
+        closedSet.insert(current);
+
         for (Direction dir : {Direction::Up, Direction::Down, Direction::Left, Direction::Right}) {
-            Position next = pos;
+            Position next = current;
             switch (dir) {
                 case Direction::Up:    next.pos.y--; break;
                 case Direction::Down:  next.pos.y++; break;
                 case Direction::Left:  next.pos.x--; break;
                 case Direction::Right: next.pos.x++; break;
             }
-            
+
             if (closedSet.count(next) || !isMoveSafe(dir, snake)) continue;
+
+            int tentativeG = gScore[current] + 1;
             
-            int tentativeG = gScore[pos] + 1;
             if (gScore.find(next) == gScore.end() || tentativeG < gScore[next]) {
-                auto nextPath = path;
-                nextPath.push_back(dir);
+                cameFrom[next] = current;
+                directionToParent[next] = dir;
                 gScore[next] = tentativeG;
-                
-                int h = getManhattanDistance(next, Position(food));
-                openSet.push({tentativeG + h, {next, nextPath}});
+                int h = getManhattanDistance(next, goal);
+                openSet.push({tentativeG + h, next});
             }
         }
     }
-    
+
     return std::vector<Direction>();
 }
 
 void AdvancedStrategy::updateHeatMapVisualization(const Snake& snake, const sf::Vector2i& food) {
+    const int RENDER_RADIUS = 8;
+    sf::Vector2i head = snake.getHead();
+    
+    // Clear all scores first
     for (int x = 0; x < GameConfig::GRID_WIDTH; x++) {
         for (int y = 0; y < GameConfig::GRID_HEIGHT; y++) {
+            this->heatMap.setValue(x, y, -100.0f);
+        }
+    }
+
+    // Only process cells within radius of snake head
+    for (int x = std::max(0, head.x - RENDER_RADIUS); 
+         x < std::min(GameConfig::GRID_WIDTH, head.x + RENDER_RADIUS); x++) {
+        for (int y = std::max(0, head.y - RENDER_RADIUS);
+             y < std::min(GameConfig::GRID_HEIGHT, head.y + RENDER_RADIUS); y++) {
+            
             Position pos(x, y);
             float score = 0.0f;
             
-            // Base score from distance to food
-            score -= getManhattanDistance(pos, Position(food)) * 1.5f;
-            
-            // Space availability bonus (only for key positions)
-            if (!BaseStrategy::isPositionBlocked(pos, snake) &&
-                (pos.pos == snake.getHead() || pos.pos == food)) {
-                int space = countAccessibleSpace(pos, snake);
-                float spaceScore = space * 0.3f;
-                score += spaceScore;
-            }
-            
-            // Highlight planned path
-            if (!lastPath.empty()) {
-                sf::Vector2i pathPos = snake.getHead();
-                float pathBonus = 75.0f;
-                if (pos.pos == pathPos) score += pathBonus;
+            if (BaseStrategy::isPositionBlocked(pos, snake)) {
+                score = -100.0f;
+            } else {
+                // Distance to food
+                score -= getManhattanDistance(pos, Position(food)) * 3.0f;
                 
-                for (const auto& dir : lastPath) {
+                // Only calculate space for immediate next moves
+                bool isNextMove = false;
+                for (Direction dir : {Direction::Up, Direction::Down, Direction::Left, Direction::Right}) {
+                    sf::Vector2i nextPos = head;
                     switch (dir) {
-                        case Direction::Up:    pathPos.y--; break;
-                        case Direction::Down:  pathPos.y++; break;
-                        case Direction::Left:  pathPos.x--; break;
-                        case Direction::Right: pathPos.x++; break;
+                        case Direction::Up:    nextPos.y--; break;
+                        case Direction::Down:  nextPos.y++; break;
+                        case Direction::Left:  nextPos.x--; break;
+                        case Direction::Right: nextPos.x++; break;
                     }
-                    if (pos.pos == pathPos) {
-                        score += pathBonus * 0.9f;
+                    if (pos.pos == nextPos) {
+                        isNextMove = true;
                         break;
                     }
                 }
-            }
-            
-            // Apply penalties
-            if (x == 0 || x == GameConfig::GRID_WIDTH - 1 ||
-                y == 0 || y == GameConfig::GRID_HEIGHT - 1) {
-                score -= 15.0f;
-            }
-            
-            if ((x == 0 || x == GameConfig::GRID_WIDTH - 1) &&
-                (y == 0 || y == GameConfig::GRID_HEIGHT - 1)) {
-                score -= 25.0f;
-            }
-            
-            if (BaseStrategy::isPositionBlocked(pos, snake)) {
-                score = -100.0f;
+                
+                // Only calculate accessible space for next possible moves
+                if (isNextMove) {
+                    int space = countAccessibleSpace(pos, snake);
+                    score += space * 0.8f;
+                }
+                
+                // Distance from head bonus
+                float distToHead = getManhattanDistance(pos, Position(head));
+                score += (RENDER_RADIUS - distToHead) * 2.0f;
+                
+                // Wall penalties
+                if (x == 0 || x == GameConfig::GRID_WIDTH - 1 ||
+                    y == 0 || y == GameConfig::GRID_HEIGHT - 1) {
+                    score -= 30.0f;
+                }
+                
+                // Corner penalties
+                if ((x == 0 || x == GameConfig::GRID_WIDTH - 1) &&
+                    (y == 0 || y == GameConfig::GRID_HEIGHT - 1)) {
+                    score -= 50.0f;
+                }
+                
+                // Add morphing effect
+                float time = static_cast<float>(gameTimer.getElapsedTime().asSeconds());
+                float oscillation = std::sin(time * 2.0f + (x + y) * 0.5f) * 10.0f;
+                score += oscillation;
             }
             
             this->heatMap.setValue(x, y, score);
         }
     }
     
-    // Mark food position
-    this->heatMap.setValue(food.x, food.y, 100.0f);
+    // Mark food
+    this->heatMap.setValue(food.x, food.y, 200.0f);
+    
     this->heatMap.normalize();
 }
 

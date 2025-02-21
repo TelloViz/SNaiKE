@@ -16,6 +16,7 @@ private:
     Position lastFoodPos;
     int stuckCount{0};
     std::vector<std::vector<float>> scoreCache;
+    sf::Clock gameTimer;  // Add this for the morphing effect
 
     std::vector<Direction> findPathToFood(const Snake& snake, const sf::Vector2i& food);
     void updateHeatMapVisualization(const Snake& snake, const sf::Vector2i& food);
