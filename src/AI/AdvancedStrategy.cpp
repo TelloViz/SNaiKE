@@ -142,52 +142,51 @@ std::vector<Direction> AdvancedStrategy::findPathToFood(const Snake& snake, cons
 
 void AdvancedStrategy::updateHeatMapVisualization(const Snake& snake, const sf::Vector2i& food) {
     static sf::Clock updateClock;
-    if (updateClock.getElapsedTime().asMilliseconds() < 50) {
-        return;
-    }
+    if (updateClock.getElapsedTime().asMilliseconds() < 50) return;
     updateClock.restart();
 
     gridHeatMap.clear();
     sf::Vector2i head = snake.getHead();
+    Direction currentDir = snake.getCurrentDirection();
     
-    // Base heat map with stronger gradient
-    for (int x = 0; x < GameConfig::GRID_WIDTH; ++x) {
-        for (int y = 0; y < GameConfig::GRID_HEIGHT; ++y) {
-            Position pos{sf::Vector2i(x, y)};
-            
-            // Calculate distance-based score with stronger falloff
-            float foodDistance = getManhattanDistance(pos, Position{food});
-            float headDistance = getManhattanDistance(pos, Position{head});
-            
-            // Quadratic falloff for better gradient
-            float score = 200.0f / (1.0f + (foodDistance * foodDistance / 100.0f));
-            
-            // Add head proximity bonus with cubic falloff
-            if (headDistance <= VIEW_RADIUS) {
-                score += 150.0f / (1.0f + (headDistance * headDistance * headDistance / 100.0f));
-            }
-            
-            // Penalties
-            if (isPositionBlocked(pos, snake)) {
-                score = -50.0f;  // Snake body
-            } else if (x == 0 || x == GameConfig::GRID_WIDTH - 1 || 
-                      y == 0 || y == GameConfig::GRID_HEIGHT - 1) {
-                score *= 0.2f;  // Stronger wall penalty
-            }
-            
-            // Only set scores above minimum threshold
-            if (score > 1.0f) {
-                // Use negative scores for base heat map (will be rendered as red gradient)
-                gridHeatMap.setValue(x, y, -score);
+    // Danger zones first (negative values - will be red)
+    for (const auto& segment : snake.getBody()) {
+        gridHeatMap.setValue(segment.x, segment.y, -1000.0f);
+        // Add danger zone around snake body
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                int x = segment.x + dx;
+                int y = segment.y + dy;
+                if (x >= 0 && x < GameConfig::GRID_WIDTH && 
+                    y >= 0 && y < GameConfig::GRID_HEIGHT) {
+                    gridHeatMap.setValue(x, y, -500.0f);
+                }
             }
         }
     }
-    
-    // Mark planned path with positive values (will be rendered as blue gradient)
+
+    // Safe movement zones (negative values - will be cyan)
+    const int SCAN_RADIUS = 6;
+    for (int x = std::max(0, head.x - SCAN_RADIUS); x <= std::min(GameConfig::GRID_WIDTH - 1, head.x + SCAN_RADIUS); ++x) {
+        for (int y = std::max(0, head.y - SCAN_RADIUS); y <= std::min(GameConfig::GRID_HEIGHT - 1, head.y + SCAN_RADIUS); ++y) {
+            Position pos{sf::Vector2i(x, y)};
+            
+            // Skip if already marked as danger
+            if (gridHeatMap.getValue(x, y) < -100.0f) continue;
+            
+            float headDistance = getManhattanDistance(pos, Position{head});
+            if (headDistance > SCAN_RADIUS) continue;
+
+            // Calculate safety score
+            float safetyScore = -200.0f + (headDistance * 20.0f);
+            gridHeatMap.setValue(x, y, safetyScore);
+        }
+    }
+
+    // Planned path (positive values - will be orange)
     if (!lastPath.empty()) {
         sf::Vector2i pathPos = head;
-        float pathScore = 800.0f;  // Higher value for path
-        
+        float pathScore = 500.0f;
         for (const auto& dir : lastPath) {
             switch (dir) {
                 case Direction::Up:    pathPos.y--; break;
@@ -195,18 +194,17 @@ void AdvancedStrategy::updateHeatMapVisualization(const Snake& snake, const sf::
                 case Direction::Left:  pathPos.x--; break;
                 case Direction::Right: pathPos.x++; break;
             }
-            pathScore *= 0.85f;  // Steeper falloff
             if (pathPos.x >= 0 && pathPos.x < GameConfig::GRID_WIDTH &&
                 pathPos.y >= 0 && pathPos.y < GameConfig::GRID_HEIGHT) {
-                // Use positive scores for path (will be rendered as blue)
                 gridHeatMap.setValue(pathPos.x, pathPos.y, pathScore);
+                pathScore *= 0.85f;
             }
         }
     }
-    
-    // Special markers for key positions (will be rendered as yellow)
-    gridHeatMap.setValue(food.x, food.y, 1000.0f);  // Food marker
-    gridHeatMap.setValue(head.x, head.y, 900.0f);   // Head marker
+
+    // Key positions (highest values - will be yellow)
+    gridHeatMap.setValue(food.x, food.y, 1000.0f);    // Food
+    gridHeatMap.setValue(head.x, head.y, 900.0f);     // Head
     
     gridHeatMap.triggerUpdate();
 }

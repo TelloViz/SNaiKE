@@ -50,42 +50,43 @@ public:
         return 0.0f;
     }
 
-    void GridHeatMap::render(sf::RenderWindow& window, const sf::Vector2f& cellSize) const {
+    void render(sf::RenderWindow& window, const sf::Vector2f& cellSize) const {
         std::lock_guard<std::mutex> lock(scoreMutex);
-    
         sf::RectangleShape cell(cellSize);
-        
-        // Add margin offsets from GameConfig
         float xOffset = GameConfig::MARGIN_SIDES;
         float yOffset = GameConfig::MARGIN_TOP;
-        
+
         for (int x = 0; x < GameConfig::GRID_WIDTH; ++x) {
             for (int y = 0; y < GameConfig::GRID_HEIGHT; ++y) {
                 float score = scores[x][y];
                 if (score == 0) continue;
-    
-                // Add offsets to position calculation
-                cell.setPosition(
-                    x * cellSize.x + xOffset, 
-                    y * cellSize.y + yOffset
-                );
+
+                cell.setPosition(x * cellSize.x + xOffset, y * cellSize.y + yOffset);
                 
                 if (score >= 900.0f) {
+                    // Yellow for food and head
                     cell.setFillColor(sf::Color(255, 255, 0, 255));
                 }
                 else if (score > 0) {
-                    float alpha = std::min(255.0f, score / 3.0f);
-                    cell.setFillColor(sf::Color(0, 0, 255, static_cast<sf::Uint8>(alpha)));
+                    // Orange for planned path
+                    float alpha = std::min(255.0f, score / 2.0f);
+                    cell.setFillColor(sf::Color(255, 140, 0, static_cast<sf::Uint8>(alpha)));
+                }
+                else if (score <= -500.0f) {
+                    // Red for danger zones
+                    cell.setFillColor(sf::Color(255, 0, 0, 180));
                 }
                 else {
+                    // Cyan for safe movement areas
                     float alpha = std::min(255.0f, -score / 2.0f);
-                    cell.setFillColor(sf::Color(255, 0, 0, static_cast<sf::Uint8>(alpha)));
+                    cell.setFillColor(sf::Color(0, 255, 255, static_cast<sf::Uint8>(alpha)));
                 }
                 
                 window.draw(cell);
             }
         }
     }
+
     void triggerUpdate() {
         needsUpdate = true;
     }
