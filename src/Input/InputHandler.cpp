@@ -58,6 +58,9 @@ void InputHandler::handleSFMLEvent(const sf::Event& event) {
             case sf::Keyboard::H:
                 currentInput = GameInput{InputType::ButtonPressed, GameButton::H};
                 break;
+            case sf::Keyboard::J:  // Add J key handling
+                currentInput = GameInput{InputType::ButtonPressed, GameButton::J};
+                break;
             default: 
                 currentInput = GameInput{InputType::ButtonPressed, GameButton::None}; 
                 break;
@@ -84,6 +87,7 @@ GameInput InputHandler::translateSFMLEvent(const sf::Event& event) {
             case sf::Keyboard::Escape:return GameInput{InputType::ButtonPressed, GameButton::Back};
             case sf::Keyboard::T:     return GameInput{InputType::ButtonPressed, GameButton::ToggleAI};
             case sf::Keyboard::H:     return GameInput{InputType::ButtonPressed, GameButton::H};
+            case sf::Keyboard::J:     return GameInput{InputType::ButtonPressed, GameButton::J}; // Add J key translation
             case sf::Keyboard::Num1:  return GameInput{InputType::ButtonPressed, GameButton::Num1};
             case sf::Keyboard::Num2:  return GameInput{InputType::ButtonPressed, GameButton::Num2};
             case sf::Keyboard::Num3:  return GameInput{InputType::ButtonPressed, GameButton::Num3};

@@ -161,17 +161,15 @@ void PlayingState::handleInput(const GameInput& input) {
                 updateAlgoLabel();
                 break;
             }
-            case GameButton::H:  // Add new button for heat map toggle
-                showHeatMap = !showHeatMap;
-                std::cout << "Heat map display: " << (showHeatMap ? "ON" : "OFF") << std::endl;
+            case GameButton::H:
                 if (aiControlled && aiPlayer) {
                     if (auto* astar = dynamic_cast<AStarStrategy*>(aiPlayer->getCurrentStrategy())) {
                         astar->toggleHeatMap();
+                        lastHeatMapState = astar->isHeatMapEnabled();
                     }
-                    // Store state regardless of current strategy type
-                    lastHeatMapState = showHeatMap;
                 }
                 break;
+
             case GameButton::J:
                 if (aiControlled && aiPlayer) {
                     if (auto* astar = dynamic_cast<AStarStrategy*>(aiPlayer->getCurrentStrategy())) {
@@ -329,22 +327,16 @@ void PlayingState::render(sf::RenderWindow& window) {
     );
     window.draw(fpsText);
 
-    // Heat map visualization with debug output
-    if (showHeatMap && aiControlled && aiPlayer) {
-        std::cout << "Attempting to render heat map...\n";
+    // Heat map and path visualization
+    if (aiControlled && aiPlayer) {
         const BaseStrategy* strategy = aiPlayer->getCurrentStrategy();
         
         if (const auto* basicStrat = dynamic_cast<const ManhattanStrategy*>(strategy)) {
-            std::cout << "Found Manhattan Strategy, rendering heat map...\n";
-            basicStrat->updateHeatMap(snake, food);  // Add this line
+            basicStrat->updateHeatMap(snake, food);
             basicStrat->render(window);
         }
         else if (const auto* astarStrat = dynamic_cast<const AStarStrategy*>(strategy)) {
-            std::cout << "Found A* Strategy, rendering heat map...\n";
             astarStrat->render(window);
-        }
-        else {
-            std::cout << "No compatible strategy found for heat map rendering\n";
         }
     }
 }

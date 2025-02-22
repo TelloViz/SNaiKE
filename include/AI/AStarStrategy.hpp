@@ -17,13 +17,13 @@ public:
         CHEBYSHEV    // Key 4
     };
 
-    AStarStrategy(const Snake& snakeRef) : snake(snakeRef), currentHeuristic(Heuristic::MANHATTAN) {}
+    AStarStrategy(const Snake& snakeRef);// : snake(snakeRef), currentHeuristic(Heuristic::MANHATTAN) {}
     Direction calculateNextMove(const Snake& snake, const sf::Vector2i& food) override;
     void update() override;
     void render(sf::RenderWindow& window) const override;
     void setHeuristic(Heuristic h) { currentHeuristic = h; }
     Heuristic getHeuristic() const { return currentHeuristic; }
-    void toggleHeatMap() { showHeatMap = !showHeatMap; }
+    void toggleHeatMap();// { showHeatMap = !showHeatMap; }
     void togglePathArrows();
     bool isHeatMapEnabled() const { return showHeatMap; }
     bool isPathArrowsEnabled() const { return showPathArrows; }
@@ -34,8 +34,9 @@ public:
 
 private:
     std::vector<Direction> currentPath;
+    std::vector<Direction> visualPath;  // Add this for visualization
     sf::Clock pathUpdateClock;
-    static constexpr float PATH_UPDATE_INTERVAL = 0.1f; // 100ms
+
 
     struct Node {
         Position pos;
@@ -67,7 +68,8 @@ private:
 
     mutable sf::Clock renderClock;
     mutable sf::Clock explorationRenderClock;
-    static constexpr float PATH_RENDER_INTERVAL = 0.3f;      // Slower arrow updates
+    static constexpr float PATH_RENDER_INTERVAL = 0.1f;      // Slower arrow updates
+    static constexpr float PATH_UPDATE_INTERVAL = 0.1f; // 100ms
     static constexpr float EXPLORATION_RENDER_INTERVAL = 0.1f; // Faster heat map updates
     mutable std::vector<sf::Vector2i> lastExploredNodes;     // Store last exploration state
     mutable bool hasExplorationData = false;                 // Track if we have data to show

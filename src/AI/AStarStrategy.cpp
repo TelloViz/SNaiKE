@@ -2,9 +2,23 @@
 #include <queue>
 #include <iostream>
 
+AStarStrategy::AStarStrategy(const Snake& snakeRef) 
+    : snake(snakeRef)
+    , currentHeuristic(Heuristic::MANHATTAN)
+    , showHeatMap(false)
+    , showPathArrows(false)
+    , hasExplorationData(false)
+{
+    // Reset clocks
+    renderClock.restart();
+    explorationRenderClock.restart();
+    pathUpdateClock.restart();
+}
+
 Direction AStarStrategy::calculateNextMove(const Snake& snake, const sf::Vector2i& food) {
     if (currentPath.empty() || pathUpdateClock.getElapsedTime().asSeconds() >= PATH_UPDATE_INTERVAL) {
         currentPath = findPath(snake, food);
+        visualPath = currentPath;  // Store a copy for visualization
         pathUpdateClock.restart();
     }
 
@@ -13,8 +27,6 @@ Direction AStarStrategy::calculateNextMove(const Snake& snake, const sf::Vector2
         currentPath.erase(currentPath.begin());
         return nextMove;
     }
-
-    // Fallback to simple manhattan distance if no path found
     return snake.getCurrentDirection();
 }
 
@@ -36,7 +48,8 @@ std::vector<Direction> AStarStrategy::findPath(const Snake& snake, const sf::Vec
         Position current = openSet.top().pos;
         openSet.pop();
 
-        exploredNodes.push_back(current.pos);  // Record explored node
+        // Always collect explored nodes regardless of heat map state
+        exploredNodes.push_back(current.pos);
 
         if (current == goal) {
             // Found path to food, now verify it's safe
@@ -118,58 +131,50 @@ float AStarStrategy::calculateHeuristic(const Position& pos, const sf::Vector2i&
 }
 
 void AStarStrategy::update() {
-    // Empty for now - can be used for path visualization updates
+    // Remove the conditional checks - we want to always update both independently
+    if (!exploredNodes.empty()) {
+        lastExploredNodes = exploredNodes;
+        hasExplorationData = true;
+    }
+    
+    // Always update visual path, regardless of showPathArrows state
+    visualPath = currentPath;
 }
 
 void AStarStrategy::render(sf::RenderWindow& window) const {
-    sf::RectangleShape cell(sf::Vector2f(GameConfig::CELL_SIZE - 2, GameConfig::CELL_SIZE - 2));
-    
-    // Render exploration heat map
+    // Heat map rendering
     if (showHeatMap) {
-        if (explorationRenderClock.getElapsedTime().asSeconds() >= EXPLORATION_RENDER_INTERVAL) {
-            explorationRenderClock.restart();
-            lastExploredNodes = exploredNodes;
-            hasExplorationData = true;
-        }
-
-        if (hasExplorationData) {
-            for (const auto& node : lastExploredNodes) {
-                // Calculate how "recent" this node was explored
-                float heat = static_cast<float>(
-                    std::distance(lastExploredNodes.begin(), 
-                    std::find(lastExploredNodes.begin(), lastExploredNodes.end(), node))
-                ) / lastExploredNodes.size();
-                
-                sf::Color cellColor(
-                    static_cast<sf::Uint8>(255 * heat),     // Red
-                    0,                                       // Green
-                    static_cast<sf::Uint8>(255 * (1-heat)), // Blue
-                    96                                       // Alpha
-                );
-                
-                cell.setFillColor(cellColor);
-                cell.setPosition(
-                    node.x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES + 1,
-                    node.y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP + 1
-                );
-                window.draw(cell);
-            }
+        sf::RectangleShape cell(sf::Vector2f(GameConfig::CELL_SIZE - 2, GameConfig::CELL_SIZE - 2));
+        for (const auto& node : exploredNodes) {  // Use exploredNodes directly
+            float heat = static_cast<float>(
+                std::distance(exploredNodes.begin(), 
+                std::find(exploredNodes.begin(), exploredNodes.end(), node))
+            ) / exploredNodes.size();
+            
+            cell.setFillColor(sf::Color(
+                static_cast<sf::Uint8>(255 * heat),
+                0,
+                static_cast<sf::Uint8>(255 * (1-heat)),
+                96
+            ));
+            
+            cell.setPosition(
+                node.x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES + 1,
+                node.y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP + 1
+            );
+            window.draw(cell);
         }
     }
 
-    // Render path arrows with more frequent updates and debug output
-    if (showPathArrows && !currentPath.empty()) {
-        std::cout << "Rendering path arrows, path length: " << currentPath.size() << std::endl;
-        
-        // Remove the timer check to see if arrows appear at all
+    // Path arrow rendering - completely independent from heat map
+    if (showPathArrows && !visualPath.empty()) {
         sf::Vector2i pos = snake.getHead();
-        for (const Direction& dir : currentPath) {
+        for (const Direction& dir : visualPath) {
             sf::ConvexShape arrow;
             arrow.setPointCount(3);
-            arrow.setFillColor(sf::Color(0, 255, 0, 180)); // More visible green
+            arrow.setFillColor(sf::Color(0, 255, 0, 180)); // Semi-transparent green
 
             float arrowSize = GameConfig::CELL_SIZE * 0.4f;
-            // Set arrow points based on direction
             switch (dir) {
                 case Direction::Up:
                     arrow.setPoint(0, sf::Vector2f(GameConfig::CELL_SIZE/2, 2));
@@ -366,4 +371,9 @@ std::vector<Direction> AStarStrategy::reconstructPath(
 void AStarStrategy::togglePathArrows() {
     showPathArrows = !showPathArrows;
     std::cout << "Path arrows: " << (showPathArrows ? "ON" : "OFF") << std::endl;
+}
+
+void AStarStrategy::toggleHeatMap() {
+    showHeatMap = !showHeatMap;
+    std::cout << "Heat map: " << (showHeatMap ? "ON" : "OFF") << std::endl;
 }
