@@ -38,10 +38,13 @@ PlayingState::PlayingState(GameController* ctrl, const StateContext& ctx, StateM
 void PlayingState::updateAlgoLabel() {
     std::string algoText = "AI: ";
     if (aiControlled && aiPlayer) {
-        if (dynamic_cast<AdvancedStrategy*>(aiPlayer->getCurrentStrategy())) {
+        const BaseStrategy* strategy = aiPlayer->getCurrentStrategy();
+        if (dynamic_cast<const AStarStrategy*>(strategy)) {
             algoText += "A*";
+        } else if (dynamic_cast<const ManhattanStrategy*>(strategy)) {
+            algoText += "Mnht";
         } else {
-            algoText += "Mnht";  // Short for Manhattan
+            algoText += "Off";
         }
     } else {
         algoText += "Off";
@@ -108,7 +111,7 @@ void PlayingState::handleInput(const GameInput& input) {
                     aiPlayer = std::make_unique<AIPlayer>(snake, food);
                 }
                 aiControlled = true;
-                aiPlayer->setStrategy(AIStrategy::Advanced);
+                aiPlayer->setStrategy(AIStrategy::AStar);
                 std::cout << "AI Control: ON, Strategy: Advanced" << std::endl;
                 break;
             case GameButton::Num3:
@@ -275,15 +278,17 @@ void PlayingState::render(sf::RenderWindow& window) {
     // Heat map visualization with debug output
     if (showHeatMap && aiControlled && aiPlayer) {
         std::cout << "Attempting to render heat map...\n";
-        // if (const auto* basicStrat = dynamic_cast<const ManhattanStrategy*>(aiPlayer->getStrategyPtr())) {
-        //     std::cout << "Found Basic Strategy, rendering heat map...\n";
-        //     basicStrat->render(window);
-        // }
-        // else if (const auto* advStrat = dynamic_cast<const AdvancedStrategy*>(aiPlayer->getStrategyPtr())) {
-        //     std::cout << "Found Advanced Strategy, rendering heat map...\n";
-        //     advStrat->render(window);
-        // }
-        if(false) {} // added for now to get rid of some temporary errors from the above commented code
+        const BaseStrategy* strategy = aiPlayer->getCurrentStrategy();
+        
+        if (const auto* basicStrat = dynamic_cast<const ManhattanStrategy*>(strategy)) {
+            std::cout << "Found Manhattan Strategy, rendering heat map...\n";
+            basicStrat->updateHeatMap(snake, food);  // Add this line
+            basicStrat->render(window);
+        }
+        else if (const auto* astarStrat = dynamic_cast<const AStarStrategy*>(strategy)) {
+            std::cout << "Found A* Strategy, rendering heat map...\n";
+            astarStrat->render(window);
+        }
         else {
             std::cout << "No compatible strategy found for heat map rendering\n";
         }

@@ -9,7 +9,8 @@ void BasicStrategy::updateHeatMap(const Snake& snake, const sf::Vector2i& food) 
     // First pass: Basic distance scoring
     for (int x = 0; x < GameConfig::GRID_WIDTH; ++x) {
         for (int y = 0; y < GameConfig::GRID_HEIGHT; ++y) {
-            sf::Vector2i pos(x, y);
+            sf::Vector2i vector(x, y);
+            Position pos{vector};  // Use uniform initialization
             float score = 0.0f;
             
             // Basic move scoring

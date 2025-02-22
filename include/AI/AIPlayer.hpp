@@ -5,15 +5,15 @@
 #include "Snake.hpp"
 #include "AI/BaseStrategy.hpp"
 #include "AI/ManhattanStrategy.hpp"
+#include "AI/AStarStrategy.hpp"
 #include "AI/AdvancedStrategy.hpp"
 #include <memory>
 
 enum class AIStrategy {
     None,
-    Manhattan,
-    Advanced,
     Random,
-    AStar  // renamed from Advanced to be more explicit
+    Manhattan,
+    AStar  // Only keep what we're actually using
 };
 
 class AIPlayer {
@@ -28,7 +28,7 @@ public:
 
     AIStrategy getStrategy() const { 
         if (dynamic_cast<ManhattanStrategy*>(currentStrategy.get())) return AIStrategy::Manhattan;
-        if (dynamic_cast<AdvancedStrategy*>(currentStrategy.get())) return AIStrategy::AStar;
+        if (dynamic_cast<AStarStrategy*>(currentStrategy.get())) return AIStrategy::AStar;
         return AIStrategy::None;
     }
 

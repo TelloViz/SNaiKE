@@ -33,22 +33,12 @@ bool BaseStrategy::isPositionBlocked(const Position& pos, const Snake& snake) co
 }
 
 std::vector<Position> BaseStrategy::getNeighbors(const Position& pos) const {
-    std::vector<Position> neighbors;
-    neighbors.reserve(4);
-    
-    const std::array<std::pair<int, int>, 4> dirs = {
-        {{1, 0}, {-1, 0}, {0, 1}, {0, -1}}
+    return {
+        Position{pos.pos.x, pos.pos.y - 1},  // Up
+        Position{pos.pos.x, pos.pos.y + 1},  // Down
+        Position{pos.pos.x - 1, pos.pos.y},  // Left
+        Position{pos.pos.x + 1, pos.pos.y}   // Right
     };
-    
-    for (const auto& [dx, dy] : dirs) {
-        Position newPos(pos.pos.x + dx, pos.pos.y + dy);
-        if (newPos.pos.x >= 0 && newPos.pos.x < GameConfig::GRID_WIDTH &&
-            newPos.pos.y >= 0 && newPos.pos.y < GameConfig::GRID_HEIGHT) {
-            neighbors.push_back(newPos);
-        }
-    }
-    
-    return neighbors;
 }
 
 Direction BaseStrategy::getDirectionToNeighbor(const Position& from, const Position& to) const {
