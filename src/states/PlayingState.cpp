@@ -166,6 +166,9 @@ void PlayingState::handleInput(const GameInput& input) {
                     if (auto* astar = dynamic_cast<AStarStrategy*>(aiPlayer->getCurrentStrategy())) {
                         astar->toggleHeatMap();
                         lastHeatMapState = astar->isHeatMapEnabled();
+                    } else if (auto* manhattan = dynamic_cast<ManhattanStrategy*>(aiPlayer->getCurrentStrategy())) {
+                        manhattan->toggleHeatMap();
+                        lastHeatMapState = BaseStrategy::isGlobalHeatMapEnabled();  // Use the new getter
                     }
                 }
                 break;

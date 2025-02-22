@@ -41,4 +41,7 @@ public:
     virtual void render(sf::RenderWindow& window) const {};
     virtual void toggleHeatMap() = 0;  // Make it pure virtual
     virtual bool isHeatMapEnabled() const { return globalShowHeatMap; }
+    
+    // Add this public getter
+    static bool isGlobalHeatMapEnabled() { return globalShowHeatMap; }
 };

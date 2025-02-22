@@ -34,7 +34,7 @@ Direction ManhattanStrategy::calculateNextMove(const Snake& snake, const sf::Vec
 }
 
 void ManhattanStrategy::render(sf::RenderWindow& window) const {
-    if (globalShowHeatMap) {  // Use globalShowHeatMap instead of a local variable
+    if (globalShowHeatMap) {  // Use the global state
         sf::RectangleShape cell(sf::Vector2f(GameConfig::CELL_SIZE - 2, GameConfig::CELL_SIZE - 2));
         
         for (const auto& [pos, value] : heatValues) {
