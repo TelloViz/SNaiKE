@@ -1,7 +1,7 @@
 #include "AI/ManhattanStrategy.hpp"
 
 Direction ManhattanStrategy::calculateNextMove(const Snake& snake, const sf::Vector2i& food) {
-    // Update heat map first
+    // Calculate distances once and store them
     updateHeatMap(snake, food);
 
     sf::Vector2i head = snake.getHead();
@@ -23,7 +23,8 @@ Direction ManhattanStrategy::calculateNextMove(const Snake& snake, const sf::Vec
             case Direction::Right: nextPos.x++; break;
         }
 
-        float score = getManhattanDistance(nextPos, food);
+        // Use the cached heat values instead of recalculating
+        float score = heatValues[Position{nextPos}];
         if (score < bestScore) {
             bestScore = score;
             bestMove = dir;
@@ -60,20 +61,26 @@ void ManhattanStrategy::render(sf::RenderWindow& window) const {
 void ManhattanStrategy::updateHeatMap(const Snake& snake, const sf::Vector2i& food) const {
     heatValues.clear();
     Position head{snake.getHead()};
+    const auto& body = snake.getBody();
     
     for (int x = 0; x < GameConfig::GRID_WIDTH; x++) {
         for (int y = 0; y < GameConfig::GRID_HEIGHT; y++) {
             Position pos{{x, y}};
-            float distanceToFood = getManhattanDistance(pos, food);
-            float distanceToHead = getManhattanDistance(pos, head.pos);
             
-            heatValues[pos] = distanceToFood + distanceToHead * 0.5f;
+            // Calculate base score from food and head distance
+            float score = std::abs(pos.pos.x - food.x) + std::abs(pos.pos.y - food.y) +  // distance to food
+                         (std::abs(pos.pos.x - head.pos.x) + std::abs(pos.pos.y - head.pos.y)) * 0.5f;  // distance to head
             
-            for (const auto& segment : snake.getBody()) {
-                if (getManhattanDistance(pos.pos, segment) < 2) {
-                    heatValues[pos] += 10.0f;
+            // Check distance to snake body segments
+            for (const auto& segment : body) {
+                int distToSegment = std::abs(pos.pos.x - segment.x) + std::abs(pos.pos.y - segment.y);
+                if (distToSegment < 2) {
+                    score += 10.0f;
+                    break;  // No need to check other segments once we found a close one
                 }
             }
+            
+            heatValues[pos] = score;
         }
     }
 }

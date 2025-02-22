@@ -104,9 +104,28 @@ Direction AStarStrategy::calculateNextMove(const Snake& snake, const sf::Vector2
 }
 
 std::vector<Direction> AStarStrategy::findPath(const Snake& snake, const sf::Vector2i& food) {
-    Position start{snake.getHead()};  // Use uniform initialization
-    Position goal{food};              // Use uniform initialization
+    Position start{snake.getHead()};
+    Position goal{food};
+    const auto& body = snake.getBody();
     
+    // Pre-calculate distances to body segments
+    std::vector<std::vector<float>> bodyDistances(GameConfig::GRID_WIDTH, 
+        std::vector<float>(GameConfig::GRID_HEIGHT, std::numeric_limits<float>::max()));
+    
+    // Only calculate for nearby positions to save memory and time
+    for (const auto& segment : body) {
+        for (int x = std::max(0, segment.x - 3); x < std::min(GameConfig::GRID_WIDTH, segment.x + 4); x++) {
+            for (int y = std::max(0, segment.y - 3); y < std::min(GameConfig::GRID_HEIGHT, segment.y + 4); y++) {
+                // Create a Position object explicitly and use the Position version
+                Position pos{sf::Vector2i{x, y}};
+                float dist = BaseStrategy::getManhattanDistance(pos, sf::Vector2i{segment});
+                if (dist < 3.0f) {
+                    bodyDistances[x][y] = std::min(bodyDistances[x][y], dist);
+                }
+            }
+        }
+    }
+
     std::priority_queue<Node, std::vector<Node>, std::greater<Node>> openSet;
     std::map<Position, Position> cameFrom;
     std::map<Position, float> gScore;
@@ -147,12 +166,8 @@ std::vector<Direction> AStarStrategy::findPath(const Snake& snake, const sf::Vec
             float moveCost = 1.0f;
 
             // Heavy penalty for crossing snake's body
-            const auto& body = snake.getBody();
-            for (size_t i = 0; i < body.size(); i++) {
-                float distToSegment = getManhattanDistance(next.pos, body[i]);
-                if (distToSegment < 3.0f) {  // Increased detection range
-                    moveCost += 20.0f / (distToSegment + 1.0f);  // Increased penalty
-                }
+            if (bodyDistances[next.pos.x][next.pos.y] < 3.0f) {
+                moveCost += 20.0f / (bodyDistances[next.pos.x][next.pos.y] + 1.0f);
             }
 
             // Extreme penalty for direction reversals
