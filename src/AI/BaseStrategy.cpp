@@ -17,9 +17,7 @@ bool BaseStrategy::isMoveSafe(Direction dir, const Snake& snake) const {
     return !isPositionBlocked(Position(nextPos), snake);
 }
 
-int BaseStrategy::getManhattanDistance(const Position& a, const Position& b) const {
-    return std::abs(a.pos.x - b.pos.x) + std::abs(a.pos.y - b.pos.y);
-}
+// Remove getManhattanDistance implementation from here since it's now in the header
 
 bool BaseStrategy::isPositionBlocked(const Position& pos, const Snake& snake) const {
     if (pos.pos.x < 0 || pos.pos.x >= GameConfig::GRID_WIDTH ||
@@ -65,41 +63,32 @@ Direction BaseStrategy::getDirectionToNeighbor(const Position& from, const Posit
     return Direction::Right; // Default case
 }
 
-int BaseStrategy::countAccessibleSpace(const Position& from, const Snake& snake) const {
-    std::cout << "Counting accessible space from: " << from.pos.x << "," << from.pos.y << std::endl;
-    
+int BaseStrategy::countAccessibleSpace(const Position& start, const Snake& snake) const {
+    static const int MAX_ITERATIONS = 50;  // Limit iterations
+    int count = 0;
     std::vector<std::vector<bool>> visited(GameConfig::GRID_WIDTH, 
         std::vector<bool>(GameConfig::GRID_HEIGHT, false));
     
-    int space = 0;
-    std::queue<Position> toVisit;
-    toVisit.push(from);
+    std::queue<Position> queue;
+    queue.push(start);
+    visited[start.pos.x][start.pos.y] = true;
     
-    // Add maximum iterations to prevent infinite loops
-    int maxIterations = GameConfig::GRID_WIDTH * GameConfig::GRID_HEIGHT;
     int iterations = 0;
-    
-    while (!toVisit.empty() && space < 64 && iterations < maxIterations) {
+    while (!queue.empty() && iterations < MAX_ITERATIONS) {
+        Position current = queue.front();
+        queue.pop();
+        count++;
         iterations++;
-        Position pos = toVisit.front();
-        toVisit.pop();
         
-        if (isPositionBlocked(pos, snake) || visited[pos.pos.x][pos.pos.y]) {
-            continue;
-        }
-        
-        visited[pos.pos.x][pos.pos.y] = true;
-        space++;
-        
-        for (const auto& neighbor : getNeighbors(pos)) {
-            if (!visited[neighbor.pos.x][neighbor.pos.y]) {
-                toVisit.push(neighbor);
+        for (const auto& neighbor : getNeighbors(current)) {
+            if (!visited[neighbor.pos.x][neighbor.pos.y] && !isPositionBlocked(neighbor, snake)) {
+                queue.push(neighbor);
+                visited[neighbor.pos.x][neighbor.pos.y] = true;
             }
         }
     }
     
-    std::cout << "Space counting completed after " << iterations << " iterations" << std::endl;
-    return space;
+    return count;
 }
 
 Direction BaseStrategy::calculateRandomMove(const Snake& snake) const {

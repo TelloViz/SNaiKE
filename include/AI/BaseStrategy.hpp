@@ -15,7 +15,24 @@ public:
 protected:
     bool isPositionBlocked(const Position& pos, const Snake& snake) const;
     bool isMoveSafe(Direction dir, const Snake& snake) const;
-    int getManhattanDistance(const Position& a, const Position& b) const;
+    
+    // Manhattan distance overloads - all return float consistently
+    float getManhattanDistance(const Position& a, const Position& b) const {
+        return static_cast<float>(std::abs(a.pos.x - b.pos.x) + std::abs(a.pos.y - b.pos.y));
+    }
+    
+    float getManhattanDistance(const sf::Vector2i& a, const sf::Vector2i& b) const {
+        return static_cast<float>(std::abs(a.x - b.x) + std::abs(a.y - b.y));
+    }
+    
+    float getManhattanDistance(const Position& a, const sf::Vector2i& b) const {
+        return static_cast<float>(std::abs(a.pos.x - b.x) + std::abs(a.pos.y - b.y));
+    }
+    
+    float getManhattanDistance(const sf::Vector2i& a, const Position& b) const {
+        return static_cast<float>(std::abs(a.x - b.pos.x) + std::abs(a.y - b.pos.y));
+    }
+
     int countAccessibleSpace(const Position& start, const Snake& snake) const;
     std::vector<Position> getNeighbors(const Position& pos) const;
     Direction getDirectionToNeighbor(const Position& from, const Position& to) const;

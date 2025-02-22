@@ -50,7 +50,7 @@ void AdvancedStrategy::update() {
 
 std::vector<Direction> AdvancedStrategy::findPathToFood(const Snake& snake, const sf::Vector2i& food) {
     // Early exit if path is too long
-    if (getManhattanDistance(Position(snake.getHead()), Position(food)) > MAX_PATH_LENGTH) {
+    if (this->getManhattanDistance(Position(snake.getHead()), Position(food)) > MAX_PATH_LENGTH) {
         return std::vector<Direction>();
     }
     
@@ -123,7 +123,7 @@ std::vector<Direction> AdvancedStrategy::findPathToFood(const Snake& snake, cons
                 case Direction::Right: next.pos.x++; break;
             }
 
-            if (closedSet.count(next) || !isMoveSafe(dir, snake)) continue;
+            if (closedSet.count(next) || !this->isMoveSafe(dir, snake)) continue;
 
             int tentativeG = gScore[current] + 1;
             
@@ -131,7 +131,7 @@ std::vector<Direction> AdvancedStrategy::findPathToFood(const Snake& snake, cons
                 cameFrom[next] = current;
                 directionToParent[next] = dir;
                 gScore[next] = tentativeG;
-                int h = getManhattanDistance(next, goal);
+                int h = this->getManhattanDistance(next, goal);
                 openSet.push({tentativeG + h, next});
             }
         }
@@ -208,7 +208,7 @@ void AdvancedStrategy::updateHeatMapVisualization(const Snake& snake, const sf::
         
         // Mark each step of the planned path
         gridHeatMap.setValue(pathPos.x, pathPos.y, pathScore);
-        for (const auto& dir : lastPath) {
+        for (const Direction& dir : lastPath) {
             switch (dir) {
                 case Direction::Up:    pathPos.y--; break;
                 case Direction::Down:  pathPos.y++; break;
@@ -226,6 +226,92 @@ void AdvancedStrategy::updateHeatMapVisualization(const Snake& snake, const sf::
     // Mark critical positions
     gridHeatMap.setValue(food.x, food.y, 1000.0f);  // Food is highest priority
     gridHeatMap.setValue(head.x, head.y, 900.0f);   // Head is next highest
+
+    gridHeatMap.triggerUpdate();
+}
+
+void AdvancedStrategy::updateHeatMap(const Snake& snake, const sf::Vector2i& food) {
+    static sf::Clock updateClock;
+    if (updateClock.getElapsedTime().asMilliseconds() < 50) return;
+    updateClock.restart();
+
+    gridHeatMap.clear();
+    sf::Vector2i head = snake.getHead();
+    Direction currentDir = snake.getCurrentDirection();
+
+    // Calculate scores for visible area only
+    const int VIEW_RADIUS = 6;  // Reduced from 8
+    for (int x = std::max(0, head.x - VIEW_RADIUS); 
+         x <= std::min(GameConfig::GRID_WIDTH - 1, head.x + VIEW_RADIUS); ++x) {
+        for (int y = std::max(0, head.y - VIEW_RADIUS); 
+             y <= std::min(GameConfig::GRID_HEIGHT - 1, head.y + VIEW_RADIUS); ++y) {
+            Position pos{sf::Vector2i(x, y)};
+            float headDistance = getManhattanDistance(pos, Position{head});
+            if (headDistance > VIEW_RADIUS) continue;
+
+            float score = 0.0f;
+            
+            if (isPositionBlocked(pos, snake)) {
+                score = -500.0f;
+            } else {
+                // Food influence
+                float foodDistance = getManhattanDistance(pos, Position{food});
+                score += 200.0f / (1.0f + foodDistance);
+
+                // Only calculate space for immediate moves
+                if (headDistance <= 2) {  // Reduced from 3
+                    int space = countAccessibleSpace(pos, snake);
+                    float spaceRatio = static_cast<float>(space) / 
+                                     (GameConfig::GRID_WIDTH * GameConfig::GRID_HEIGHT);
+                    score += spaceRatio * 300.0f;
+                }
+
+                // Direction preference
+                sf::Vector2i dirVec;
+                switch (currentDir) {
+                    case Direction::Up:    dirVec = {0, -1}; break;
+                    case Direction::Down:  dirVec = {0, 1}; break;
+                    case Direction::Left:  dirVec = {-1, 0}; break;
+                    case Direction::Right: dirVec = {1, 0}; break;
+                }
+                float dirScore = (dirVec.x * (x - head.x) + dirVec.y * (y - head.y)) * 5.0f;
+                score += dirScore;
+            }
+
+            if (std::abs(score) > 0.1f) {
+                gridHeatMap.setValue(x, y, score);
+            }
+        }
+    }
+
+    // Cache and update path
+    if (pathUpdateClock.getElapsedTime().asMilliseconds() > 100) {  // Reduced frequency
+        lastPath = findPathToFood(snake, food);
+        pathUpdateClock.restart();
+    }
+
+    // Visualize path
+    if (!lastPath.empty()) {
+        sf::Vector2i pathPos = head;
+        float pathScore = 800.0f;
+        for (const Direction& dir : lastPath) {
+            switch (dir) {
+                case Direction::Up:    pathPos.y--; break;
+                case Direction::Down:  pathPos.y++; break;
+                case Direction::Left:  pathPos.x--; break;
+                case Direction::Right: pathPos.x++; break;
+            }
+            if (pathPos.x >= 0 && pathPos.x < GameConfig::GRID_WIDTH &&
+                pathPos.y >= 0 && pathPos.y < GameConfig::GRID_HEIGHT) {
+                gridHeatMap.setValue(pathPos.x, pathPos.y, pathScore);
+                pathScore *= 0.9f;
+            }
+        }
+    }
+
+    // Mark critical positions
+    gridHeatMap.setValue(food.x, food.y, 1000.0f);
+    gridHeatMap.setValue(head.x, head.y, 900.0f);
 
     gridHeatMap.triggerUpdate();
 }
@@ -298,4 +384,9 @@ bool AdvancedStrategy::isMoveSafeInFuture(Direction dir, int lookAhead, const Sn
     }
     
     return true;
+}
+
+// Add this implementation before the other member functions:
+void AdvancedStrategy::render(sf::RenderWindow& window) const {
+    gridHeatMap.render(window, sf::Vector2f(GameConfig::CELL_SIZE, GameConfig::CELL_SIZE));
 }

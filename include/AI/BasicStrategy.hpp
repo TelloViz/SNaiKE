@@ -13,6 +13,10 @@ public:
 
 private:
     void updateHeatMap(const Snake& snake, const sf::Vector2i& food);
-    float calculatePositionScore(int x, int y, const Snake& snake, const sf::Vector2i& food) const;
-    GridHeatMap gridHeatMap;  // Add this member variable
+    bool isValidPosition(const sf::Vector2i& pos) const {
+        return pos.x >= 0 && pos.x < GameConfig::GRID_WIDTH && 
+               pos.y >= 0 && pos.y < GameConfig::GRID_HEIGHT;
+    }
+    float calculatePositionScore(const sf::Vector2i& pos, const Snake& snake, const sf::Vector2i& food) const;
+    GridHeatMap gridHeatMap;
 };

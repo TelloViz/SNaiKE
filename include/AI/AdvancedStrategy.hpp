@@ -1,40 +1,37 @@
 #pragma once
 #include "BaseStrategy.hpp"
-#include <SFML/System/Clock.hpp>
-#include <SFML/System/Vector2.hpp>
+#include "AI/GridHeatMap.hpp"
+#include <SFML/Graphics.hpp>
 #include <vector>
-#include "GridHeatMap.hpp"
+#include <queue>
 
 class AdvancedStrategy : public BaseStrategy {
 public:
     Direction calculateNextMove(const Snake& snake, const sf::Vector2i& food) override;
     void update() override;
-    void render(sf::RenderWindow& window) const override {
-        gridHeatMap.render(window, sf::Vector2f(GameConfig::CELL_SIZE, GameConfig::CELL_SIZE));
-    }
+    void render(sf::RenderWindow& window) const override;
 
 private:
-    sf::Vector2i lastPosition;
-    std::vector<Direction> lastPath;
-    sf::Clock pathfindClock;
-    Position lastFoodPos;
-    int stuckCount{0};
-    std::vector<std::vector<float>> scoreCache;
-    sf::Clock gameTimer;
+    static constexpr int MAX_PATH_LENGTH = 100;
+    static constexpr int PATHFINDING_TIMEOUT_MS = 50;
+
+    // Member variables
     GridHeatMap gridHeatMap;
+    std::vector<Direction> lastPath;
+    sf::Clock pathUpdateClock;
+    sf::Clock updateClock;
 
-    // Constants for visualization and pathfinding
-    static constexpr int VIEW_RADIUS = 8;
-    static constexpr int MAX_PATH_LENGTH = 50;  // Limit path length
-    static constexpr int PATHFINDING_TIMEOUT_MS = 50;  // Limit pathfinding time
-
-    std::vector<Direction> findPathToFood(const Snake& snake, const sf::Vector2i& food);
+    // Helper functions
     void updateHeatMapVisualization(const Snake& snake, const sf::Vector2i& food);
-    bool isMoveSafeInFuture(Direction dir, int lookAhead, const Snake& snake) const;
-    float calculatePositionScore(int x, int y, const Snake& snake, const sf::Vector2i& food) const;
+    void updateHeatMap(const Snake& snake, const sf::Vector2i& food);
+    std::vector<Direction> findPathToFood(const Snake& snake, const sf::Vector2i& food);
     float calculateSimpleScore(int x, int y, const Snake& snake, const sf::Vector2i& food) const;
+    float calculatePositionScore(int x, int y, const Snake& snake, const sf::Vector2i& food) const;
+    bool isMoveSafeInFuture(Direction dir, int lookAhead, const Snake& snake) const;
 
-    using BaseStrategy::isPositionBlocked;
+    // Bring base class functions into scope
     using BaseStrategy::getManhattanDistance;
+    using BaseStrategy::isPositionBlocked;
     using BaseStrategy::countAccessibleSpace;
+    using BaseStrategy::isMoveSafe;
 };
