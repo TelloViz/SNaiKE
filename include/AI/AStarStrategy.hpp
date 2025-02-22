@@ -23,6 +23,14 @@ public:
     void render(sf::RenderWindow& window) const override;
     void setHeuristic(Heuristic h) { currentHeuristic = h; }
     Heuristic getHeuristic() const { return currentHeuristic; }
+    void toggleHeatMap() { showHeatMap = !showHeatMap; }
+    void togglePathArrows();
+    bool isHeatMapEnabled() const { return showHeatMap; }
+    bool isPathArrowsEnabled() const { return showPathArrows; }
+    void setVisualizationState(bool heatMap, bool pathArrows) {
+        showHeatMap = heatMap;
+        showPathArrows = pathArrows;
+    }
 
 private:
     std::vector<Direction> currentPath;
@@ -56,4 +64,13 @@ private:
         const Position& goal,
         const std::map<Position, Position>& cameFrom,
         const std::map<Position, Direction>& directionToParent) const;
+
+    mutable sf::Clock renderClock;
+    mutable sf::Clock explorationRenderClock;
+    static constexpr float PATH_RENDER_INTERVAL = 0.3f;      // Slower arrow updates
+    static constexpr float EXPLORATION_RENDER_INTERVAL = 0.1f; // Faster heat map updates
+    mutable std::vector<sf::Vector2i> lastExploredNodes;     // Store last exploration state
+    mutable bool hasExplorationData = false;                 // Track if we have data to show
+    mutable bool showHeatMap = false;
+    mutable bool showPathArrows = false;
 };

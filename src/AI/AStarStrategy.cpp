@@ -1,5 +1,6 @@
 #include "AI/AStarStrategy.hpp"
 #include <queue>
+#include <iostream>
 
 Direction AStarStrategy::calculateNextMove(const Snake& snake, const sf::Vector2i& food) {
     if (currentPath.empty() || pathUpdateClock.getElapsedTime().asSeconds() >= PATH_UPDATE_INTERVAL) {
@@ -123,68 +124,51 @@ void AStarStrategy::update() {
 void AStarStrategy::render(sf::RenderWindow& window) const {
     sf::RectangleShape cell(sf::Vector2f(GameConfig::CELL_SIZE - 2, GameConfig::CELL_SIZE - 2));
     
-    // First draw explored nodes with heat map coloring
-    for (const auto& node : exploredNodes) {
-        // Calculate exploration heat (nodes explored more recently are "hotter")
-        float heat = static_cast<float>(std::distance(exploredNodes.begin(), 
-            std::find(exploredNodes.begin(), exploredNodes.end(), node))) / exploredNodes.size();
-        
-        // Create gradient from blue (cold/old) to red (hot/recent)
-        sf::Color cellColor(
-            static_cast<sf::Uint8>(255 * heat),     // Red
-            0,                                       // Green
-            static_cast<sf::Uint8>(255 * (1-heat)), // Blue
-            64                                       // Alpha (transparency)
-        );
-        
-        cell.setFillColor(cellColor);
-        cell.setPosition(
-            node.x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES + 1,
-            node.y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP + 1
-        );
-        window.draw(cell);
-    }
-    
-    // Use different colors based on heuristic
-    sf::Color pathColor;
-    switch(currentHeuristic) {
-        case Heuristic::MANHATTAN:
-            pathColor = sf::Color(0, 255, 0, 128);    // Green
-            break;
-        case Heuristic::EUCLIDEAN:
-            pathColor = sf::Color(0, 255, 255, 128);  // Cyan
-            break;
-        case Heuristic::CHEBYSHEV:
-            pathColor = sf::Color(255, 165, 0, 128);  // Orange
-            break;
-    }
-    cell.setFillColor(pathColor);
-    
-    // Then draw the current path with a bright, distinct color
-    if (!currentPath.empty()) {
-        sf::Vector2i currentPos = snake.getHead();
-        cell.setFillColor(pathColor);  // Use the selected path color
-        
-        for (const Direction& dir : currentPath) {
-            switch (dir) {
-                case Direction::Up:    currentPos.y--; break;
-                case Direction::Down:  currentPos.y++; break;
-                case Direction::Left:  currentPos.x--; break;
-                case Direction::Right: currentPos.x++; break;
+    // Render exploration heat map
+    if (showHeatMap) {
+        if (explorationRenderClock.getElapsedTime().asSeconds() >= EXPLORATION_RENDER_INTERVAL) {
+            explorationRenderClock.restart();
+            lastExploredNodes = exploredNodes;
+            hasExplorationData = true;
+        }
+
+        if (hasExplorationData) {
+            for (const auto& node : lastExploredNodes) {
+                // Calculate how "recent" this node was explored
+                float heat = static_cast<float>(
+                    std::distance(lastExploredNodes.begin(), 
+                    std::find(lastExploredNodes.begin(), lastExploredNodes.end(), node))
+                ) / lastExploredNodes.size();
+                
+                sf::Color cellColor(
+                    static_cast<sf::Uint8>(255 * heat),     // Red
+                    0,                                       // Green
+                    static_cast<sf::Uint8>(255 * (1-heat)), // Blue
+                    96                                       // Alpha
+                );
+                
+                cell.setFillColor(cellColor);
+                cell.setPosition(
+                    node.x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES + 1,
+                    node.y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP + 1
+                );
+                window.draw(cell);
             }
-            
-            cell.setPosition(
-                currentPos.x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES + 1,
-                currentPos.y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP + 1
-            );
-            window.draw(cell);
-            
-            // Draw direction arrow
+        }
+    }
+
+    // Render path arrows with more frequent updates and debug output
+    if (showPathArrows && !currentPath.empty()) {
+        std::cout << "Rendering path arrows, path length: " << currentPath.size() << std::endl;
+        
+        // Remove the timer check to see if arrows appear at all
+        sf::Vector2i pos = snake.getHead();
+        for (const Direction& dir : currentPath) {
             sf::ConvexShape arrow;
             arrow.setPointCount(3);
-            arrow.setFillColor(sf::Color::White);
-            float arrowSize = GameConfig::CELL_SIZE * 0.3f;
-            
+            arrow.setFillColor(sf::Color(0, 255, 0, 180)); // More visible green
+
+            float arrowSize = GameConfig::CELL_SIZE * 0.4f;
             // Set arrow points based on direction
             switch (dir) {
                 case Direction::Up:
@@ -208,12 +192,20 @@ void AStarStrategy::render(sf::RenderWindow& window) const {
                     arrow.setPoint(2, sf::Vector2f(GameConfig::CELL_SIZE - arrowSize - 2, GameConfig::CELL_SIZE/2 + arrowSize));
                     break;
             }
-            
+
             arrow.setPosition(
-                currentPos.x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES,
-                currentPos.y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP
+                pos.x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES,
+                pos.y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP
             );
             window.draw(arrow);
+
+            // Update position for next arrow
+            switch (dir) {
+                case Direction::Up:    pos.y--; break;
+                case Direction::Down:  pos.y++; break;
+                case Direction::Left:  pos.x--; break;
+                case Direction::Right: pos.x++; break;
+            }
         }
     }
 }
@@ -369,4 +361,9 @@ std::vector<Direction> AStarStrategy::reconstructPath(
 
     std::reverse(path.begin(), path.end());
     return path;
+}
+
+void AStarStrategy::togglePathArrows() {
+    showPathArrows = !showPathArrows;
+    std::cout << "Path arrows: " << (showPathArrows ? "ON" : "OFF") << std::endl;
 }

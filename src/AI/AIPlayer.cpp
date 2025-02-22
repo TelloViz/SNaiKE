@@ -16,31 +16,49 @@ using std::min;
 using std::max;
 
 GameInput AIPlayer::getNextInput() {
-    if (plannedMoves.empty()) {
-        planNextMove();
+    if (!currentStrategy) return GameInput{};
+    
+    Direction nextMove = currentStrategy->calculateNextMove(snake, food);
+    GameButton button;
+    
+    switch (nextMove) {
+        case Direction::Up:    button = GameButton::Up; break;
+        case Direction::Down:  button = GameButton::Down; break;
+        case Direction::Left:  button = GameButton::Left; break;
+        case Direction::Right: button = GameButton::Right; break;
+        default: button = GameButton::None; break;
     }
     
-    if (!plannedMoves.empty()) {
-        GameInput input = plannedMoves.front();
-        plannedMoves.pop();
-        return input;
-    }
-    
-    return GameInput{InputType::ButtonPressed, GameButton::None};
+    return GameInput{InputType::ButtonPressed, button};
 }
 
-void AIPlayer::setStrategy(AIStrategy strategy) {
-    switch (strategy) {
+void AIPlayer::setStrategy(AIStrategy type) {
+    bool heatMapEnabled = false;
+    bool pathArrowsEnabled = false;
+    
+    // Store current visualization states if existing strategy is A*
+    if (auto* currentAstar = dynamic_cast<AStarStrategy*>(currentStrategy.get())) {
+        heatMapEnabled = currentAstar->isHeatMapEnabled();
+        pathArrowsEnabled = currentAstar->isPathArrowsEnabled();
+    }
+
+    // Create new strategy
+    switch (type) {
         case AIStrategy::Manhattan:
             currentStrategy = std::make_unique<ManhattanStrategy>();
             break;
         case AIStrategy::AStar:
-            currentStrategy = std::make_unique<AStarStrategy>(snake);  // Pass snake reference
-            break;
-        case AIStrategy::None:
-            currentStrategy.reset();
+            {
+                auto newStrategy = std::make_unique<AStarStrategy>(snake);
+                if (auto* astar = dynamic_cast<AStarStrategy*>(newStrategy.get())) {
+                    astar->setVisualizationState(heatMapEnabled, pathArrowsEnabled);
+                }
+                currentStrategy = std::move(newStrategy);
+            }
             break;
     }
+    
+    currentStrategyType = type;
 }
 
 void AIPlayer::planNextMove() {

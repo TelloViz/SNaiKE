@@ -18,18 +18,17 @@ enum class AIStrategy {
 
 class AIPlayer {
 public:
-    AIPlayer(const Snake& snakeRef, const sf::Vector2i& foodRef) 
-        : snake(const_cast<Snake&>(snakeRef))
-        , food(foodRef) {}
+    AIPlayer(const Snake& s, const sf::Vector2i& f) 
+        : snake(s), food(f), currentStrategyType(AIStrategy::Manhattan) {
+        setStrategy(currentStrategyType);
+    }
 
     GameInput getNextInput();
-    void setStrategy(AIStrategy strategyType);
+    void setStrategy(AIStrategy type);
     void planNextMove();
 
     AIStrategy getStrategy() const { 
-        if (dynamic_cast<ManhattanStrategy*>(currentStrategy.get())) return AIStrategy::Manhattan;
-        if (dynamic_cast<AStarStrategy*>(currentStrategy.get())) return AIStrategy::AStar;
-        return AIStrategy::None;
+        return currentStrategyType;
     }
 
     bool isEnabled() const { return currentStrategy != nullptr; }
@@ -39,6 +38,7 @@ private:
     GameButton directionToButton(Direction dir);
     std::unique_ptr<BaseStrategy> currentStrategy;
     std::queue<GameInput> plannedMoves;
-    Snake& snake;
+    const Snake& snake;
     const sf::Vector2i& food;
+    AIStrategy currentStrategyType;
 };

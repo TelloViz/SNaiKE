@@ -44,6 +44,8 @@ private:
     sf::Clock heatMapUpdateClock;  // Add update clock for throttling
     std::vector<std::pair<AIStrategy, int>> strategyChanges;
     AIStrategy lastStrategy;
+    bool lastHeatMapState = false;
+    bool lastPathArrowsState = false;
     
     static constexpr float SNAKE_MOVE_INTERVAL = 1.0f / GameConfig::SNAKE_SPEED;
 

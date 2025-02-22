@@ -105,50 +105,80 @@ void PlayingState::handleInput(const GameInput& input) {
                     aiPlayer = std::make_unique<AIPlayer>(snake, food);
                 }
                 break;
-            case GameButton::Num1:
+            case GameButton::Num1: {
+                // Store visualization states from either strategy type
+                if (aiPlayer && aiPlayer->getCurrentStrategy()) {
+                    if (auto* astar = dynamic_cast<AStarStrategy*>(aiPlayer->getCurrentStrategy())) {
+                        lastHeatMapState = astar->isHeatMapEnabled();
+                        lastPathArrowsState = astar->isPathArrowsEnabled();
+                    } else if (auto* manhattan = dynamic_cast<ManhattanStrategy*>(aiPlayer->getCurrentStrategy())) {
+                        // Also store heat map state from Manhattan strategy
+                        lastHeatMapState = showHeatMap;  // Use the PlayingState's showHeatMap
+                        lastPathArrowsState = false;  // Manhattan doesn't have path arrows
+                    }
+                }
+
                 if (!aiPlayer) {
                     aiPlayer = std::make_unique<AIPlayer>(snake, food);
                 }
                 aiControlled = true;
                 aiPlayer->setStrategy(AIStrategy::Manhattan);
-                std::cout << "AI Control: ON, Strategy: Basic" << std::endl;
+                updateAlgoLabel();
                 break;
+            }
+            
             case GameButton::Num2:
-                if (!aiPlayer) {
-                    aiPlayer = std::make_unique<AIPlayer>(snake, food);
-                }
-                aiControlled = true;
-                aiPlayer->setStrategy(AIStrategy::AStar);
-                if (auto* astar = dynamic_cast<AStarStrategy*>(aiPlayer->getCurrentStrategy())) {
-                    astar->setHeuristic(AStarStrategy::Heuristic::MANHATTAN);
-                }
-                std::cout << "AI Control: ON, Strategy: A* (Manhattan)" << std::endl;
-                break;
             case GameButton::Num3:
+            case GameButton::Num4: {
+                // Always preserve current visualization state before switching
+                if (aiPlayer && aiPlayer->getCurrentStrategy()) {
+                    if (auto* astar = dynamic_cast<AStarStrategy*>(aiPlayer->getCurrentStrategy())) {
+                        lastHeatMapState = astar->isHeatMapEnabled();
+                        lastPathArrowsState = astar->isPathArrowsEnabled();
+                    }
+                }
+
                 if (!aiPlayer) {
                     aiPlayer = std::make_unique<AIPlayer>(snake, food);
                 }
                 aiControlled = true;
                 aiPlayer->setStrategy(AIStrategy::AStar);
+
                 if (auto* astar = dynamic_cast<AStarStrategy*>(aiPlayer->getCurrentStrategy())) {
-                    astar->setHeuristic(AStarStrategy::Heuristic::EUCLIDEAN);
+                    switch (input.button) {
+                        case GameButton::Num2:
+                            astar->setHeuristic(AStarStrategy::Heuristic::MANHATTAN);
+                            break;
+                        case GameButton::Num3:
+                            astar->setHeuristic(AStarStrategy::Heuristic::EUCLIDEAN);
+                            break;
+                        case GameButton::Num4:
+                            astar->setHeuristic(AStarStrategy::Heuristic::CHEBYSHEV);
+                            break;
+                    }
+                    astar->setVisualizationState(lastHeatMapState, lastPathArrowsState);
                 }
-                std::cout << "AI Control: ON, Strategy: A* (Euclidean)" << std::endl;
+                updateAlgoLabel();
                 break;
-            case GameButton::Num4:
-                if (!aiPlayer) {
-                    aiPlayer = std::make_unique<AIPlayer>(snake, food);
-                }
-                aiControlled = true;
-                aiPlayer->setStrategy(AIStrategy::AStar);
-                if (auto* astar = dynamic_cast<AStarStrategy*>(aiPlayer->getCurrentStrategy())) {
-                    astar->setHeuristic(AStarStrategy::Heuristic::CHEBYSHEV);
-                }
-                std::cout << "AI Control: ON, Strategy: A* (Chebyshev)" << std::endl;
-                break;
+            }
             case GameButton::H:  // Add new button for heat map toggle
                 showHeatMap = !showHeatMap;
                 std::cout << "Heat map display: " << (showHeatMap ? "ON" : "OFF") << std::endl;
+                if (aiControlled && aiPlayer) {
+                    if (auto* astar = dynamic_cast<AStarStrategy*>(aiPlayer->getCurrentStrategy())) {
+                        astar->toggleHeatMap();
+                    }
+                    // Store state regardless of current strategy type
+                    lastHeatMapState = showHeatMap;
+                }
+                break;
+            case GameButton::J:
+                if (aiControlled && aiPlayer) {
+                    if (auto* astar = dynamic_cast<AStarStrategy*>(aiPlayer->getCurrentStrategy())) {
+                        astar->togglePathArrows();
+                        lastPathArrowsState = astar->isPathArrowsEnabled();
+                    }
+                }
                 break;
         }
     }
