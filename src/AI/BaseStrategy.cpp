@@ -5,6 +5,8 @@
 #include <array>
 #include <iostream>
 
+bool BaseStrategy::globalShowHeatMap = false;  // Initialize the static member
+
 bool BaseStrategy::isMoveSafe(Direction dir, const Snake& snake) const {
     sf::Vector2i nextPos = snake.getHead();
     switch (dir) {

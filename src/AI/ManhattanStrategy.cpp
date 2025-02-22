@@ -34,24 +34,26 @@ Direction ManhattanStrategy::calculateNextMove(const Snake& snake, const sf::Vec
 }
 
 void ManhattanStrategy::render(sf::RenderWindow& window) const {
-    sf::RectangleShape cell(sf::Vector2f(GameConfig::CELL_SIZE - 2, GameConfig::CELL_SIZE - 2));
-    
-    for (const auto& [pos, value] : heatValues) {
-        float normalizedValue = std::min(1.0f, value / 20.0f);
+    if (globalShowHeatMap) {  // Use globalShowHeatMap instead of a local variable
+        sf::RectangleShape cell(sf::Vector2f(GameConfig::CELL_SIZE - 2, GameConfig::CELL_SIZE - 2));
         
-        sf::Color cellColor(
-            static_cast<sf::Uint8>(255 * normalizedValue),
-            static_cast<sf::Uint8>(255 * (1-normalizedValue)),
-            0,
-            100
-        );
-        
-        cell.setFillColor(cellColor);
-        cell.setPosition(
-            pos.pos.x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES + 1,
-            pos.pos.y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP + 1
-        );
-        window.draw(cell);
+        for (const auto& [pos, value] : heatValues) {
+            float normalizedValue = std::min(1.0f, value / 20.0f);
+            
+            sf::Color cellColor(
+                static_cast<sf::Uint8>(255 * normalizedValue),
+                static_cast<sf::Uint8>(255 * (1-normalizedValue)),
+                0,
+                100
+            );
+            
+            cell.setFillColor(cellColor);
+            cell.setPosition(
+                pos.pos.x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES + 1,
+                pos.pos.y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP + 1
+            );
+            window.draw(cell);
+        }
     }
 }
 
@@ -74,4 +76,9 @@ void ManhattanStrategy::updateHeatMap(const Snake& snake, const sf::Vector2i& fo
             }
         }
     }
+}
+
+void ManhattanStrategy::toggleHeatMap() {
+    globalShowHeatMap = !globalShowHeatMap;
+    std::cout << "Heat map: " << (globalShowHeatMap ? "ON" : "OFF") << std::endl;
 }

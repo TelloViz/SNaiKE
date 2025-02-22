@@ -2,10 +2,83 @@
 #include <queue>
 #include <iostream>
 
+void AStarStrategy::render(sf::RenderWindow& window) const {
+    // Heat map rendering using global state
+    if (globalShowHeatMap) {
+        sf::RectangleShape cell(sf::Vector2f(GameConfig::CELL_SIZE - 2, GameConfig::CELL_SIZE - 2));
+        for (const auto& node : exploredNodes) {
+            float heat = static_cast<float>(
+                std::distance(exploredNodes.begin(), 
+                std::find(exploredNodes.begin(), exploredNodes.end(), node))
+            ) / exploredNodes.size();
+            
+            cell.setFillColor(sf::Color(
+                static_cast<sf::Uint8>(255 * heat),
+                0,
+                static_cast<sf::Uint8>(255 * (1-heat)),
+                96
+            ));
+            
+            cell.setPosition(
+                node.x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES + 1,
+                node.y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP + 1
+            );
+            window.draw(cell);
+        }
+    }
+
+    // Path arrow rendering stays local
+    if (showPathArrows && !visualPath.empty()) {
+        sf::Vector2i pos = snake.getHead();
+        for (const Direction& dir : visualPath) {
+            sf::ConvexShape arrow;
+            arrow.setPointCount(3);
+            arrow.setFillColor(sf::Color(0, 255, 0, 180)); // Semi-transparent green
+
+            float arrowSize = GameConfig::CELL_SIZE * 0.4f;
+            switch (dir) {
+                case Direction::Up:
+                    arrow.setPoint(0, sf::Vector2f(GameConfig::CELL_SIZE/2, 2));
+                    arrow.setPoint(1, sf::Vector2f(GameConfig::CELL_SIZE/2 - arrowSize, arrowSize + 2));
+                    arrow.setPoint(2, sf::Vector2f(GameConfig::CELL_SIZE/2 + arrowSize, arrowSize + 2));
+                    break;
+                case Direction::Down:
+                    arrow.setPoint(0, sf::Vector2f(GameConfig::CELL_SIZE/2, GameConfig::CELL_SIZE - 2));
+                    arrow.setPoint(1, sf::Vector2f(GameConfig::CELL_SIZE/2 - arrowSize, GameConfig::CELL_SIZE - arrowSize - 2));
+                    arrow.setPoint(2, sf::Vector2f(GameConfig::CELL_SIZE/2 + arrowSize, GameConfig::CELL_SIZE - arrowSize - 2));
+                    break;
+                case Direction::Left:
+                    arrow.setPoint(0, sf::Vector2f(2, GameConfig::CELL_SIZE/2));
+                    arrow.setPoint(1, sf::Vector2f(arrowSize + 2, GameConfig::CELL_SIZE/2 - arrowSize));
+                    arrow.setPoint(2, sf::Vector2f(arrowSize + 2, GameConfig::CELL_SIZE/2 + arrowSize));
+                    break;
+                case Direction::Right:
+                    arrow.setPoint(0, sf::Vector2f(GameConfig::CELL_SIZE - 2, GameConfig::CELL_SIZE/2));
+                    arrow.setPoint(1, sf::Vector2f(GameConfig::CELL_SIZE - arrowSize - 2, GameConfig::CELL_SIZE/2 - arrowSize));
+                    arrow.setPoint(2, sf::Vector2f(GameConfig::CELL_SIZE - arrowSize - 2, GameConfig::CELL_SIZE/2 + arrowSize));
+                    break;
+            }
+
+            arrow.setPosition(
+                pos.x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES,
+                pos.y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP
+            );
+            window.draw(arrow);
+
+            // Update position for next arrow
+            switch (dir) {
+                case Direction::Up:    pos.y--; break;
+                case Direction::Down:  pos.y++; break;
+                case Direction::Left:  pos.x--; break;
+                case Direction::Right: pos.x++; break;
+            }
+        }
+    }
+}
+
 AStarStrategy::AStarStrategy(const Snake& snakeRef) 
     : snake(snakeRef)
     , currentHeuristic(Heuristic::MANHATTAN)
-    , showHeatMap(false)
     , showPathArrows(false)
     , hasExplorationData(false)
 {
@@ -141,80 +214,6 @@ void AStarStrategy::update() {
     visualPath = currentPath;
 }
 
-void AStarStrategy::render(sf::RenderWindow& window) const {
-    // Heat map rendering
-    if (showHeatMap) {
-        sf::RectangleShape cell(sf::Vector2f(GameConfig::CELL_SIZE - 2, GameConfig::CELL_SIZE - 2));
-        for (const auto& node : exploredNodes) {  // Use exploredNodes directly
-            float heat = static_cast<float>(
-                std::distance(exploredNodes.begin(), 
-                std::find(exploredNodes.begin(), exploredNodes.end(), node))
-            ) / exploredNodes.size();
-            
-            cell.setFillColor(sf::Color(
-                static_cast<sf::Uint8>(255 * heat),
-                0,
-                static_cast<sf::Uint8>(255 * (1-heat)),
-                96
-            ));
-            
-            cell.setPosition(
-                node.x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES + 1,
-                node.y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP + 1
-            );
-            window.draw(cell);
-        }
-    }
-
-    // Path arrow rendering - completely independent from heat map
-    if (showPathArrows && !visualPath.empty()) {
-        sf::Vector2i pos = snake.getHead();
-        for (const Direction& dir : visualPath) {
-            sf::ConvexShape arrow;
-            arrow.setPointCount(3);
-            arrow.setFillColor(sf::Color(0, 255, 0, 180)); // Semi-transparent green
-
-            float arrowSize = GameConfig::CELL_SIZE * 0.4f;
-            switch (dir) {
-                case Direction::Up:
-                    arrow.setPoint(0, sf::Vector2f(GameConfig::CELL_SIZE/2, 2));
-                    arrow.setPoint(1, sf::Vector2f(GameConfig::CELL_SIZE/2 - arrowSize, arrowSize + 2));
-                    arrow.setPoint(2, sf::Vector2f(GameConfig::CELL_SIZE/2 + arrowSize, arrowSize + 2));
-                    break;
-                case Direction::Down:
-                    arrow.setPoint(0, sf::Vector2f(GameConfig::CELL_SIZE/2, GameConfig::CELL_SIZE - 2));
-                    arrow.setPoint(1, sf::Vector2f(GameConfig::CELL_SIZE/2 - arrowSize, GameConfig::CELL_SIZE - arrowSize - 2));
-                    arrow.setPoint(2, sf::Vector2f(GameConfig::CELL_SIZE/2 + arrowSize, GameConfig::CELL_SIZE - arrowSize - 2));
-                    break;
-                case Direction::Left:
-                    arrow.setPoint(0, sf::Vector2f(2, GameConfig::CELL_SIZE/2));
-                    arrow.setPoint(1, sf::Vector2f(arrowSize + 2, GameConfig::CELL_SIZE/2 - arrowSize));
-                    arrow.setPoint(2, sf::Vector2f(arrowSize + 2, GameConfig::CELL_SIZE/2 + arrowSize));
-                    break;
-                case Direction::Right:
-                    arrow.setPoint(0, sf::Vector2f(GameConfig::CELL_SIZE - 2, GameConfig::CELL_SIZE/2));
-                    arrow.setPoint(1, sf::Vector2f(GameConfig::CELL_SIZE - arrowSize - 2, GameConfig::CELL_SIZE/2 - arrowSize));
-                    arrow.setPoint(2, sf::Vector2f(GameConfig::CELL_SIZE - arrowSize - 2, GameConfig::CELL_SIZE/2 + arrowSize));
-                    break;
-            }
-
-            arrow.setPosition(
-                pos.x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES,
-                pos.y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP
-            );
-            window.draw(arrow);
-
-            // Update position for next arrow
-            switch (dir) {
-                case Direction::Up:    pos.y--; break;
-                case Direction::Down:  pos.y++; break;
-                case Direction::Left:  pos.x--; break;
-                case Direction::Right: pos.x++; break;
-            }
-        }
-    }
-}
-
 int AStarStrategy::countAccessibleSpace(const Position& start, const Snake& snake) const {
     std::vector<Position> visited;
     std::queue<Position> toVisit;
@@ -257,7 +256,7 @@ std::vector<Position> AStarStrategy::getNeighbors(const Position& pos) const {
         Position{pos.pos.x, pos.pos.y - 1},  // Up
         Position{pos.pos.x, pos.pos.y + 1},  // Down
         Position{pos.pos.x - 1, pos.pos.y},  // Left
-        Position{pos.pos.x + 1, pos.pos.y}   // RiYou saight
+        Position{pos.pos.x + 1, pos.pos.y}   // Right
     };
 }
 
@@ -373,7 +372,8 @@ void AStarStrategy::togglePathArrows() {
     std::cout << "Path arrows: " << (showPathArrows ? "ON" : "OFF") << std::endl;
 }
 
+// Add this implementation
 void AStarStrategy::toggleHeatMap() {
-    showHeatMap = !showHeatMap;
-    std::cout << "Heat map: " << (showHeatMap ? "ON" : "OFF") << std::endl;
+    globalShowHeatMap = !globalShowHeatMap;
+    std::cout << "Heat map: " << (globalShowHeatMap ? "ON" : "OFF") << std::endl;
 }

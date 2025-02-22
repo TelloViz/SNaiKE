@@ -4,15 +4,11 @@
 #include "Game/Direction.hpp"
 #include "Game/Position.hpp"
 #include <vector>
+#include <iostream>
 
 class BaseStrategy {
-public:
-    virtual ~BaseStrategy() = default;
-    virtual Direction calculateNextMove(const Snake& snake, const sf::Vector2i& food) = 0;
-    virtual void update() = 0;
-    virtual void render(sf::RenderWindow& window) const {};
-
 protected:
+    static bool globalShowHeatMap;  // Add this static member
     bool isPositionBlocked(const Position& pos, const Snake& snake) const;
     bool isMoveSafe(Direction dir, const Snake& snake) const;
     
@@ -37,4 +33,12 @@ protected:
     std::vector<Position> getNeighbors(const Position& pos) const;
     Direction getDirectionToNeighbor(const Position& from, const Position& to) const;
     Direction calculateRandomMove(const Snake& snake) const;
+
+public:
+    virtual ~BaseStrategy() = default;
+    virtual Direction calculateNextMove(const Snake& snake, const sf::Vector2i& food) = 0;
+    virtual void update() = 0;
+    virtual void render(sf::RenderWindow& window) const {};
+    virtual void toggleHeatMap() = 0;  // Make it pure virtual
+    virtual bool isHeatMapEnabled() const { return globalShowHeatMap; }
 };
