@@ -67,6 +67,9 @@ private:
         const std::map<Position, Position>& cameFrom,
         const std::map<Position, Direction>& directionToParent) const;
 
+    // Add this helper method declaration
+    float getEuclideanDistanceSquared(const sf::Vector2i& a, const sf::Vector2i& b) const;
+
     mutable sf::Clock renderClock;
     mutable sf::Clock explorationRenderClock;
     static constexpr float PATH_RENDER_INTERVAL = 0.1f;      // Slower arrow updates

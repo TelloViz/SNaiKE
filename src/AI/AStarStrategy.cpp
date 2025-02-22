@@ -126,6 +126,24 @@ std::vector<Direction> AStarStrategy::findPath(const Snake& snake, const sf::Vec
         }
     }
 
+    // Pre-calculate squared distances for body segments if using Euclidean heuristic
+    std::vector<std::vector<float>> bodyDistancesSquared;
+    if (currentHeuristic == Heuristic::EUCLIDEAN) {
+        bodyDistancesSquared.resize(GameConfig::GRID_WIDTH, 
+            std::vector<float>(GameConfig::GRID_HEIGHT, std::numeric_limits<float>::max()));
+        
+        for (const auto& segment : body) {
+            for (int x = std::max(0, segment.x - 3); x < std::min(GameConfig::GRID_WIDTH, segment.x + 4); x++) {
+                for (int y = std::max(0, segment.y - 3); y < std::min(GameConfig::GRID_HEIGHT, segment.y + 4); y++) {
+                    float distSquared = getEuclideanDistanceSquared({x, y}, segment);
+                    if (distSquared < 9.0f) {  // 3.0 squared
+                        bodyDistancesSquared[x][y] = std::min(bodyDistancesSquared[x][y], distSquared);
+                    }
+                }
+            }
+        }
+    }
+
     std::priority_queue<Node, std::vector<Node>, std::greater<Node>> openSet;
     std::map<Position, Position> cameFrom;
     std::map<Position, float> gScore;
@@ -165,9 +183,17 @@ std::vector<Direction> AStarStrategy::findPath(const Snake& snake, const sf::Vec
 
             float moveCost = 1.0f;
 
-            // Heavy penalty for crossing snake's body
-            if (bodyDistances[next.pos.x][next.pos.y] < 3.0f) {
-                moveCost += 20.0f / (bodyDistances[next.pos.x][next.pos.y] + 1.0f);
+            // Use appropriate distance calculation based on heuristic
+            if (currentHeuristic == Heuristic::EUCLIDEAN) {
+                float distSquared = bodyDistancesSquared[next.pos.x][next.pos.y];
+                if (distSquared < 9.0f) {  // 3.0 squared
+                    moveCost += 20.0f / (std::sqrt(distSquared) + 1.0f);
+                }
+            } else {
+                // Use existing Manhattan distance calculations
+                if (bodyDistances[next.pos.x][next.pos.y] < 3.0f) {
+                    moveCost += 20.0f / (bodyDistances[next.pos.x][next.pos.y] + 1.0f);
+                }
             }
 
             // Extreme penalty for direction reversals
@@ -203,11 +229,12 @@ float AStarStrategy::calculateHeuristic(const Position& pos, const sf::Vector2i&
     switch(currentHeuristic) {
         case Heuristic::MANHATTAN:
             return getManhattanDistance(pos, goal);
-        case Heuristic::EUCLIDEAN:
-            return std::sqrt(
-                std::pow(pos.pos.x - goal.x, 2) + 
-                std::pow(pos.pos.y - goal.y, 2)
-            );
+        case Heuristic::EUCLIDEAN: {
+            // Calculate squared distances once
+            float dx = pos.pos.x - goal.x;
+            float dy = pos.pos.y - goal.y;
+            return std::sqrt(dx * dx + dy * dy);  // Single sqrt call
+        }
         case Heuristic::CHEBYSHEV:
             return std::max(
                 std::abs(pos.pos.x - goal.x),
@@ -216,6 +243,13 @@ float AStarStrategy::calculateHeuristic(const Position& pos, const sf::Vector2i&
         default:
             return getManhattanDistance(pos, goal);
     }
+}
+
+// Add a new helper method for Euclidean calculations
+float AStarStrategy::getEuclideanDistanceSquared(const sf::Vector2i& a, const sf::Vector2i& b) const {
+    float dx = a.x - b.x;
+    float dy = a.y - b.y;
+    return dx * dx + dy * dy;
 }
 
 void AStarStrategy::update() {
