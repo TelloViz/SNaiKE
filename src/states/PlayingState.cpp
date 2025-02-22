@@ -38,16 +38,23 @@ PlayingState::PlayingState(GameController* ctrl, const StateContext& ctx, StateM
 void PlayingState::updateAlgoLabel() {
     std::string algoText = "AI: ";
     if (aiControlled && aiPlayer) {
-        const BaseStrategy* strategy = aiPlayer->getCurrentStrategy();
-        if (dynamic_cast<const AStarStrategy*>(strategy)) {
-            algoText += "A*";
-        } else if (dynamic_cast<const ManhattanStrategy*>(strategy)) {
-            algoText += "Mnht";
+        if (auto* astar = dynamic_cast<AStarStrategy*>(aiPlayer->getCurrentStrategy())) {
+            switch(astar->getHeuristic()) {
+                case AStarStrategy::Heuristic::MANHATTAN:
+                    algoText += "A* (Manhattan)";
+                    break;
+                case AStarStrategy::Heuristic::EUCLIDEAN:
+                    algoText += "A* (Euclidean)";
+                    break;
+                case AStarStrategy::Heuristic::CHEBYSHEV:
+                    algoText += "A* (Chebyshev)";
+                    break;
+            }
+        } else if (dynamic_cast<ManhattanStrategy*>(aiPlayer->getCurrentStrategy())) {
+            algoText += "Manhattan";
         } else {
-            algoText += "Off";
+            algoText += "None";
         }
-    } else {
-        algoText += "Off";
     }
     algoLabel.setString(algoText);
 }
@@ -112,15 +119,32 @@ void PlayingState::handleInput(const GameInput& input) {
                 }
                 aiControlled = true;
                 aiPlayer->setStrategy(AIStrategy::AStar);
-                std::cout << "AI Control: ON, Strategy: Advanced" << std::endl;
+                if (auto* astar = dynamic_cast<AStarStrategy*>(aiPlayer->getCurrentStrategy())) {
+                    astar->setHeuristic(AStarStrategy::Heuristic::MANHATTAN);
+                }
+                std::cout << "AI Control: ON, Strategy: A* (Manhattan)" << std::endl;
                 break;
             case GameButton::Num3:
                 if (!aiPlayer) {
                     aiPlayer = std::make_unique<AIPlayer>(snake, food);
                 }
                 aiControlled = true;
-                aiPlayer->setStrategy(AIStrategy::Random);
-                std::cout << "AI Control: ON, Strategy: Random" << std::endl;
+                aiPlayer->setStrategy(AIStrategy::AStar);
+                if (auto* astar = dynamic_cast<AStarStrategy*>(aiPlayer->getCurrentStrategy())) {
+                    astar->setHeuristic(AStarStrategy::Heuristic::EUCLIDEAN);
+                }
+                std::cout << "AI Control: ON, Strategy: A* (Euclidean)" << std::endl;
+                break;
+            case GameButton::Num4:
+                if (!aiPlayer) {
+                    aiPlayer = std::make_unique<AIPlayer>(snake, food);
+                }
+                aiControlled = true;
+                aiPlayer->setStrategy(AIStrategy::AStar);
+                if (auto* astar = dynamic_cast<AStarStrategy*>(aiPlayer->getCurrentStrategy())) {
+                    astar->setHeuristic(AStarStrategy::Heuristic::CHEBYSHEV);
+                }
+                std::cout << "AI Control: ON, Strategy: A* (Chebyshev)" << std::endl;
                 break;
             case GameButton::H:  // Add new button for heat map toggle
                 showHeatMap = !showHeatMap;

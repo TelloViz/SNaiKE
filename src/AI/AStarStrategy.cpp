@@ -38,16 +38,12 @@ std::vector<Direction> AStarStrategy::findPath(const Snake& snake, const sf::Vec
         exploredNodes.push_back(current.pos);  // Record explored node
 
         if (current == goal) {
-            std::vector<Direction> path;
-            Position currentPos = goal;
-            
-            while (currentPos != start) {
-                path.push_back(directionToParent[currentPos]);
-                currentPos = cameFrom[currentPos];
+            // Found path to food, now verify it's safe
+            std::vector<Direction> path = reconstructPath(start, goal, cameFrom, directionToParent);
+            if (isPathSafe(path, snake)) {
+                return path;
             }
-            
-            std::reverse(path.begin(), path.end());
-            return path;
+            continue; // Path wasn't safe, keep searching
         }
 
         for (Direction dir : {Direction::Up, Direction::Down, Direction::Left, Direction::Right}) {
@@ -59,20 +55,41 @@ std::vector<Direction> AStarStrategy::findPath(const Snake& snake, const sf::Vec
                 case Direction::Right: next.pos.x++; break;
             }
 
-            if (!isPositionBlocked(next, snake)) {
-                float tentativeGScore = gScore[current] + 1;
-                
-                if (!gScore.count(next) || tentativeGScore < gScore[next]) {
-                    cameFrom[next] = current;
-                    gScore[next] = tentativeGScore;
-                    directionToParent[next] = dir;
-                    
-                    openSet.push({
-                        next,
-                        tentativeGScore,
-                        calculateHeuristic(next, food)
-                    });
+            if (!isPositionSafe(next, snake)) continue;
+
+            float moveCost = 1.0f;
+
+            // Heavy penalty for crossing snake's body
+            const auto& body = snake.getBody();
+            for (size_t i = 0; i < body.size(); i++) {
+                float distToSegment = getManhattanDistance(next.pos, body[i]);
+                if (distToSegment < 3.0f) {  // Increased detection range
+                    moveCost += 20.0f / (distToSegment + 1.0f);  // Increased penalty
                 }
+            }
+
+            // Extreme penalty for direction reversals
+            Direction currentDir = snake.getCurrentDirection();
+            if ((dir == Direction::Up && currentDir == Direction::Down) ||
+                (dir == Direction::Down && currentDir == Direction::Up) ||
+                (dir == Direction::Left && currentDir == Direction::Right) ||
+                (dir == Direction::Right && currentDir == Direction::Left)) {
+                moveCost += 50.0f;  // Much higher penalty
+            }
+
+            // Penalty for moving towards own body
+            if (isMovingTowardsBody(next, dir, snake)) {
+                moveCost += 15.0f;
+            }
+
+            float tentativeGScore = gScore[current] + moveCost;
+            if (!gScore.count(next) || tentativeGScore < gScore[next]) {
+                cameFrom[next] = current;
+                gScore[next] = tentativeGScore;
+                directionToParent[next] = dir;
+                
+                float hScore = calculateHeuristic(next, food);
+                openSet.push({next, tentativeGScore, hScore});
             }
         }
     }
@@ -81,7 +98,22 @@ std::vector<Direction> AStarStrategy::findPath(const Snake& snake, const sf::Vec
 }
 
 float AStarStrategy::calculateHeuristic(const Position& pos, const sf::Vector2i& goal) const {
-    return getManhattanDistance(pos, goal);
+    switch(currentHeuristic) {
+        case Heuristic::MANHATTAN:
+            return getManhattanDistance(pos, goal);
+        case Heuristic::EUCLIDEAN:
+            return std::sqrt(
+                std::pow(pos.pos.x - goal.x, 2) + 
+                std::pow(pos.pos.y - goal.y, 2)
+            );
+        case Heuristic::CHEBYSHEV:
+            return std::max(
+                std::abs(pos.pos.x - goal.x),
+                std::abs(pos.pos.y - goal.y)
+            );
+        default:
+            return getManhattanDistance(pos, goal);
+    }
 }
 
 void AStarStrategy::update() {
@@ -113,10 +145,25 @@ void AStarStrategy::render(sf::RenderWindow& window) const {
         window.draw(cell);
     }
     
+    // Use different colors based on heuristic
+    sf::Color pathColor;
+    switch(currentHeuristic) {
+        case Heuristic::MANHATTAN:
+            pathColor = sf::Color(0, 255, 0, 128);    // Green
+            break;
+        case Heuristic::EUCLIDEAN:
+            pathColor = sf::Color(0, 255, 255, 128);  // Cyan
+            break;
+        case Heuristic::CHEBYSHEV:
+            pathColor = sf::Color(255, 165, 0, 128);  // Orange
+            break;
+    }
+    cell.setFillColor(pathColor);
+    
     // Then draw the current path with a bright, distinct color
     if (!currentPath.empty()) {
         sf::Vector2i currentPos = snake.getHead();
-        cell.setFillColor(sf::Color(0, 255, 0, 128));  // Bright semi-transparent green
+        cell.setFillColor(pathColor);  // Use the selected path color
         
         for (const Direction& dir : currentPath) {
             switch (dir) {
@@ -169,4 +216,157 @@ void AStarStrategy::render(sf::RenderWindow& window) const {
             window.draw(arrow);
         }
     }
+}
+
+int AStarStrategy::countAccessibleSpace(const Position& start, const Snake& snake) const {
+    std::vector<Position> visited;
+    std::queue<Position> toVisit;
+    toVisit.push(start);
+    
+    while (!toVisit.empty()) {
+        Position current = toVisit.front();
+        toVisit.pop();
+        
+        if (std::find(visited.begin(), visited.end(), current) != visited.end()) {
+            continue;
+        }
+        
+        visited.push_back(current);
+        
+        for (const auto& neighbor : getNeighbors(current)) {
+            if (neighbor.pos.x >= 0 && neighbor.pos.x < GameConfig::GRID_WIDTH &&
+                neighbor.pos.y >= 0 && neighbor.pos.y < GameConfig::GRID_HEIGHT) {
+                
+                bool isBlocked = false;
+                for (const auto& segment : snake.getBody()) {
+                    if (neighbor.pos == segment) {
+                        isBlocked = true;
+                        break;
+                    }
+                }
+                
+                if (!isBlocked) {
+                    toVisit.push(neighbor);
+                }
+            }
+        }
+    }
+    
+    return visited.size();
+}
+
+std::vector<Position> AStarStrategy::getNeighbors(const Position& pos) const {
+    return {
+        Position{pos.pos.x, pos.pos.y - 1},  // Up
+        Position{pos.pos.x, pos.pos.y + 1},  // Down
+        Position{pos.pos.x - 1, pos.pos.y},  // Left
+        Position{pos.pos.x + 1, pos.pos.y}   // RiYou saight
+    };
+}
+
+bool AStarStrategy::isPositionSafe(const Position& pos, const Snake& snake) const {
+    // Check grid boundaries
+    if (pos.pos.x < 0 || pos.pos.x >= GameConfig::GRID_WIDTH ||
+        pos.pos.y < 0 || pos.pos.y >= GameConfig::GRID_HEIGHT) {
+        return false;
+    }
+
+    const auto& body = snake.getBody();
+    // Start checking from the third segment since first two can't be collided with
+    for (size_t i = 2; i < body.size() - 1; ++i) {
+        if (pos.pos == body[i]) {
+            return false;
+        }
+    }
+
+    // Only check accessible space if near middle segments
+    bool nearBody = false;
+    // Skip first two segments in this check as well
+    for (size_t i = 2; i < body.size(); ++i) {
+        if (getManhattanDistance(pos.pos, body[i]) < 2) {
+            nearBody = true;
+            break;
+        }
+    }
+
+    if (nearBody && countAccessibleSpace(pos, snake) < body.size()) {
+        return false;
+    }
+
+    return true;
+}
+
+bool AStarStrategy::isMovingTowardsBody(const Position& pos, Direction dir, const Snake& snake) const {
+    const auto& body = snake.getBody();
+    sf::Vector2i nextPos = pos.pos;
+    
+    // Only check 2 steps ahead instead of 3
+    for (int steps = 1; steps <= 2; steps++) {
+        switch (dir) {
+            case Direction::Up:    nextPos.y--; break;
+            case Direction::Down:  nextPos.y++; break;
+            case Direction::Left:  nextPos.x--; break;
+            case Direction::Right: nextPos.x++; break;
+        }
+        
+        // Only check first few body segments
+        for (size_t i = 0; i < std::min(size_t(5), body.size() - 1); i++) {
+            if (BaseStrategy::getManhattanDistance(nextPos, body[i]) < steps) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool AStarStrategy::isPathSafe(const std::vector<Direction>& path, const Snake& snake) const {
+    if (path.empty()) return false;
+
+    std::deque<sf::Vector2i> simSnakeBody = snake.getBody();
+    sf::Vector2i simHead = simSnakeBody.front();
+
+    for (Direction dir : path) {
+        switch (dir) {
+            case Direction::Up:    simHead.y--; break;
+            case Direction::Down:  simHead.y++; break;
+            case Direction::Left:  simHead.x--; break;
+            case Direction::Right: simHead.x++; break;
+        }
+
+        // Check if this move would cause self-collision
+        for (size_t i = 0; i < simSnakeBody.size() - 1; i++) {
+            if (simHead == simSnakeBody[i]) return false;
+        }
+
+        simSnakeBody.pop_back();
+        simSnakeBody.push_front(simHead);
+    }
+    return true;
+}
+
+std::vector<Direction> AStarStrategy::reconstructPath(
+    const Position& start,
+    const Position& goal,
+    const std::map<Position, Position>& cameFrom,
+    const std::map<Position, Direction>& directionToParent) const {
+    
+    std::vector<Direction> path;
+    Position current = goal;
+
+    while (current != start) {
+        auto dirIt = directionToParent.find(current);
+        if (dirIt == directionToParent.end()) {
+            return {};  // Path reconstruction failed
+        }
+        path.push_back(dirIt->second);
+        
+        auto it = cameFrom.find(current);
+        if (it == cameFrom.end()) {
+            return {};  // Path reconstruction failed
+        }
+        current = it->second;
+    }
+
+    std::reverse(path.begin(), path.end());
+    return path;
 }

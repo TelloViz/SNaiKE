@@ -43,6 +43,9 @@ void InputHandler::handleSFMLEvent(const sf::Event& event) {
             case sf::Keyboard::Num3:
                 currentInput = GameInput{InputType::ButtonPressed, GameButton::Num3};
                 break;
+            case sf::Keyboard::Num4:  // Add this
+                currentInput = GameInput{InputType::ButtonPressed, GameButton::Num4};
+                break;
             case sf::Keyboard::Numpad1:  // Also support numpad
                 currentInput = GameInput{InputType::ButtonPressed, GameButton::Num1};
                 break;
@@ -81,7 +84,10 @@ GameInput InputHandler::translateSFMLEvent(const sf::Event& event) {
             case sf::Keyboard::Escape:return GameInput{InputType::ButtonPressed, GameButton::Back};
             case sf::Keyboard::T:     return GameInput{InputType::ButtonPressed, GameButton::ToggleAI};
             case sf::Keyboard::H:     return GameInput{InputType::ButtonPressed, GameButton::H};
-           // case sf::Keyboard::G:     return GameInput{InputType::ButtonPressed, GameButton::G};
+            case sf::Keyboard::Num1:  return GameInput{InputType::ButtonPressed, GameButton::Num1};
+            case sf::Keyboard::Num2:  return GameInput{InputType::ButtonPressed, GameButton::Num2};
+            case sf::Keyboard::Num3:  return GameInput{InputType::ButtonPressed, GameButton::Num3};
+            case sf::Keyboard::Num4:  return GameInput{InputType::ButtonPressed, GameButton::Num4};  // Add this
             default: return GameInput{InputType::ButtonPressed, GameButton::None};
         }
     }

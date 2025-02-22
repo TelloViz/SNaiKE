@@ -5,15 +5,24 @@
 #include <vector>
 #include <queue>
 #include <map>
+#include <cmath>
 
 class AStarStrategy : public BaseStrategy {
     const Snake& snake;  // Add reference to snake for visualization
 
 public:
-    AStarStrategy(const Snake& snakeRef) : snake(snakeRef) {}
+    enum class Heuristic {
+        MANHATTAN,    // Key 2
+        EUCLIDEAN,   // Key 3
+        CHEBYSHEV    // Key 4
+    };
+
+    AStarStrategy(const Snake& snakeRef) : snake(snakeRef), currentHeuristic(Heuristic::MANHATTAN) {}
     Direction calculateNextMove(const Snake& snake, const sf::Vector2i& food) override;
     void update() override;
     void render(sf::RenderWindow& window) const override;
+    void setHeuristic(Heuristic h) { currentHeuristic = h; }
+    Heuristic getHeuristic() const { return currentHeuristic; }
 
 private:
     std::vector<Direction> currentPath;
@@ -33,4 +42,18 @@ private:
 
     // Add this to the private section
     mutable std::vector<sf::Vector2i> exploredNodes;
+    Heuristic currentHeuristic;
+
+    bool isPositionSafe(const Position& pos, const Snake& snake) const;
+    int countAccessibleSpace(const Position& start, const Snake& snake) const;
+    std::vector<Position> getNeighbors(const Position& pos) const;
+
+    // Add these method declarations
+    bool isMovingTowardsBody(const Position& pos, Direction dir, const Snake& snake) const;
+    bool isPathSafe(const std::vector<Direction>& path, const Snake& snake) const;
+    std::vector<Direction> reconstructPath(
+        const Position& start,
+        const Position& goal,
+        const std::map<Position, Position>& cameFrom,
+        const std::map<Position, Direction>& directionToParent) const;
 };
