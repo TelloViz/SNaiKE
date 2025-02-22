@@ -35,9 +35,13 @@ public:
     // If you need heat map access
     const BaseStrategy* getStrategyPtr() const { return currentStrategy.get(); }
 
+    // Add these new methods
+    bool isEnabled() const { return currentStrategy != nullptr; }
+    BaseStrategy* getCurrentStrategy() const { return currentStrategy.get(); }
+
 private:
     GameButton directionToButton(Direction dir);
-    std::unique_ptr<class BaseStrategy> currentStrategy;  // Forward declaration with unique_ptr
+    std::unique_ptr<BaseStrategy> currentStrategy;  // Forward declaration with unique_ptr
     std::queue<GameInput> plannedMoves;
     Snake& snake;
     const sf::Vector2i& food;

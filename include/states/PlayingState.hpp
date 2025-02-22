@@ -37,7 +37,7 @@ private:
     bool isFrozen;
     int score;
     int gameLength;
-
+    sf::Text algoLabel; 
     std::unique_ptr<AIPlayer> aiPlayer;
     bool aiControlled{false};
     bool showHeatMap{false};  // Initialize to false
@@ -135,4 +135,7 @@ void toggleAI() { aiControlled = !aiControlled; }
     std::string getStateName() const override { return "PlayingState"; }
 
     void logStrategyChange();
+
+    void updateAlgoLabel();
+
 };

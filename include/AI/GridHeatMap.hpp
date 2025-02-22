@@ -65,35 +65,60 @@ public:
                     y * cellSize.y + GameConfig::MARGIN_TOP
                 );
 
-                // Enhanced blue gradient
+                // Blue gradient for general scoring
                 float normalized = std::min(1.0f, score / 100.0f);
                 cell.setFillColor(sf::Color(
                     0,                                              // R
                     static_cast<sf::Uint8>(120 + 135 * normalized), // G
                     static_cast<sf::Uint8>(180 + 75 * normalized),  // B
-                    static_cast<sf::Uint8>(230)                     // A
+                    static_cast<sf::Uint8>(230 * opacity)           // A
                 ));
                 target.draw(cell);
             }
         }
 
-        // Second pass: Possible moves (magenta shades)
+        // Second pass: Exploration paths (magenta)
         for (int x = 0; x < GameConfig::GRID_WIDTH; ++x) {
             for (int y = 0; y < GameConfig::GRID_HEIGHT; ++y) {
                 float score = scores[x][y];
-                if (score < 600.0f || score >= 900.0f) continue;
+                if (score < 600.0f || score >= 800.0f) continue;  // 600-799 for exploration paths
 
                 cell.setPosition(
                     x * cellSize.x + GameConfig::MARGIN_SIDES,
                     y * cellSize.y + GameConfig::MARGIN_TOP
                 );
 
-                // Two shades of magenta for moves
-                if (score >= 700.0f) {
-                    cell.setFillColor(sf::Color(255, 102, 255, 255));  // Bright magenta for best move
-                } else {
-                    cell.setFillColor(sf::Color(153, 0, 153, 255));    // Dark magenta for possible move
-                }
+                // Magenta for exploration paths
+                float intensity = (score - 600.0f) / 200.0f;
+                cell.setFillColor(sf::Color(
+                    255,                                            // R
+                    static_cast<sf::Uint8>(50 + 50 * intensity),   // G
+                    255,                                           // B
+                    static_cast<sf::Uint8>(255 * opacity)          // A
+                ));
+                target.draw(cell);
+            }
+        }
+
+        // Third pass: Current planned path (orange)
+        for (int x = 0; x < GameConfig::GRID_WIDTH; ++x) {
+            for (int y = 0; y < GameConfig::GRID_HEIGHT; ++y) {
+                float score = scores[x][y];
+                if (score < 800.0f || score >= 900.0f) continue;  // 800-899 for planned path
+
+                cell.setPosition(
+                    x * cellSize.x + GameConfig::MARGIN_SIDES,
+                    y * cellSize.y + GameConfig::MARGIN_TOP
+                );
+
+                // Orange for planned path
+                float intensity = (score - 800.0f) / 100.0f;
+                cell.setFillColor(sf::Color(
+                    255,                                            // R
+                    static_cast<sf::Uint8>(140 + 69 * intensity),  // G
+                    0,                                             // B
+                    static_cast<sf::Uint8>(255 * opacity)          // A
+                ));
                 target.draw(cell);
             }
         }
@@ -110,7 +135,7 @@ public:
                 );
 
                 // Red for food and head
-                cell.setFillColor(sf::Color(255, 0, 0, 255));
+                cell.setFillColor(sf::Color(255, 0, 0, static_cast<sf::Uint8>(255 * opacity)));
                 target.draw(cell);
             }
         }

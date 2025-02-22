@@ -23,6 +23,30 @@ PlayingState::PlayingState(GameController* ctrl, const StateContext& ctx, StateM
     lastMoveTime = gameTime.getElapsedTime();  // Initialize last move time
     lastStrategy = AIStrategy::Basic;  // Initialize with default strategy
     strategyChanges.push_back({lastStrategy, 0});  // Log initial strategy
+
+        // Initialize algorithm label
+        algoLabel.setFont(context.font);
+        algoLabel.setCharacterSize(20);
+        algoLabel.setFillColor(sf::Color::White);
+        algoLabel.setPosition(
+            GameConfig::WINDOW_WIDTH - 200, 
+            10  // Just above the game border
+        );
+        updateAlgoLabel();
+}
+
+void PlayingState::updateAlgoLabel() {
+    std::string algoText = "AI: ";
+    if (aiControlled && aiPlayer) {
+        if (dynamic_cast<AdvancedStrategy*>(aiPlayer->getCurrentStrategy())) {
+            algoText += "A*";
+        } else {
+            algoText += "Mnht";  // Short for Manhattan
+        }
+    } else {
+        algoText += "Off";
+    }
+    algoLabel.setString(algoText);
 }
 
 void PlayingState::spawnFood() {
@@ -65,6 +89,7 @@ void PlayingState::handleInput(const GameInput& input) {
                 break;
             case GameButton::ToggleAI:
                 aiControlled = !aiControlled;
+                //updateAlgoLabel(); 
                 std::cout << "AI Control: " << (aiControlled ? "ON" : "OFF") << std::endl;
                 if (aiControlled && !aiPlayer) {
                     aiPlayer = std::make_unique<AIPlayer>(snake, food);
@@ -105,6 +130,8 @@ void PlayingState::handleInput(const GameInput& input) {
 void PlayingState::update() {
     gameLength++;
     if (!isFrozen) {
+
+
         // Check for strategy changes
         if (aiPlayer && aiPlayer->getStrategy() != lastStrategy) {
             strategyChanges.push_back({aiPlayer->getStrategy(), score});
@@ -115,6 +142,8 @@ void PlayingState::update() {
             GameInput aiInput = aiPlayer->getNextInput();
             handleInput(aiInput);
         }
+
+        updateAlgoLabel(); 
 
         sf::Time currentTime = gameTime.getElapsedTime();
         sf::Time moveInterval = sf::seconds(1.0f / GameConfig::SNAKE_SPEED);
@@ -199,7 +228,7 @@ void PlayingState::render(sf::RenderWindow& window) {
     snake.render(window);
     renderFood(window);  // Use the new helper function
 
-    // Draw Score
+    // Draw Score (left side)
     sf::Text scoreText;
     scoreText.setFont(context.font);
     scoreText.setCharacterSize(20);
@@ -210,6 +239,13 @@ void PlayingState::render(sf::RenderWindow& window) {
         context.marginTop / 2.0f - scoreText.getGlobalBounds().height / 2.0f
     );
     window.draw(scoreText);
+
+    // Draw AI Algorithm label (right side)
+    algoLabel.setPosition(
+        context.marginSides + context.width * context.cellSize - algoLabel.getGlobalBounds().width,
+        context.marginTop / 2.0f - algoLabel.getGlobalBounds().height / 2.0f
+    );
+    window.draw(algoLabel);  // Add this line to actually draw the label
 
     // Draw FPS (updated every frame)
     static sf::Clock fpsClock;

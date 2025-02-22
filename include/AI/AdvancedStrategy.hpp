@@ -1,5 +1,5 @@
 #pragma once
-#include "BaseStrategy.hpp"
+#include "AI/BaseStrategy.hpp"
 #include "AI/GridHeatMap.hpp"
 #include <SFML/Graphics.hpp>
 #include <vector>
@@ -12,8 +12,8 @@ public:
     void render(sf::RenderWindow& window) const override;
 
 private:
-    static constexpr int MAX_PATH_LENGTH = 100;
-    static constexpr int PATHFINDING_TIMEOUT_MS = 50;
+    static constexpr int MAX_PATH_LENGTH = 200;  // Increased from 100
+    static constexpr int PATHFINDING_TIMEOUT_MS = 100;  // Increased from 50
 
     // Member variables
     GridHeatMap gridHeatMap;
@@ -28,6 +28,16 @@ private:
     float calculateSimpleScore(int x, int y, const Snake& snake, const sf::Vector2i& food) const;
     float calculatePositionScore(int x, int y, const Snake& snake, const sf::Vector2i& food) const;
     bool isMoveSafeInFuture(Direction dir, int lookAhead, const Snake& snake) const;
+    std::vector<std::vector<Direction>> findAlternativePaths(
+        const Snake& snake, const sf::Vector2i& food);
+    std::vector<Direction> quickPathFind(
+        const Position& start, const Position& goal, const Snake& snake) const;
+
+    // Add this helper function
+    bool isValidPosition(const sf::Vector2i& pos) const {
+        return pos.x >= 0 && pos.x < GameConfig::GRID_WIDTH && 
+               pos.y >= 0 && pos.y < GameConfig::GRID_HEIGHT;
+    }
 
     // Bring base class functions into scope
     using BaseStrategy::getManhattanDistance;
