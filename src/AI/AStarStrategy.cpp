@@ -31,47 +31,54 @@ void AStarStrategy::render(sf::RenderWindow& window) const {
     if (showPathArrows && !visualPath.empty()) {
         sf::Vector2i pos = snake.getHead();
         for (const Direction& dir : visualPath) {
-            sf::ConvexShape arrow;
-            arrow.setPointCount(3);
-            arrow.setFillColor(sf::Color(0, 255, 0, 180)); // Semi-transparent green
-
-            float arrowSize = GameConfig::CELL_SIZE * 0.4f;
+            // Add position validation
+            sf::Vector2i nextPos = pos;
             switch (dir) {
-                case Direction::Up:
-                    arrow.setPoint(0, sf::Vector2f(GameConfig::CELL_SIZE/2, 2));
-                    arrow.setPoint(1, sf::Vector2f(GameConfig::CELL_SIZE/2 - arrowSize, arrowSize + 2));
-                    arrow.setPoint(2, sf::Vector2f(GameConfig::CELL_SIZE/2 + arrowSize, arrowSize + 2));
-                    break;
-                case Direction::Down:
-                    arrow.setPoint(0, sf::Vector2f(GameConfig::CELL_SIZE/2, GameConfig::CELL_SIZE - 2));
-                    arrow.setPoint(1, sf::Vector2f(GameConfig::CELL_SIZE/2 - arrowSize, GameConfig::CELL_SIZE - arrowSize - 2));
-                    arrow.setPoint(2, sf::Vector2f(GameConfig::CELL_SIZE/2 + arrowSize, GameConfig::CELL_SIZE - arrowSize - 2));
-                    break;
-                case Direction::Left:
-                    arrow.setPoint(0, sf::Vector2f(2, GameConfig::CELL_SIZE/2));
-                    arrow.setPoint(1, sf::Vector2f(arrowSize + 2, GameConfig::CELL_SIZE/2 - arrowSize));
-                    arrow.setPoint(2, sf::Vector2f(arrowSize + 2, GameConfig::CELL_SIZE/2 + arrowSize));
-                    break;
-                case Direction::Right:
-                    arrow.setPoint(0, sf::Vector2f(GameConfig::CELL_SIZE - 2, GameConfig::CELL_SIZE/2));
-                    arrow.setPoint(1, sf::Vector2f(GameConfig::CELL_SIZE - arrowSize - 2, GameConfig::CELL_SIZE/2 - arrowSize));
-                    arrow.setPoint(2, sf::Vector2f(GameConfig::CELL_SIZE - arrowSize - 2, GameConfig::CELL_SIZE/2 + arrowSize));
-                    break;
+                case Direction::Up:    nextPos.y--; break;
+                case Direction::Down:  nextPos.y++; break;
+                case Direction::Left:  nextPos.x--; break;
+                case Direction::Right: nextPos.x++; break;
             }
+            
+            // Only render arrow if next position is valid
+            if (nextPos.x >= 0 && nextPos.x < GameConfig::GRID_WIDTH &&
+                nextPos.y >= 0 && nextPos.y < GameConfig::GRID_HEIGHT) {
+                sf::ConvexShape arrow;
+                arrow.setPointCount(3);
+                arrow.setFillColor(sf::Color(0, 255, 0, 180)); // Semi-transparent green
 
-            arrow.setPosition(
-                pos.x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES,
-                pos.y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP
-            );
-            window.draw(arrow);
+                float arrowSize = GameConfig::CELL_SIZE * 0.4f;
+                switch (dir) {
+                    case Direction::Up:
+                        arrow.setPoint(0, sf::Vector2f(GameConfig::CELL_SIZE/2, 2));
+                        arrow.setPoint(1, sf::Vector2f(GameConfig::CELL_SIZE/2 - arrowSize, arrowSize + 2));
+                        arrow.setPoint(2, sf::Vector2f(GameConfig::CELL_SIZE/2 + arrowSize, arrowSize + 2));
+                        break;
+                    case Direction::Down:
+                        arrow.setPoint(0, sf::Vector2f(GameConfig::CELL_SIZE/2, GameConfig::CELL_SIZE - 2));
+                        arrow.setPoint(1, sf::Vector2f(GameConfig::CELL_SIZE/2 - arrowSize, GameConfig::CELL_SIZE - arrowSize - 2));
+                        arrow.setPoint(2, sf::Vector2f(GameConfig::CELL_SIZE/2 + arrowSize, GameConfig::CELL_SIZE - arrowSize - 2));
+                        break;
+                    case Direction::Left:
+                        arrow.setPoint(0, sf::Vector2f(2, GameConfig::CELL_SIZE/2));
+                        arrow.setPoint(1, sf::Vector2f(arrowSize + 2, GameConfig::CELL_SIZE/2 - arrowSize));
+                        arrow.setPoint(2, sf::Vector2f(arrowSize + 2, GameConfig::CELL_SIZE/2 + arrowSize));
+                        break;
+                    case Direction::Right:
+                        arrow.setPoint(0, sf::Vector2f(GameConfig::CELL_SIZE - 2, GameConfig::CELL_SIZE/2));
+                        arrow.setPoint(1, sf::Vector2f(GameConfig::CELL_SIZE - arrowSize - 2, GameConfig::CELL_SIZE/2 - arrowSize));
+                        arrow.setPoint(2, sf::Vector2f(GameConfig::CELL_SIZE - arrowSize - 2, GameConfig::CELL_SIZE/2 + arrowSize));
+                        break;
+                }
 
-            // Update position for next arrow
-            switch (dir) {
-                case Direction::Up:    pos.y--; break;
-                case Direction::Down:  pos.y++; break;
-                case Direction::Left:  pos.x--; break;
-                case Direction::Right: pos.x++; break;
+                arrow.setPosition(
+                    pos.x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES,
+                    pos.y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP
+                );
+                window.draw(arrow);
             }
+            
+            pos = nextPos;
         }
     }
 }
@@ -91,12 +98,66 @@ AStarStrategy::AStarStrategy(const Snake& snakeRef)
 Direction AStarStrategy::calculateNextMove(const Snake& snake, const sf::Vector2i& food) {
     if (currentPath.empty() || pathUpdateClock.getElapsedTime().asSeconds() >= PATH_UPDATE_INTERVAL) {
         currentPath = findPath(snake, food);
-        visualPath = currentPath;  // Store a copy for visualization
+        visualPath = currentPath;
         pathUpdateClock.restart();
     }
 
     if (!currentPath.empty()) {
         Direction nextMove = currentPath.front();
+        
+        // Quick safety check - if next move leads to body and alternatives exist
+        sf::Vector2i nextPos = snake.getHead();
+        switch (nextMove) {
+            case Direction::Up:    nextPos.y--; break;
+            case Direction::Down:  nextPos.y++; break;
+            case Direction::Left:  nextPos.x--; break;
+            case Direction::Right: nextPos.x++; break;
+        }
+
+        // Check if this move hits body
+        const auto& body = snake.getBody();
+        bool hitsBody = false;
+        for (size_t i = 0; i < body.size() - 1; i++) {
+            if (nextPos == body[i]) {
+                hitsBody = true;
+                break;
+            }
+        }
+
+        // If it hits body, look for safe alternatives
+        if (hitsBody) {
+            for (Direction alt : {Direction::Up, Direction::Down, Direction::Left, Direction::Right}) {
+                if (alt == nextMove) continue;
+                
+                sf::Vector2i altPos = snake.getHead();
+                switch (alt) {
+                    case Direction::Up:    altPos.y--; break;
+                    case Direction::Down:  altPos.y++; break;
+                    case Direction::Left:  altPos.x--; break;
+                    case Direction::Right: altPos.x++; break;
+                }
+                
+                // Check if alternative is safe
+                bool altSafe = true;
+                if (altPos.x < 0 || altPos.x >= GameConfig::GRID_WIDTH ||
+                    altPos.y < 0 || altPos.y >= GameConfig::GRID_HEIGHT) {
+                    continue;
+                }
+                
+                for (size_t i = 0; i < body.size() - 1; i++) {
+                    if (altPos == body[i]) {
+                        altSafe = false;
+                        break;
+                    }
+                }
+                
+                if (altSafe) {
+                    nextMove = alt;
+                    break;
+                }
+            }
+        }
+
         currentPath.erase(currentPath.begin());
         return nextMove;
     }
@@ -226,23 +287,56 @@ std::vector<Direction> AStarStrategy::findPath(const Snake& snake, const sf::Vec
 }
 
 float AStarStrategy::calculateHeuristic(const Position& pos, const sf::Vector2i& goal) const {
+    float baseHeuristic;
     switch(currentHeuristic) {
         case Heuristic::MANHATTAN:
-            return getManhattanDistance(pos, goal);
+            baseHeuristic = getManhattanDistance(pos, goal);
+            break;
         case Heuristic::EUCLIDEAN: {
-            // Calculate squared distances once
             float dx = pos.pos.x - goal.x;
             float dy = pos.pos.y - goal.y;
-            return std::sqrt(dx * dx + dy * dy);  // Single sqrt call
+            baseHeuristic = std::sqrt(dx * dx + dy * dy);
+            break;
         }
-        case Heuristic::CHEBYSHEV:
-            return std::max(
-                std::abs(pos.pos.x - goal.x),
-                std::abs(pos.pos.y - goal.y)
-            );
+        case Heuristic::CHEBYSHEV: {
+            // Calculate differences once
+            int dx = std::abs(pos.pos.x - goal.x);
+            int dy = std::abs(pos.pos.y - goal.y);
+            
+            // Avoid branching with std::max
+            baseHeuristic = static_cast<float>(dx > dy ? dx : dy);
+            break;
+        }
         default:
-            return getManhattanDistance(pos, goal);
+            baseHeuristic = getManhattanDistance(pos, goal);
     }
+
+    // Add wall proximity penalty
+    float wallPenalty = 0.0f;
+    if (pos.pos.x <= 1 || pos.pos.x >= GameConfig::GRID_WIDTH - 2 ||
+        pos.pos.y <= 1 || pos.pos.y >= GameConfig::GRID_HEIGHT - 2) {
+        wallPenalty = 10.0f;
+    }
+
+    // Add dead-end detection
+    if (countAccessibleNeighbors(pos) <= 1) {
+        wallPenalty += 50.0f;
+    }
+
+    return baseHeuristic + wallPenalty;
+}
+
+int AStarStrategy::countAccessibleNeighbors(const Position& pos) const {
+    int count = 0;
+    std::vector<Position> neighbors = getNeighbors(pos);
+    
+    for (const Position& neighbor : neighbors) {
+        if (neighbor.pos.x >= 0 && neighbor.pos.x < GameConfig::GRID_WIDTH &&
+            neighbor.pos.y >= 0 && neighbor.pos.y < GameConfig::GRID_HEIGHT) {
+            count++;
+        }
+    }
+    return count;
 }
 
 // Add a new helper method for Euclidean calculations
