@@ -31,14 +31,14 @@ GameInput AIPlayer::getNextInput() {
 
 void AIPlayer::setStrategy(AIStrategy strategy) {
     switch (strategy) {
-        case AIStrategy::Basic:
-            currentStrategy = std::make_unique<BasicStrategy>();
+        case AIStrategy::Manhattan:
+            currentStrategy = std::make_unique<ManhattanStrategy>();
             break;
-        case AIStrategy::Advanced:
+        case AIStrategy::AStar:
             currentStrategy = std::make_unique<AdvancedStrategy>();
             break;
-        case AIStrategy::Random:
-            currentStrategy = std::make_unique<RandomStrategy>();
+        case AIStrategy::None:
+            currentStrategy.reset();
             break;
     }
 }

@@ -21,7 +21,7 @@ PlayingState::PlayingState(GameController* ctrl, const StateContext& ctx, StateM
     spawnFood();
     gameTime.restart();  // Initialize the game clock
     lastMoveTime = gameTime.getElapsedTime();  // Initialize last move time
-    lastStrategy = AIStrategy::Basic;  // Initialize with default strategy
+    lastStrategy = AIStrategy::Manhattan;  // Initialize with default strategy
     strategyChanges.push_back({lastStrategy, 0});  // Log initial strategy
 
         // Initialize algorithm label
@@ -100,7 +100,7 @@ void PlayingState::handleInput(const GameInput& input) {
                     aiPlayer = std::make_unique<AIPlayer>(snake, food);
                 }
                 aiControlled = true;
-                aiPlayer->setStrategy(AIStrategy::Basic);
+                aiPlayer->setStrategy(AIStrategy::Manhattan);
                 std::cout << "AI Control: ON, Strategy: Basic" << std::endl;
                 break;
             case GameButton::Num2:
@@ -275,14 +275,15 @@ void PlayingState::render(sf::RenderWindow& window) {
     // Heat map visualization with debug output
     if (showHeatMap && aiControlled && aiPlayer) {
         std::cout << "Attempting to render heat map...\n";
-        if (const auto* basicStrat = dynamic_cast<const BasicStrategy*>(aiPlayer->getStrategyPtr())) {
-            std::cout << "Found Basic Strategy, rendering heat map...\n";
-            basicStrat->render(window);
-        }
-        else if (const auto* advStrat = dynamic_cast<const AdvancedStrategy*>(aiPlayer->getStrategyPtr())) {
-            std::cout << "Found Advanced Strategy, rendering heat map...\n";
-            advStrat->render(window);
-        }
+        // if (const auto* basicStrat = dynamic_cast<const ManhattanStrategy*>(aiPlayer->getStrategyPtr())) {
+        //     std::cout << "Found Basic Strategy, rendering heat map...\n";
+        //     basicStrat->render(window);
+        // }
+        // else if (const auto* advStrat = dynamic_cast<const AdvancedStrategy*>(aiPlayer->getStrategyPtr())) {
+        //     std::cout << "Found Advanced Strategy, rendering heat map...\n";
+        //     advStrat->render(window);
+        // }
+        if(false) {} // added for now to get rid of some temporary errors from the above commented code
         else {
             std::cout << "No compatible strategy found for heat map rendering\n";
         }

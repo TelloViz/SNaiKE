@@ -35,7 +35,8 @@ add_executable(main
     src/AI/BaseStrategy.cpp
     src/AI/BasicStrategy.cpp
     src/AI/AdvancedStrategy.cpp
-    src/AI/RandomStrategy.cpp)
+    src/AI/RandomStrategy.cpp
+    src/AI/ManhattanStrategy.cpp)
 
 # Configure include directories
 target_include_directories(main PRIVATE 
