@@ -43,10 +43,16 @@ void InputHandler::handleSFMLEvent(const sf::Event& event) {
             case sf::Keyboard::Num3:
                 currentInput = GameInput{InputType::ButtonPressed, GameButton::Num3};
                 break;
-            case sf::Keyboard::Num4:  // Add this
+            case sf::Keyboard::Num4:  
                 currentInput = GameInput{InputType::ButtonPressed, GameButton::Num4};
                 break;
-            case sf::Keyboard::Numpad1:  // Also support numpad
+            case sf::Keyboard::Num5:  // Add Num5
+                currentInput = GameInput{InputType::ButtonPressed, GameButton::Num5};
+                break;
+            case sf::Keyboard::Num6:
+                currentInput = GameInput{InputType::ButtonPressed, GameButton::Num6};
+                break;
+            case sf::Keyboard::Numpad1:  
                 currentInput = GameInput{InputType::ButtonPressed, GameButton::Num1};
                 break;
             case sf::Keyboard::Numpad2:
@@ -55,10 +61,16 @@ void InputHandler::handleSFMLEvent(const sf::Event& event) {
             case sf::Keyboard::Numpad3:
                 currentInput = GameInput{InputType::ButtonPressed, GameButton::Num3};
                 break;
+            case sf::Keyboard::Numpad5:  // Support numpad 5
+                currentInput = GameInput{InputType::ButtonPressed, GameButton::Num5};
+                break;
+            case sf::Keyboard::Numpad6:
+                currentInput = GameInput{InputType::ButtonPressed, GameButton::Num6};
+                break;
             case sf::Keyboard::H:
                 currentInput = GameInput{InputType::ButtonPressed, GameButton::H};
                 break;
-            case sf::Keyboard::J:  // Add J key handling
+            case sf::Keyboard::J:  
                 currentInput = GameInput{InputType::ButtonPressed, GameButton::J};
                 break;
             default: 
@@ -87,11 +99,13 @@ GameInput InputHandler::translateSFMLEvent(const sf::Event& event) {
             case sf::Keyboard::Escape:return GameInput{InputType::ButtonPressed, GameButton::Back};
             case sf::Keyboard::T:     return GameInput{InputType::ButtonPressed, GameButton::ToggleAI};
             case sf::Keyboard::H:     return GameInput{InputType::ButtonPressed, GameButton::H};
-            case sf::Keyboard::J:     return GameInput{InputType::ButtonPressed, GameButton::J}; // Add J key translation
+            case sf::Keyboard::J:     return GameInput{InputType::ButtonPressed, GameButton::J}; 
             case sf::Keyboard::Num1:  return GameInput{InputType::ButtonPressed, GameButton::Num1};
             case sf::Keyboard::Num2:  return GameInput{InputType::ButtonPressed, GameButton::Num2};
             case sf::Keyboard::Num3:  return GameInput{InputType::ButtonPressed, GameButton::Num3};
-            case sf::Keyboard::Num4:  return GameInput{InputType::ButtonPressed, GameButton::Num4};  // Add this
+            case sf::Keyboard::Num4:  return GameInput{InputType::ButtonPressed, GameButton::Num4};  
+            case sf::Keyboard::Num5:  return GameInput{InputType::ButtonPressed, GameButton::Num5};
+            case sf::Keyboard::Num6:  return GameInput{InputType::ButtonPressed, GameButton::Num6};
             default: return GameInput{InputType::ButtonPressed, GameButton::None};
         }
     }

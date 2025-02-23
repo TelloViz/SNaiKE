@@ -11,6 +11,8 @@
 #include "AI/BasicStrategy.hpp"
 #include "AI/AdvancedStrategy.hpp"
 #include "AI/RandomStrategy.hpp"
+#include "AI/HamiltonStrategy.hpp"
+#include "AI/FloodFillStrategy.hpp"
 
 using std::min;
 using std::max;
@@ -32,33 +34,25 @@ GameInput AIPlayer::getNextInput() {
     return GameInput{InputType::ButtonPressed, button};
 }
 
-void AIPlayer::setStrategy(AIStrategy type) {
-    bool heatMapEnabled = false;
-    bool pathArrowsEnabled = false;
-    
-    // Store current visualization states if existing strategy is A*
-    if (auto* currentAstar = dynamic_cast<AStarStrategy*>(currentStrategy.get())) {
-        heatMapEnabled = currentAstar->isHeatMapEnabled();
-        pathArrowsEnabled = currentAstar->isPathArrowsEnabled();
-    }
-
-    // Create new strategy
-    switch (type) {
+void AIPlayer::setStrategy(AIStrategy strat) {
+    switch (strat) {
         case AIStrategy::Manhattan:
             currentStrategy = std::make_unique<ManhattanStrategy>();
             break;
         case AIStrategy::AStar:
-            {
-                auto newStrategy = std::make_unique<AStarStrategy>(snake);
-                if (auto* astar = dynamic_cast<AStarStrategy*>(newStrategy.get())) {
-                    astar->setVisualizationState(heatMapEnabled, pathArrowsEnabled);
-                }
-                currentStrategy = std::move(newStrategy);
-            }
+            currentStrategy = std::make_unique<AStarStrategy>(snake);
+            break;
+        case AIStrategy::Hamilton:
+            currentStrategy = std::make_unique<HamiltonStrategy>(snake);
+            break;
+        case AIStrategy::FloodFill:
+            currentStrategy = std::make_unique<FloodFillStrategy>(snake);  // Pass snake reference
+            break;
+        case AIStrategy::None:
+            currentStrategy.reset();
             break;
     }
-    
-    currentStrategyType = type;
+    currentAIStrategy = strat;
 }
 
 void AIPlayer::planNextMove() {

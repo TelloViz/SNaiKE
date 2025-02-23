@@ -10,10 +10,14 @@
 #include <memory>
 
 enum class AIStrategy {
-    None,
-    Random,
     Manhattan,
-    AStar  // Only keep what we're actually using
+    AStar,
+    Hamilton,
+    FloodFill,
+    Voronoi,
+    HybridAStar,
+    WallFollow,
+    None
 };
 
 class AIPlayer {
@@ -41,4 +45,5 @@ private:
     const Snake& snake;
     const sf::Vector2i& food;
     AIStrategy currentStrategyType;
+    AIStrategy currentAIStrategy = AIStrategy::None;  // Add this
 };

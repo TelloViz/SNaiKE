@@ -1,4 +1,5 @@
 #include "states/PlayingState.hpp"
+#include "AI/HamiltonStrategy.hpp"  // Add this
 #include "states/GameOverState.hpp"
 #include "states/PausedState.hpp"
 #include "GameController.hpp"
@@ -6,6 +7,7 @@
 #include "GameConfig.hpp"
 #include "ScoreLogger.hpp"  // Add this line
 #include <iostream>
+#include "AI/FloodFillStrategy.hpp"
 
 PlayingState::PlayingState(GameController* ctrl, const StateContext& ctx, StateMachine* mach)
     : State(ctrl, ctx, mach)
@@ -52,6 +54,10 @@ void PlayingState::updateAlgoLabel() {
             }
         } else if (dynamic_cast<ManhattanStrategy*>(aiPlayer->getCurrentStrategy())) {
             algoText += "Manhattan";
+        } else if (dynamic_cast<HamiltonStrategy*>(aiPlayer->getCurrentStrategy())) {
+            algoText += "Hamilton";
+        } else if (dynamic_cast<FloodFillStrategy*>(aiPlayer->getCurrentStrategy())) {
+            algoText += "FloodFill";
         } else {
             algoText += "None";
         }
@@ -168,7 +174,10 @@ void PlayingState::handleInput(const GameInput& input) {
                         lastHeatMapState = astar->isHeatMapEnabled();
                     } else if (auto* manhattan = dynamic_cast<ManhattanStrategy*>(aiPlayer->getCurrentStrategy())) {
                         manhattan->toggleHeatMap();
-                        lastHeatMapState = BaseStrategy::isGlobalHeatMapEnabled();  // Use the new getter
+                        lastHeatMapState = BaseStrategy::isGlobalHeatMapEnabled();
+                    } else if (auto* hamilton = dynamic_cast<HamiltonStrategy*>(aiPlayer->getCurrentStrategy())) {
+                        hamilton->toggleHeatMap();
+                        lastHeatMapState = BaseStrategy::isGlobalHeatMapEnabled();
                     }
                 }
                 break;
@@ -178,9 +187,53 @@ void PlayingState::handleInput(const GameInput& input) {
                     if (auto* astar = dynamic_cast<AStarStrategy*>(aiPlayer->getCurrentStrategy())) {
                         astar->togglePathArrows();
                         lastPathArrowsState = astar->isPathArrowsEnabled();
+                    } else if (auto* hamilton = dynamic_cast<HamiltonStrategy*>(aiPlayer->getCurrentStrategy())) {
+                        hamilton->togglePathArrows();
+                        lastPathArrowsState = hamilton->isPathArrowsEnabled();
+                    } else if (auto* floodFill = dynamic_cast<FloodFillStrategy*>(aiPlayer->getCurrentStrategy())) {
+                        floodFill->togglePathArrows();
+                        lastPathArrowsState = floodFill->isPathArrowsEnabled();
                     }
                 }
                 break;
+            case GameButton::Num5: {
+                // Store visualization states
+                if (aiPlayer && aiPlayer->getCurrentStrategy()) {
+                    if (auto* astar = dynamic_cast<AStarStrategy*>(aiPlayer->getCurrentStrategy())) {
+                        lastHeatMapState = astar->isHeatMapEnabled();
+                        lastPathArrowsState = astar->isPathArrowsEnabled();
+                    } else if (auto* manhattan = dynamic_cast<ManhattanStrategy*>(aiPlayer->getCurrentStrategy())) {
+                        lastHeatMapState = BaseStrategy::isGlobalHeatMapEnabled();
+                    }
+                }
+
+                if (!aiPlayer) {
+                    aiPlayer = std::make_unique<AIPlayer>(snake, food);
+                }
+                aiControlled = true;
+                aiPlayer->setStrategy(AIStrategy::Hamilton);
+                updateAlgoLabel();
+                break;
+            }
+            case GameButton::Num6: {
+                // Store visualization states
+                if (aiPlayer && aiPlayer->getCurrentStrategy()) {
+                    if (auto* astar = dynamic_cast<AStarStrategy*>(aiPlayer->getCurrentStrategy())) {
+                        lastHeatMapState = astar->isHeatMapEnabled();
+                        lastPathArrowsState = astar->isPathArrowsEnabled();
+                    } else if (auto* manhattan = dynamic_cast<ManhattanStrategy*>(aiPlayer->getCurrentStrategy())) {
+                        lastHeatMapState = BaseStrategy::isGlobalHeatMapEnabled();
+                    }
+                }
+
+                if (!aiPlayer) {
+                    aiPlayer = std::make_unique<AIPlayer>(snake, food);
+                }
+                aiControlled = true;
+                aiPlayer->setStrategy(AIStrategy::FloodFill);
+                updateAlgoLabel();
+                break;
+            }
         }
     }
 }
@@ -340,6 +393,12 @@ void PlayingState::render(sf::RenderWindow& window) {
         }
         else if (const auto* astarStrat = dynamic_cast<const AStarStrategy*>(strategy)) {
             astarStrat->render(window);
+        }
+        else if (const auto* hamiltonStrat = dynamic_cast<const HamiltonStrategy*>(strategy)) {
+            hamiltonStrat->render(window);
+        }
+        else if (const auto* floodFillStrat = dynamic_cast<const FloodFillStrategy*>(strategy)) {
+            floodFillStrat->render(window);
         }
     }
 }
