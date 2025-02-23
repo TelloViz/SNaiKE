@@ -51,15 +51,20 @@ int FloodFillStrategy::floodFill(const Snake& snake, const sf::Vector2i& startPo
         std::vector<bool>(GameConfig::GRID_HEIGHT, false)
     );
 
-    std::queue<sf::Vector2i> queue;
-    queue.push(startPos);
+    std::queue<std::pair<sf::Vector2i, int>> queue;  // Position and distance
+    queue.push({startPos, 0});
     visited[startPos.x][startPos.y] = true;
-    int accessibleCells = 0;
+    int weightedAccessibility = 0;
+    const int MAX_DISTANCE = 8;  // Only consider cells within this distance
 
     while (!queue.empty()) {
-        sf::Vector2i current = queue.front();
+        auto [current, distance] = queue.front();
         queue.pop();
-        accessibleCells++;
+
+        if (distance > MAX_DISTANCE) continue;
+        
+        // Cells closer to the starting position contribute more to the score
+        weightedAccessibility += (MAX_DISTANCE - distance + 1);
 
         // Check all adjacent cells
         std::vector<sf::Vector2i> neighbors = {
@@ -70,14 +75,11 @@ int FloodFillStrategy::floodFill(const Snake& snake, const sf::Vector2i& startPo
         };
 
         for (const auto& next : neighbors) {
-            // Skip if out of bounds
             if (next.x < 0 || next.x >= GameConfig::GRID_WIDTH ||
-                next.y < 0 || next.y >= GameConfig::GRID_HEIGHT) {
+                next.y < 0 || next.y >= GameConfig::GRID_HEIGHT ||
+                visited[next.x][next.y]) {
                 continue;
             }
-
-            // Skip if already visited
-            if (visited[next.x][next.y]) continue;
 
             // Skip if contains snake body
             bool isBody = false;
@@ -89,13 +91,12 @@ int FloodFillStrategy::floodFill(const Snake& snake, const sf::Vector2i& startPo
             }
             if (isBody) continue;
 
-            // Mark as visited and add to queue
             visited[next.x][next.y] = true;
-            queue.push(next);
+            queue.push({next, distance + 1});
         }
     }
 
-    return accessibleCells;
+    return weightedAccessibility;
 }
 
 bool FloodFillStrategy::isAreaLargeEnough(const Snake& snake, const sf::Vector2i& nextPos) const {
@@ -116,48 +117,66 @@ bool FloodFillStrategy::isAreaLargeEnough(const Snake& snake, const sf::Vector2i
 }
 
 void FloodFillStrategy::render(sf::RenderWindow& window) const {
-    // Render heat map
     if (globalShowHeatMap) {
-        // Initialize heat map
-        heatMap.assign(GameConfig::GRID_WIDTH, 
-                      std::vector<int>(GameConfig::GRID_HEIGHT, 0));
-
-        // Calculate flood fill values for each cell
-        for (int x = 0; x < GameConfig::GRID_WIDTH; x++) {
-            for (int y = 0; y < GameConfig::GRID_HEIGHT; y++) {
-                sf::Vector2i pos{x, y};
-                heatMap[x][y] = floodFill(snake, pos);
+        // Initialize or update heatmap every few frames
+        static int updateCounter = 0;
+        if (heatMap.empty() || updateCounter++ % 5 == 0) {
+            heatMap.assign(GameConfig::GRID_WIDTH, 
+                          std::vector<int>(GameConfig::GRID_HEIGHT, 0));
+            
+            // Calculate accessible space from each position
+            int maxSpace = 1;
+            for (int x = 0; x < GameConfig::GRID_WIDTH; x++) {
+                for (int y = 0; y < GameConfig::GRID_HEIGHT; y++) {
+                    sf::Vector2i pos{x, y};
+                    // Skip positions occupied by snake
+                    bool isSnakeBody = false;
+                    for (const auto& segment : snake.getBody()) {
+                        if (segment == pos) {
+                            isSnakeBody = true;
+                            break;
+                        }
+                    }
+                    if (isSnakeBody) {
+                        heatMap[x][y] = 0;
+                        continue;
+                    }
+                    
+                    // Calculate accessible space
+                    int space = floodFill(snake, pos);
+                    heatMap[x][y] = space;
+                    maxSpace = std::max(maxSpace, space);
+                }
             }
+            const_cast<FloodFillStrategy*>(this)->maxHeatValue = maxSpace;
         }
 
-        // Find max value for normalization
-        int maxValue = 0;
-        for (const auto& row : heatMap) {
-            maxValue = std::max(maxValue, *std::max_element(row.begin(), row.end()));
-        }
-
-        // Render heat map
+        // Render the heatmap
         sf::RectangleShape cell(sf::Vector2f(GameConfig::CELL_SIZE - 2, 
                                             GameConfig::CELL_SIZE - 2));
 
         for (int x = 0; x < GameConfig::GRID_WIDTH; x++) {
             for (int y = 0; y < GameConfig::GRID_HEIGHT; y++) {
-                float value = static_cast<float>(heatMap[x][y]) / maxValue;
+                float value = static_cast<float>(heatMap[x][y]) / maxHeatValue;
                 
-                cell.setPosition(x * GameConfig::CELL_SIZE + 1, 
-                               y * GameConfig::CELL_SIZE + 1);
+                cell.setPosition(
+                    x * GameConfig::CELL_SIZE + GameConfig::MARGIN_SIDES + 1,
+                    y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP + 1
+                );
+
+                // Simpler color scheme: Red (dangerous) to Blue (safe)
                 cell.setFillColor(sf::Color(
-                    255 * (1.0f - value),  // Red
-                    255 * value,           // Green
-                    0,                     // Blue
-                    128                    // Alpha
+                    static_cast<sf::Uint8>(255 * (1.0f - value)), // Red
+                    0,                                            // Green
+                    static_cast<sf::Uint8>(255 * value),         // Blue
+                    128                                          // Alpha
                 ));
                 window.draw(cell);
             }
         }
     }
 
-    // Render path arrows
+    // Render path arrows if enabled
     if (showPathArrows) {
         sf::Vector2i current = snake.getHead();
         renderArrows(window, current);

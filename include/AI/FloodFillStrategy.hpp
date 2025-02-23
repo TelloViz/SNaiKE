@@ -20,6 +20,7 @@ private:
     Direction findBestMove(const sf::Vector2i& pos) const;
     const Snake& snake;
     mutable std::vector<std::vector<int>> heatMap;
+    mutable int maxHeatValue = 1;  // Add this member
     bool showPathArrows;
     sf::Vector2i food;
 };
