@@ -16,6 +16,9 @@ Direction FloodFillStrategy::calculateNextMove(const Snake& snake, const sf::Vec
     int maxSpace = -1;
     float bestScore = std::numeric_limits<float>::max();
 
+    // Get minimum required space for snake to survive
+    int minRequiredSpace = snake.getBody().size() + 1;
+
     for (Direction dir : possibleMoves) {
         sf::Vector2i nextPos = snake.getHead();
         switch (dir) {
@@ -30,8 +33,21 @@ Direction FloodFillStrategy::calculateNextMove(const Snake& snake, const sf::Vec
         int space = floodFill(snake, nextPos);
         float foodDist = getManhattanDistance(nextPos, food);
         
-        // Score combines available space and distance to food
-        float score = (1000.0f / (space + 1)) + foodDist;
+        // New scoring system:
+        // - If next position is food, give it high priority if there's enough space
+        // - Otherwise, balance between space and food distance
+        float score;
+        if (nextPos == food && space >= minRequiredSpace) {
+            score = -1000;  // Highly favorable score for food if safe
+        } else {
+            // Adjust weights: reduce the impact of space limitation
+            score = (100.0f / (space + 1)) + (foodDist * 2.0f);
+            
+            // Add penalty for moving away from food
+            if (getManhattanDistance(snake.getHead(), food) < foodDist) {
+                score += 50.0f;
+            }
+        }
         
         if (score < bestScore) {
             bestScore = score;

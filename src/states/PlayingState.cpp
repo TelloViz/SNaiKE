@@ -178,6 +178,9 @@ void PlayingState::handleInput(const GameInput& input) {
                     } else if (auto* hamilton = dynamic_cast<HamiltonStrategy*>(aiPlayer->getCurrentStrategy())) {
                         hamilton->toggleHeatMap();
                         lastHeatMapState = BaseStrategy::isGlobalHeatMapEnabled();
+                    } else if (auto* floodFill = dynamic_cast<FloodFillStrategy*>(aiPlayer->getCurrentStrategy())) {  // Add this block
+                        floodFill->toggleHeatMap();
+                        lastHeatMapState = BaseStrategy::isGlobalHeatMapEnabled();
                     }
                 }
                 break;
