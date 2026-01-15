@@ -41,7 +41,7 @@ private:
     std::unique_ptr<AIPlayer> aiPlayer;
     bool aiControlled{false};
     bool showHeatMap{false};  // Initialize to false
-    sf::Clock heatMapUpdateClock;  // Add update clock for throttling
+    sf::Clock heatMapUpdateClock;  // update clock for throttling
     std::vector<std::pair<AIStrategy, int>> strategyChanges;
     AIStrategy lastStrategy;
     bool lastHeatMapState = false;
@@ -65,7 +65,7 @@ private:
      */
     bool checkCollision();
 
-    void renderFood(sf::RenderWindow& window) const;  // Add the helper function declaration
+    void renderFood(sf::RenderWindow& window) const;  
 
 public:
 

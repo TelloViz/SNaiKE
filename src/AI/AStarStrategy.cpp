@@ -31,7 +31,6 @@ void AStarStrategy::render(sf::RenderWindow& window) const {
     if (showPathArrows && !visualPath.empty()) {
         sf::Vector2i pos = snake.getHead();
         for (const Direction& dir : visualPath) {
-            // Add position validation
             sf::Vector2i nextPos = pos;
             switch (dir) {
                 case Direction::Up:    nextPos.y--; break;
@@ -197,7 +196,7 @@ std::vector<Direction> AStarStrategy::findPath(const Snake& snake, const sf::Vec
             for (int x = std::max(0, segment.x - 3); x < std::min(GameConfig::GRID_WIDTH, segment.x + 4); x++) {
                 for (int y = std::max(0, segment.y - 3); y < std::min(GameConfig::GRID_HEIGHT, segment.y + 4); y++) {
                     float distSquared = getEuclideanDistanceSquared({x, y}, segment);
-                    if (distSquared < 9.0f) {  // 3.0 squared
+                    if (distSquared < 9.0f) { 
                         bodyDistancesSquared[x][y] = std::min(bodyDistancesSquared[x][y], distSquared);
                     }
                 }
@@ -247,7 +246,7 @@ std::vector<Direction> AStarStrategy::findPath(const Snake& snake, const sf::Vec
             // Use appropriate distance calculation based on heuristic
             if (currentHeuristic == Heuristic::EUCLIDEAN) {
                 float distSquared = bodyDistancesSquared[next.pos.x][next.pos.y];
-                if (distSquared < 9.0f) {  // 3.0 squared
+                if (distSquared < 9.0f) { 
                     moveCost += 20.0f / (std::sqrt(distSquared) + 1.0f);
                 }
             } else {
@@ -311,14 +310,12 @@ float AStarStrategy::calculateHeuristic(const Position& pos, const sf::Vector2i&
             baseHeuristic = getManhattanDistance(pos, goal);
     }
 
-    // Add wall proximity penalty
     float wallPenalty = 0.0f;
     if (pos.pos.x <= 1 || pos.pos.x >= GameConfig::GRID_WIDTH - 2 ||
         pos.pos.y <= 1 || pos.pos.y >= GameConfig::GRID_HEIGHT - 2) {
         wallPenalty = 10.0f;
     }
 
-    // Add dead-end detection
     if (countAccessibleNeighbors(pos) <= 1) {
         wallPenalty += 50.0f;
     }
@@ -339,7 +336,6 @@ int AStarStrategy::countAccessibleNeighbors(const Position& pos) const {
     return count;
 }
 
-// Add a new helper method for Euclidean calculations
 float AStarStrategy::getEuclideanDistanceSquared(const sf::Vector2i& a, const sf::Vector2i& b) const {
     float dx = a.x - b.x;
     float dy = a.y - b.y;
@@ -347,7 +343,6 @@ float AStarStrategy::getEuclideanDistanceSquared(const sf::Vector2i& a, const sf
 }
 
 void AStarStrategy::update() {
-    // Remove the conditional checks - we want to always update both independently
     if (!exploredNodes.empty()) {
         lastExploredNodes = exploredNodes;
         hasExplorationData = true;

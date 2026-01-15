@@ -118,17 +118,14 @@ Direction AIPlayer::calculateAdvancedMove() {
         
         float moveScore = calculatePositionScore(nextPos.x, nextPos.y);
         
-        // Add stronger bias towards food direction
         int distanceToFood = std::abs(nextPos.x - food.x) + std::abs(nextPos.y - food.y);
         moveScore += (100.0f / (distanceToFood + 1));
         
-        // Add bonus for moves that maintain distance from walls
         int wallDist = std::min({nextPos.x, nextPos.y, 
             GameConfig::GRID_WIDTH - 1 - nextPos.x, 
             GameConfig::GRID_HEIGHT - 1 - nextPos.y});
         moveScore += wallDist * 5.0f;
         
-        // Reduced weight for continuing in same direction
         if (dir == snake.getCurrentDirection()) {
             moveScore += 2.0f;
         }
@@ -421,7 +418,6 @@ bool AIPlayer::willTailMove(const sf::Vector2i& pos, int segmentIndex) {
     return segmentIndex == snake.getBody().size() - 1;
 }
 
-// Add implementation for countAccessibleSpace
 int AIPlayer::countAccessibleSpace(const Position& from) const {  // Make const
     static std::vector<std::vector<bool>> visited;
     visited.assign(GameConfig::GRID_WIDTH, 
@@ -456,8 +452,7 @@ int AIPlayer::countAccessibleSpace(const Position& from) const {  // Make const
         visited[pos.pos.x][pos.pos.y] = true;
         space++;
         
-        // Add adjacent cells
-        if (space < 64) { // Only add more if under limit
+        if (space < 64) { 
             toVisit.push(Position(pos.pos.x + 1, pos.pos.y));
             toVisit.push(Position(pos.pos.x - 1, pos.pos.y));
             toVisit.push(Position(pos.pos.x, pos.pos.y + 1));
@@ -468,12 +463,11 @@ int AIPlayer::countAccessibleSpace(const Position& from) const {  // Make const
     return space;
 }
 
-// Add implementation for canReachFood
 bool AIPlayer::canReachFood(const Position& from) {
     return this->countAccessibleSpace(from) > 0;
 }
 
-std::vector<Position> AIPlayer::getNeighbors(const Position& pos) const {  // Add const
+std::vector<Position> AIPlayer::getNeighbors(const Position& pos) const { 
     std::vector<Position> neighbors;
     // Check all four directions
     neighbors.push_back(Position(pos.pos.x + 1, pos.pos.y));  // Right
@@ -509,7 +503,7 @@ Direction AIPlayer::getDirectionToNeighbor(const Position& from, const Position&
     return Direction::Right;
 }
 
-bool AIPlayer::isPositionBlocked(const Position& pos) const {  // Add const
+bool AIPlayer::isPositionBlocked(const Position& pos) const {  
     if (pos.pos.x < 0 || pos.pos.x >= GameConfig::GRID_WIDTH ||
         pos.pos.y < 0 || pos.pos.y >= GameConfig::GRID_HEIGHT) {
         return true;
@@ -697,13 +691,11 @@ int AIPlayer::calculateHeuristic(const Position& pos) const {
     // Base cost is distance to food
     int h = std::abs(pos.pos.x - food.x) + std::abs(pos.pos.y - food.y);
     
-    // Add cost for confined spaces
     int space = countAccessibleSpace(pos);
     if (space < snake.getBody().size() * 1.5) {
         h += 50;  // Heavy penalty for too small spaces
     }
     
-    // Add cost for positions that might trap the snake
     int exits = 0;
     for (const auto& neighbor : getNeighbors(pos)) {
         if (!isPositionBlocked(neighbor)) exits++;

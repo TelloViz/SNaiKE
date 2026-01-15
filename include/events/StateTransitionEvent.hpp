@@ -14,7 +14,7 @@ public:
     };
 
     Type type;
-    std::string targetState;  // State identifier instead of concrete class
+    std::string targetState;
 
     StateTransitionEvent(Type t, const std::string& state) 
         : type(t), targetState(state) {}

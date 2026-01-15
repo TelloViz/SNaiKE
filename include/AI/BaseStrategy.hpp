@@ -8,7 +8,7 @@
 
 class BaseStrategy {
 protected:
-    static bool globalShowHeatMap;  // Add this static member
+    static bool globalShowHeatMap;
     bool isPositionBlocked(const Position& pos, const Snake& snake) const;
     bool isMoveSafe(Direction dir, const Snake& snake) const;
     
@@ -39,9 +39,8 @@ public:
     virtual Direction calculateNextMove(const Snake& snake, const sf::Vector2i& food) = 0;
     virtual void update() = 0;
     virtual void render(sf::RenderWindow& window) const {};
-    virtual void toggleHeatMap() = 0;  // Make it pure virtual
+    virtual void toggleHeatMap() = 0;
     virtual bool isHeatMapEnabled() const { return globalShowHeatMap; }
     
-    // Add this public getter
     static bool isGlobalHeatMapEnabled() { return globalShowHeatMap; }
 };

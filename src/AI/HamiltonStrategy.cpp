@@ -46,7 +46,6 @@ void HamiltonStrategy::initializeHamiltonCycle() {
         }
     }
 
-    // Add return path to start
     // Go up the leftmost column if we ended on the left
     // Go up the rightmost column if we ended on the right
     bool endedOnLeft = (height % 2 == 1);

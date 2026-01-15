@@ -1,6 +1,6 @@
 #pragma once
 #include "State.hpp"
-#include "AI/AIPlayer.hpp"  // Add this include for AIStrategy
+#include "AI/AIPlayer.hpp" 
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <utility>

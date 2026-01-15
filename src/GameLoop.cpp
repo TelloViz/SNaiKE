@@ -50,7 +50,7 @@ void GameLoop::update() {
 }
 
 void GameLoop::render() {
-    window.clear(sf::Color::Black);  // Use dot instead of arrow
+    window.clear(sf::Color::Black);  
     
     auto currentState = gameController.getCurrentState();
     if (currentState) {
@@ -60,7 +60,7 @@ void GameLoop::render() {
         std::cerr << "No valid game state to render!" << std::endl;
     }
     
-    window.display();  // Use dot instead of arrow
+    window.display();
 }
 
 void GameLoop::run() {

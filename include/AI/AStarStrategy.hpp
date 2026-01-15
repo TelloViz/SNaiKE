@@ -9,7 +9,7 @@
 #include <cmath>
 
 class AStarStrategy : public BaseStrategy {
-    const Snake& snake;  // Add reference to snake for visualization
+    const Snake& snake;  // Reference to snake for visualization
 
 public:
     enum class Heuristic {
@@ -35,7 +35,7 @@ public:
 
 private:
     std::vector<Direction> currentPath;
-    std::vector<Direction> visualPath;  // Add this for visualization
+    std::vector<Direction> visualPath;
     sf::Clock pathUpdateClock;
 
 
@@ -50,7 +50,6 @@ private:
     std::vector<Direction> findPath(const Snake& snake, const sf::Vector2i& food);
     float calculateHeuristic(const Position& pos, const sf::Vector2i& goal) const;
 
-    // Add this to the private section
     mutable std::vector<sf::Vector2i> exploredNodes;
     Heuristic currentHeuristic;
 
@@ -58,7 +57,6 @@ private:
     int countAccessibleSpace(const Position& start, const Snake& snake) const;
     std::vector<Position> getNeighbors(const Position& pos) const;
 
-    // Add these method declarations
     bool isMovingTowardsBody(const Position& pos, Direction dir, const Snake& snake) const;
     bool isPathSafe(const std::vector<Direction>& path, const Snake& snake) const;
     std::vector<Direction> reconstructPath(
@@ -67,16 +65,15 @@ private:
         const std::map<Position, Position>& cameFrom,
         const std::map<Position, Direction>& directionToParent) const;
 
-    // Add this helper method declaration
     float getEuclideanDistanceSquared(const sf::Vector2i& a, const sf::Vector2i& b) const;
 
     int countAccessibleNeighbors(const Position& pos) const;
 
     mutable sf::Clock renderClock;
     mutable sf::Clock explorationRenderClock;
-    static constexpr float PATH_RENDER_INTERVAL = 0.1f;      // Slower arrow updates
-    static constexpr float PATH_UPDATE_INTERVAL = 0.1f; // 100ms
-    static constexpr float EXPLORATION_RENDER_INTERVAL = 0.1f; // Faster heat map updates
+    static constexpr float PATH_RENDER_INTERVAL = 0.1f;     
+    static constexpr float PATH_UPDATE_INTERVAL = 0.1f; 
+    static constexpr float EXPLORATION_RENDER_INTERVAL = 0.1f; 
     mutable std::vector<sf::Vector2i> lastExploredNodes;     // Store last exploration state
     mutable bool hasExplorationData = false;                 // Track if we have data to show
     mutable bool showHeatMap = false;

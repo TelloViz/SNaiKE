@@ -12,8 +12,8 @@ public:
     void render(sf::RenderWindow& window) const override;
 
 private:
-    static constexpr int MAX_PATH_LENGTH = 200;  // Increased from 100
-    static constexpr int PATHFINDING_TIMEOUT_MS = 100;  // Increased from 50
+    static constexpr int MAX_PATH_LENGTH = 200;  
+    static constexpr int PATHFINDING_TIMEOUT_MS = 100;  
 
     // Member variables
     GridHeatMap gridHeatMap;
@@ -33,13 +33,11 @@ private:
     std::vector<Direction> quickPathFind(
         const Position& start, const Position& goal, const Snake& snake) const;
 
-    // Add this helper function
     bool isValidPosition(const sf::Vector2i& pos) const {
         return pos.x >= 0 && pos.x < GameConfig::GRID_WIDTH && 
                pos.y >= 0 && pos.y < GameConfig::GRID_HEIGHT;
     }
 
-    // Bring base class functions into scope
     using BaseStrategy::getManhattanDistance;
     using BaseStrategy::isPositionBlocked;
     using BaseStrategy::countAccessibleSpace;

@@ -21,7 +21,6 @@ public:
     // Raw window access (for transitioning period)
     virtual void* getNativeHandle() const = 0;
 
-    // Add method to poll window events and translate them to GameInput
     virtual bool pollWindowEvent(GameInput& input) = 0;
 };
 
@@ -69,7 +68,6 @@ public:
                         case sf::Keyboard::Down:   
                             input = GameInput{InputType::ButtonPressed, GameButton::Down}; 
                             return true;
-                        // ...handle other keys...
                     }
                     break;
             }

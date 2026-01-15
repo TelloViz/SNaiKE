@@ -10,7 +10,7 @@ private:
     std::vector<sf::Vector2i> hamiltonCycle;  // Stores the complete cycle
     size_t currentIndex;  // Current position in cycle
     bool cycleInitialized;
-    bool showPathArrows = false;  // Add this
+    bool showPathArrows = false;  
 
     // Helper methods
     void initializeHamiltonCycle();

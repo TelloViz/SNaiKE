@@ -92,13 +92,11 @@ std::vector<Direction> AdvancedStrategy::findPathToFood(const Snake& snake, cons
     Position start(snake.getHead());
     Position goal(food);
 
-    // More efficient implementation using only what we need
     std::set<Position> closedSet;
     std::map<Position, Position> cameFrom;
     std::map<Position, int> gScore;
     std::map<Position, Direction> directionToParent;
     
-    // Priority queue using int for f-score (simpler, faster)
     std::priority_queue<std::pair<int, Position>, 
         std::vector<std::pair<int, Position>>, 
         std::greater<>> openSet;
@@ -254,7 +252,7 @@ void AdvancedStrategy::updateHeatMap(const Snake& snake, const sf::Vector2i& foo
     Direction currentDir = snake.getCurrentDirection();
 
     // Calculate scores for visible area only
-    const int VIEW_RADIUS = 6;  // Reduced from 8
+    const int VIEW_RADIUS = 6; 
     for (int x = std::max(0, head.x - VIEW_RADIUS); 
          x <= std::min(GameConfig::GRID_WIDTH - 1, head.x + VIEW_RADIUS); ++x) {
         for (int y = std::max(0, head.y - VIEW_RADIUS); 
@@ -273,7 +271,7 @@ void AdvancedStrategy::updateHeatMap(const Snake& snake, const sf::Vector2i& foo
                 score += 200.0f / (1.0f + foodDistance);
 
                 // Only calculate space for immediate moves
-                if (headDistance <= 2) {  // Reduced from 3
+                if (headDistance <= 2) {  
                     int space = countAccessibleSpace(pos, snake);
                     float spaceRatio = static_cast<float>(space) / 
                                      (GameConfig::GRID_WIDTH * GameConfig::GRID_HEIGHT);
@@ -356,7 +354,6 @@ float AdvancedStrategy::calculatePositionScore(int x, int y, const Snake& snake,
     // Base score is inverse distance to food
     float distanceScore = 100.0f / (1.0f + getManhattanDistance(pos, Position{food}));
 
-    // Add path-finding component
     float accessSpace = static_cast<float>(countAccessibleSpace(pos, snake));
     float spaceScore = accessSpace / (GameConfig::GRID_WIDTH * GameConfig::GRID_HEIGHT) * 50.0f;
 
@@ -400,7 +397,6 @@ bool AdvancedStrategy::isMoveSafeInFuture(Direction dir, int lookAhead, const Sn
     return true;
 }
 
-// Add this implementation before the other member functions:
 void AdvancedStrategy::render(sf::RenderWindow& window) const {
     gridHeatMap.render(window, sf::Vector2f(GameConfig::CELL_SIZE, GameConfig::CELL_SIZE));
 }

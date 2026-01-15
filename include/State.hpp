@@ -16,7 +16,6 @@ struct StateContext {
     int width;              ///< Grid width in cells
     int height;             ///< Grid height in cells
     int cellSize;           ///< Size of each cell in pixels
-    // Add new UI configuration
     int marginTop;
     int marginBottom;
     int marginSides;

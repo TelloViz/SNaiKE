@@ -12,7 +12,7 @@ private:
     std::atomic<bool> needsUpdate{false};
     float maxValue{-std::numeric_limits<float>::max()};
     float minValue{std::numeric_limits<float>::max()};
-    mutable sf::Clock updateClock;  // Make clock mutable to allow modification in const methods
+    mutable sf::Clock updateClock;  
 
 public:
     GridHeatMap() {

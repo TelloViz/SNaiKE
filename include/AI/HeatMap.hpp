@@ -64,7 +64,6 @@ public:
                     y * GameConfig::CELL_SIZE + GameConfig::MARGIN_TOP
                 );
                 
-                // Enhanced color scheme with more vibrant blue-yellow-red gradient
                 sf::Color cellColor;
                 if (normalizedValue < 0.33f) {
                     // Dark blue to bright blue

@@ -46,7 +46,6 @@ target_include_directories(main PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${SFML_SOURCE_DIR}/include)
 
-# Add these lines to your existing CMakeLists.txt
 target_include_directories(${PROJECT_NAME} 
     PRIVATE 
         ${CMAKE_CURRENT_SOURCE_DIR}/include

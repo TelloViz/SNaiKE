@@ -46,7 +46,7 @@ void AIPlayer::setStrategy(AIStrategy strat) {
             currentStrategy = std::make_unique<HamiltonStrategy>(snake);
             break;
         case AIStrategy::FloodFill:
-            currentStrategy = std::make_unique<FloodFillStrategy>(snake);  // Pass snake reference
+            currentStrategy = std::make_unique<FloodFillStrategy>(snake);
             break;
         case AIStrategy::None:
             currentStrategy.reset();

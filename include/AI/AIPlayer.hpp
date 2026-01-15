@@ -45,5 +45,5 @@ private:
     const Snake& snake;
     const sf::Vector2i& food;
     AIStrategy currentStrategyType;
-    AIStrategy currentAIStrategy = AIStrategy::None;  // Add this
+    AIStrategy currentAIStrategy = AIStrategy::None;
 };

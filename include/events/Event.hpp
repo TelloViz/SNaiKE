@@ -16,5 +16,5 @@ protected:
 
 private:
     // Prevent direct instantiation
-    friend class EventManager; // Optional: if EventManager needs direct access
+    friend class EventManager; // if EventManager needs direct access
 };

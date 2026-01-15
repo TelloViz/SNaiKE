@@ -2,7 +2,7 @@
 #include "states/MenuState.hpp"
 #include "GameController.hpp"
 #include "StateMachine.hpp"
-#include "ScoreLogger.hpp"  // Add this include
+#include "ScoreLogger.hpp" 
 
 GameOverState::GameOverState(GameController* ctrl, const StateContext& ctx, StateMachine* mach, int score)
     : State(ctrl, ctx, mach)

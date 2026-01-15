@@ -1,11 +1,11 @@
 #include "states/PlayingState.hpp"
-#include "AI/HamiltonStrategy.hpp"  // Add this
+#include "AI/HamiltonStrategy.hpp"  
 #include "states/GameOverState.hpp"
 #include "states/PausedState.hpp"
 #include "GameController.hpp"
 #include "StateMachine.hpp"
 #include "GameConfig.hpp"
-#include "ScoreLogger.hpp"  // Add this line
+#include "ScoreLogger.hpp" 
 #include <iostream>
 #include "AI/FloodFillStrategy.hpp"
 
@@ -340,7 +340,7 @@ void PlayingState::render(sf::RenderWindow& window) {
     
     // Draw snake and food
     snake.render(window);
-    renderFood(window);  // Use the new helper function
+    renderFood(window);
 
     // Draw Score (left side)
     sf::Text scoreText;
@@ -359,7 +359,7 @@ void PlayingState::render(sf::RenderWindow& window) {
         context.marginSides + context.width * context.cellSize - algoLabel.getGlobalBounds().width,
         context.marginTop / 2.0f - algoLabel.getGlobalBounds().height / 2.0f
     );
-    window.draw(algoLabel);  // Add this line to actually draw the label
+    window.draw(algoLabel);
 
     // Draw FPS (updated every frame)
     static sf::Clock fpsClock;

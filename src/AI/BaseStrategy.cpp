@@ -19,8 +19,6 @@ bool BaseStrategy::isMoveSafe(Direction dir, const Snake& snake) const {
     return !isPositionBlocked(Position(nextPos), snake);
 }
 
-// Remove getManhattanDistance implementation from here since it's now in the header
-
 bool BaseStrategy::isPositionBlocked(const Position& pos, const Snake& snake) const {
     if (pos.pos.x < 0 || pos.pos.x >= GameConfig::GRID_WIDTH ||
         pos.pos.y < 0 || pos.pos.y >= GameConfig::GRID_HEIGHT) {

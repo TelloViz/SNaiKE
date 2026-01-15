@@ -46,7 +46,7 @@ void InputHandler::handleSFMLEvent(const sf::Event& event) {
             case sf::Keyboard::Num4:  
                 currentInput = GameInput{InputType::ButtonPressed, GameButton::Num4};
                 break;
-            case sf::Keyboard::Num5:  // Add Num5
+            case sf::Keyboard::Num5: 
                 currentInput = GameInput{InputType::ButtonPressed, GameButton::Num5};
                 break;
             case sf::Keyboard::Num6:
@@ -61,7 +61,7 @@ void InputHandler::handleSFMLEvent(const sf::Event& event) {
             case sf::Keyboard::Numpad3:
                 currentInput = GameInput{InputType::ButtonPressed, GameButton::Num3};
                 break;
-            case sf::Keyboard::Numpad5:  // Support numpad 5
+            case sf::Keyboard::Numpad5: 
                 currentInput = GameInput{InputType::ButtonPressed, GameButton::Num5};
                 break;
             case sf::Keyboard::Numpad6:

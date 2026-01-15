@@ -32,7 +32,7 @@ public:
     explicit GameController(
         sf::Font& gameFont, 
         sf::RenderWindow* gameWindow,
-        InputHandler& handler  // Add InputHandler parameter
+        InputHandler& handler
     ) : font(gameFont)
       , window(gameWindow)
       , inputHandler(handler) {}
