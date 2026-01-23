@@ -43,7 +43,6 @@ Direction FloodFillStrategy::calculateNextMove(const Snake& snake, const sf::Vec
             // Adjust weights: reduce the impact of space limitation
             score = (100.0f / (space + 1)) + (foodDist * 2.0f);
             
-            // Add penalty for moving away from food
             if (getManhattanDistance(snake.getHead(), food) < foodDist) {
                 score += 50.0f;
             }

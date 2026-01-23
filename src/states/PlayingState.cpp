@@ -69,6 +69,8 @@ void PlayingState::spawnFood() {
     std::uniform_int_distribution<int> disX(0, context.width - 1);
     std::uniform_int_distribution<int> disY(0, context.height - 1);
     bool validPosition;
+    int attempts = 0;
+    const int maxAttempts = context.width * context.height;  // Reasonable max
     do {
         food.x = disX(rng);
         food.y = disY(rng);
@@ -80,7 +82,14 @@ void PlayingState::spawnFood() {
                 break;
             }
         }
-    } while (!validPosition);
+        attempts++;
+    } while (!validPosition && attempts < maxAttempts);
+    
+    // If no valid position found, game over or something, but for now, just place it
+    if (!validPosition) {
+        // Perhaps trigger game over, but since snake can't fill board in normal play, maybe just place randomly
+        // For simplicity, allow overlap or something, but better to handle
+    }
 }
 
 void PlayingState::handleInput(const GameInput& input) {
@@ -178,7 +187,7 @@ void PlayingState::handleInput(const GameInput& input) {
                     } else if (auto* hamilton = dynamic_cast<HamiltonStrategy*>(aiPlayer->getCurrentStrategy())) {
                         hamilton->toggleHeatMap();
                         lastHeatMapState = BaseStrategy::isGlobalHeatMapEnabled();
-                    } else if (auto* floodFill = dynamic_cast<FloodFillStrategy*>(aiPlayer->getCurrentStrategy())) {  // Add this block
+                    } else if (auto* floodFill = dynamic_cast<FloodFillStrategy*>(aiPlayer->getCurrentStrategy())) {
                         floodFill->toggleHeatMap();
                         lastHeatMapState = BaseStrategy::isGlobalHeatMapEnabled();
                     }

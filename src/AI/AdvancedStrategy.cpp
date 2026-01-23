@@ -107,7 +107,6 @@ std::vector<Direction> AdvancedStrategy::findPathToFood(const Snake& snake, cons
     int iterations = 0;
     const int MAX_ITERATIONS = 1000; // Reasonable limit
 
-    // Add timeout check:
     while (!openSet.empty() && iterations++ < MAX_ITERATIONS) {
         if (pathfindClock.getElapsedTime().asMilliseconds() > PATHFINDING_TIMEOUT_MS) {
             return std::vector<Direction>();  // Abort if taking too long

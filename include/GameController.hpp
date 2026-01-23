@@ -2,8 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "StateMachine.hpp"
 #include "Snake.hpp"
-#include "Input/InputHandler.hpp"  // Add this include
-
+#include "Input/InputHandler.hpp" 
 /**
  * @brief Controls game logic and manages state transitions
  * 

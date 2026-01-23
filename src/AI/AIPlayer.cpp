@@ -52,18 +52,6 @@ void AIPlayer::setStrategy(AIStrategy strat) {
             currentStrategy.reset();
             break;
     }
-    currentAIStrategy = strat;
-}
-
-void AIPlayer::planNextMove() {
-    std::cout << "Planning next move with strategy type: " 
-              << (currentStrategy ? "Active" : "None") << std::endl;
-    Direction targetDir = currentStrategy->calculateNextMove(snake, food);
-    std::cout << "Got direction: " << static_cast<int>(targetDir) << std::endl;
-    GameButton button = directionToButton(targetDir);
-    if (button != GameButton::None) {
-        plannedMoves.push(GameInput{InputType::ButtonPressed, button});
-    }
 }
 
 GameButton AIPlayer::directionToButton(Direction dir) {

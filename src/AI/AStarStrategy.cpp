@@ -510,7 +510,6 @@ void AStarStrategy::togglePathArrows() {
     std::cout << "Path arrows: " << (showPathArrows ? "ON" : "OFF") << std::endl;
 }
 
-// Add this implementation
 void AStarStrategy::toggleHeatMap() {
     globalShowHeatMap = !globalShowHeatMap;
     std::cout << "Heat map: " << (globalShowHeatMap ? "ON" : "OFF") << std::endl;

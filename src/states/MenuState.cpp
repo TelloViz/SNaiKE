@@ -102,7 +102,7 @@ void MenuState::handlePlaySelected() {
         
         std::cout << "Replacing state with PlayingState..." << std::endl;
         machine->replaceState(std::move(playingState));
-        machine->processStateChanges(); 
+        machine->processStateChanges();
         std::cout << "State replaced and processed" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error in handlePlaySelected: " << e.what() << std::endl;

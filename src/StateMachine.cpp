@@ -1,7 +1,7 @@
 #include "StateMachine.hpp"
 #include "State.hpp"
 
-//#include <iostream>  // Add this for console logging
+#include <iostream> 
 #include <string>
 
 void StateMachine::pushState(std::unique_ptr<State> state) {
