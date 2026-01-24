@@ -1,6 +1,6 @@
 #include "GameLoop.hpp"
 #include "states/States.hpp"
-#include "Input/InputHandler.hpp"
+#include "input/InputHandler.hpp"
 #include <random>
 #include <iostream>
 #include <filesystem>

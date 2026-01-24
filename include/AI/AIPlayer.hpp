@@ -1,12 +1,12 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <queue>
-#include "Input/InputHandler.hpp"
+#include "input/InputHandler.hpp"
 #include "Snake.hpp"
-#include "AI/BaseStrategy.hpp"
-#include "AI/ManhattanStrategy.hpp"
-#include "AI/AStarStrategy.hpp"
-#include "AI/AdvancedStrategy.hpp"
+#include "ai/BaseStrategy.hpp"
+#include "ai/ManhattanStrategy.hpp"
+#include "ai/AStarStrategy.hpp"
+#include "ai/AdvancedStrategy.hpp"
 #include <memory>
 
 enum class AIStrategy {

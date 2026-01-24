@@ -1,5 +1,5 @@
 #include "states/PlayingState.hpp"
-#include "AI/HamiltonStrategy.hpp"  
+#include "ai/HamiltonStrategy.hpp"  
 #include "states/GameOverState.hpp"
 #include "states/PausedState.hpp"
 #include "GameController.hpp"
@@ -7,7 +7,7 @@
 #include "GameConfig.hpp"
 #include "ScoreLogger.hpp" 
 #include <iostream>
-#include "AI/FloodFillStrategy.hpp"
+#include "ai/FloodFillStrategy.hpp"
 
 PlayingState::PlayingState(GameController* ctrl, const StateContext& ctx, StateMachine* mach)
     : State(ctrl, ctx, mach)

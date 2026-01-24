@@ -1,5 +1,5 @@
 #pragma once
-#include "AI/AIPlayer.hpp"
+#include "ai/AIPlayer.hpp"
 #include "GameConfig.hpp"
 #include <iostream>
 #include "Debug.hpp"
@@ -8,11 +8,11 @@
 #include <queue>
 #include <set>
 #include <map>
-#include "AI/BasicStrategy.hpp"
-#include "AI/AdvancedStrategy.hpp"
-#include "AI/RandomStrategy.hpp"
-#include "AI/HamiltonStrategy.hpp"
-#include "AI/FloodFillStrategy.hpp"
+#include "ai/BasicStrategy.hpp"
+#include "ai/AdvancedStrategy.hpp"
+#include "ai/RandomStrategy.hpp"
+#include "ai/HamiltonStrategy.hpp"
+#include "ai/FloodFillStrategy.hpp"
 
 using std::min;
 using std::max;

@@ -1,4 +1,4 @@
-#include "AI/AdvancedStrategy.hpp"
+#include "ai/AdvancedStrategy.hpp"
 #include "GameConfig.hpp"
 #include <queue>
 #include <map>

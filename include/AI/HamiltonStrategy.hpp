@@ -1,5 +1,5 @@
 #pragma once
-#include "AI/BaseStrategy.hpp"
+#include "ai/BaseStrategy.hpp"
 #include "Snake.hpp"
 #include <vector>
 #include <SFML/Graphics.hpp>

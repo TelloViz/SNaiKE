@@ -1,4 +1,4 @@
-#include "AI/BaseStrategy.hpp"
+#include "ai/BaseStrategy.hpp"
 #include "GameConfig.hpp"
 #include <queue>
 #include <algorithm>

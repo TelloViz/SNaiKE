@@ -1,4 +1,4 @@
-#include "AI/HamiltonStrategy.hpp"
+#include "ai/HamiltonStrategy.hpp"
 #include <iostream>
 
 HamiltonStrategy::HamiltonStrategy(const Snake& snakeRef)

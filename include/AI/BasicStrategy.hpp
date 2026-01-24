@@ -1,6 +1,6 @@
 #pragma once
 #include "BaseStrategy.hpp"
-#include "AI/GridHeatMap.hpp"
+#include "ai/GridHeatMap.hpp"
 #include <SFML/Graphics.hpp>
 
 class BasicStrategy : public BaseStrategy {

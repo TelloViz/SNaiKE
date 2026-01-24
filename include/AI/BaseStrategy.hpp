@@ -1,8 +1,8 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "Snake.hpp"
-#include "Game/Direction.hpp"
-#include "Game/Position.hpp"
+#include "game/Direction.hpp"
+#include "game/Position.hpp"
 #include <vector>
 #include <iostream>
 

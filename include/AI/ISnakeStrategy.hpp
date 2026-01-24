@@ -1,8 +1,8 @@
 #pragma once
-#include "Game/Direction.hpp"
-#include "Game/Position.hpp"
+#include "game/Direction.hpp"
+#include "game/Position.hpp"
 #include "Snake.hpp"
-#include "AI/HeatMap.hpp"
+#include "ai/HeatMap.hpp"
 #include <SFML/System/Vector2.hpp>
 
 class ISnakeStrategy {

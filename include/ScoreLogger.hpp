@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include "AI/AIPlayer.hpp"
+#include "ai/AIPlayer.hpp"
 
 class ScoreLogger {
 public:

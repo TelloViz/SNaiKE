@@ -1,4 +1,4 @@
-#include "AI/AStarStrategy.hpp"
+#include "ai/AStarStrategy.hpp"
 #include <queue>
 #include <iostream>
 

@@ -1,6 +1,6 @@
 #pragma once
-#include "AI/BaseStrategy.hpp"
-#include "AI/GridHeatMap.hpp"
+#include "ai/BaseStrategy.hpp"
+#include "ai/GridHeatMap.hpp"
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <queue>

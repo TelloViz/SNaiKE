@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <deque>
 #include "GameConfig.hpp"
-#include "Game/Direction.hpp"
+#include "game/Direction.hpp"
 
 /**
  * @brief Represents possible movement directions for the snake

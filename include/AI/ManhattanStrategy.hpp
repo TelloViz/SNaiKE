@@ -1,5 +1,5 @@
 #pragma once
-#include "AI/BaseStrategy.hpp"
+#include "ai/BaseStrategy.hpp"
 #include <vector>
 #include <map>
 

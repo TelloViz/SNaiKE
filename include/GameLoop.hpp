@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "GameController.hpp"
 #include "GameConfig.hpp"
-#include "Input/InputHandler.hpp"
+#include "input/InputHandler.hpp"
 
 /**
  * @class GameLoop

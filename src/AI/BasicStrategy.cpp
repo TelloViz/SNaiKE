@@ -1,4 +1,4 @@
-#include "AI/BasicStrategy.hpp"
+#include "ai/BasicStrategy.hpp"
 #include "GameConfig.hpp"
 
 void BasicStrategy::updateHeatMap(const Snake& snake, const sf::Vector2i& food) {

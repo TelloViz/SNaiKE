@@ -1,5 +1,5 @@
-#include "AI/FloodFillStrategy.hpp"
-#include "AI/BaseStrategy.hpp"
+#include "ai/FloodFillStrategy.hpp"
+#include "ai/BaseStrategy.hpp"
 #include "GameConfig.hpp"
 #include <queue>
 #include <vector>

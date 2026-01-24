@@ -1,4 +1,4 @@
-#include "AI/ManhattanStrategy.hpp"
+#include "ai/ManhattanStrategy.hpp"
 
 Direction ManhattanStrategy::calculateNextMove(const Snake& snake, const sf::Vector2i& food) {
     // Calculate distances once and store them

@@ -6,7 +6,7 @@
 #include <random>
 #include "input/InputHandler.hpp"
 #include "GameConfig.hpp"
-#include "AI/AIPlayer.hpp"
+#include "ai/AIPlayer.hpp"
 #include "ScoreLogger.hpp"
 
 

@@ -1,4 +1,4 @@
-#include "AI/RandomStrategy.hpp"
+#include "ai/RandomStrategy.hpp"
 #include <vector>
 #include <cstdlib>
 

@@ -1,4 +1,4 @@
-#include "Input/InputHandler.hpp"
+#include "input/InputHandler.hpp"
 
 bool InputHandler::hasInput() const {
     return !inputQueue.empty();
