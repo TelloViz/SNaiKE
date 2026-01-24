@@ -1,0 +1,21 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class GameOverState {
+  - controller : GameController*
+  - context : StateContext
+  - machine : StateMachine*
+  - gameOverText : sf::Text
+  - scoreText : sf::Text
+  - finalScore : int
+
+  + GameOverState(ctrl : GameController*, ctx : const StateContext&, mach : StateMachine*, score : int = 0)
+  + handleInput(input : const GameInput&) : void
+  + update() : void
+  + render(window : sf::RenderWindow&) : void
+  + freeze() : void
+  + unfreeze() : void
+  + getStateName() const : std::string
+}
+
+@enduml

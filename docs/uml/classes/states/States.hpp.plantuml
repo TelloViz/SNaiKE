@@ -1,0 +1,26 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' Aggregator header for all game states
+class "States.hpp" as StatesHpp <<header>> {
+  +provides: "single-include access"
+}
+
+' Forward-ish declarations (represented as dependencies in the diagram)
+class MenuState
+class PlayingState
+class PausedState
+class GameOverState
+
+' Include dependencies
+StatesHpp ..> MenuState : <<includes>>
+StatesHpp ..> PlayingState : <<includes>>
+StatesHpp ..> PausedState : <<includes>>
+StatesHpp ..> GameOverState : <<includes>>
+
+note right of StatesHpp
+Aggregator header.
+Not a C++ class; a convenience include that
+pulls in all game state headers.
+end note
+@enduml

@@ -1,0 +1,21 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class GameLifecycleEvent {
+  + type : Type
+  + GameLifecycleEvent(t : Type)
+}
+
+' Nested enum (declared inside GameLifecycleEvent)
+enum Type {
+  GameStart
+  GameOver
+  GamePause
+  GameResume
+  GameQuit
+}
+
+' UML nesting connectors (explicit “inner classifier”)
+GameLifecycleEvent +-- Type
+
+@enduml

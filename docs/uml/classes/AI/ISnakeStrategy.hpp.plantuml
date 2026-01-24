@@ -1,0 +1,13 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+abstract class ISnakeStrategy {
+  {protected} # heatMap : HeatMap
+
+  + ~ISnakeStrategy()
+  + calculateNextMove(snake : Snake const&, food : sf::Vector2i const&) : Direction
+  + update() : void
+  + getHeatMap() const : HeatMap const&
+}
+
+@enduml

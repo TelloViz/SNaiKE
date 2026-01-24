@@ -1,0 +1,24 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class HamiltonStrategy {
+  - snake : Snake const&
+  - hamiltonCycle : std::vector<sf::Vector2i>
+  - currentIndex : size_t
+  - cycleInitialized : bool
+  - showPathArrows : bool = false
+
+  + HamiltonStrategy(snakeRef : Snake const&)
+  + calculateNextMove(snake : Snake const&, food : sf::Vector2i const&) : Direction
+  + update() : void
+  + render(window : sf::RenderWindow&) const : void
+  + toggleHeatMap() : void
+  + togglePathArrows() : void
+  + isPathArrowsEnabled() const : bool
+
+  - initializeHamiltonCycle() : void
+  - isValidNextPosition(pos : sf::Vector2i const&) const : bool
+  - findSnakeHeadInCycle() const : size_t
+}
+
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class FloodFillStrategy {
+  - snake : Snake const&
+  - heatMap : std::vector<std::vector<int>> <<mutable>>
+  - maxHeatValue : int = 1 <<mutable>>
+  - showPathArrows : bool
+  - food : sf::Vector2i
+
+  + FloodFillStrategy(snakeRef : Snake const&)
+  + calculateNextMove(snake : Snake const&, food : sf::Vector2i const&) : Direction
+  + update() : void
+  + render(window : sf::RenderWindow&) const : void
+  + toggleHeatMap() : void
+  + togglePathArrows() : void
+  + isPathArrowsEnabled() const : bool
+
+  - floodFill(snake : Snake const&, pos : sf::Vector2i const&) const : int
+  - isAreaLargeEnough(snake : Snake const&, nextPos : sf::Vector2i const&) const : bool
+  - renderArrows(window : sf::RenderWindow&, current : sf::Vector2i const&) const : void
+  - findBestMove(pos : sf::Vector2i const&) const : Direction
+}
+
+@enduml

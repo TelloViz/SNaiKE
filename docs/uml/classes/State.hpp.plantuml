@@ -1,0 +1,33 @@
+@startuml
+title State (abstract) and StateContext
+skinparam classAttributeIconSize 0
+
+class StateContext <<struct>> {
+  +font : sf::Font&
+  +width : int
+  +height : int
+  +cellSize : int
+  +marginTop : int
+  +marginBottom : int
+  +marginSides : int
+  +borderThickness : int
+}
+
+abstract class State {
+  #gameController : GameController*
+  #stateMachine : StateMachine*
+  #context : StateContext
+
+  +State(controller : GameController*, ctx : const StateContext&, machine : StateMachine*)
+  +~State()
+  +handleInput(input : const GameInput&) : void
+  +update() : void
+  +render(window : sf::RenderWindow&) : void
+  +freeze() : void
+  +unfreeze() : void
+  +getStateName() const : std::string
+}
+
+State *-- StateContext : context
+
+@enduml

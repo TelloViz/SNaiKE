@@ -1,0 +1,28 @@
+@startuml AdvancedStrategy
+skinparam classAttributeIconSize 0
+
+class AdvancedStrategy {
+  {static} {readOnly} - MAX_PATH_LENGTH : int = 200
+  {static} {readOnly} - PATHFINDING_TIMEOUT_MS : int = 100
+
+  - gridHeatMap : GridHeatMap
+  - lastPath : std::vector<Direction>
+  - pathUpdateClock : sf::Clock
+  - updateClock : sf::Clock
+
+  + calculateNextMove(snake : Snake const&, food : sf::Vector2i const&) : Direction
+  + update() : void
+  + render(window : sf::RenderWindow&) const : void
+
+  - updateHeatMapVisualization(snake : Snake const&, food : sf::Vector2i const&) : void
+  - updateHeatMap(snake : Snake const&, food : sf::Vector2i const&) : void
+  - findPathToFood(snake : Snake const&, food : sf::Vector2i const&) : std::vector<Direction>
+  - calculateSimpleScore(x : int, y : int, snake : Snake const&, food : sf::Vector2i const&) const : float
+  - calculatePositionScore(x : int, y : int, snake : Snake const&, food : sf::Vector2i const&) const : float
+  - isMoveSafeInFuture(dir : Direction, lookAhead : int, snake : Snake const&) const : bool
+  - findAlternativePaths(snake : Snake const&, food : sf::Vector2i const&) : std::vector<std::vector<Direction>>
+  - quickPathFind(start : Position const&, goal : Position const&, snake : Snake const&) const : std::vector<Direction>
+  - isValidPosition(pos : sf::Vector2i const&) const : bool
+}
+
+@enduml

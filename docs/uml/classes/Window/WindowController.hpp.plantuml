@@ -1,0 +1,43 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+abstract class WindowController {
+  + ~WindowController()
+  + create(width : unsigned int, height : unsigned int, title : std::string const&) : void
+  + close() : void
+  + isOpen() const : bool
+  + clear() : void
+  + display() : void
+  + setVerticalSyncEnabled(enabled : bool) : void
+
+  + setTitle(title : std::string const&) : void
+  + setSize(width : unsigned int, height : unsigned int) : void
+  + getSize() const : std::pair<unsigned int, unsigned int>
+
+  + getNativeHandle() const : void*
+  + pollWindowEvent(input : GameInput&) : bool
+}
+
+class SFMLWindowController {
+  - window : sf::RenderWindow
+
+  + SFMLWindowController()
+  + create(width : unsigned int, height : unsigned int, title : std::string const&) : void
+  + close() : void
+  + isOpen() const : bool
+  + clear() : void
+  + display() : void
+  + setVerticalSyncEnabled(enabled : bool) : void
+
+  + getNativeHandle() const : void*
+  + getWindow() : sf::RenderWindow&
+
+  + setTitle(title : std::string const&) : void
+  + setSize(width : unsigned int, height : unsigned int) : void
+  + getSize() const : std::pair<unsigned int, unsigned int>
+  + pollWindowEvent(input : GameInput&) : bool
+}
+
+SFMLWindowController --|> WindowController
+
+@enduml

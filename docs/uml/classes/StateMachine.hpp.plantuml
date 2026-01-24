@@ -1,0 +1,20 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class StateMachine {
+  - states : std::stack<std::unique_ptr<State>>
+  - pendingState : std::unique_ptr<State>
+  - isRemoving : bool = false
+  - isAdding : bool = false
+  - isReplacing : bool = false
+
+  + pushState(state : std::unique_ptr<State>) : void
+  + popState() : void
+  + replaceState(state : std::unique_ptr<State>) : void
+  + processStateChanges() : void
+  + hasState() const : bool
+  + getCurrentState() const : State*
+  + getStateStackInfo() const : std::vector<std::string>
+}
+
+@enduml

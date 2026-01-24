@@ -1,0 +1,16 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class StateClock {
+  - clock : sf::Clock
+  - totalElapsedTime : float = 0.0f
+  - timeAtFreeze : float = 0.0f
+  - wasFrozen : bool = false
+
+  + freeze() : void
+  + unfreeze() : void
+  + getElapsedTime() const : float
+  + restart() : void
+}
+
+@enduml

@@ -1,0 +1,12 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+enum Direction {
+  None
+  Up
+  Down
+  Left
+  Right
+}
+
+@enduml

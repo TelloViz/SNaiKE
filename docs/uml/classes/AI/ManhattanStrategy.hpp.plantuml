@@ -1,0 +1,14 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class ManhattanStrategy {
+  - heatValues : std::map<Position, float> <<mutable>>
+
+  + calculateNextMove(snake : Snake const&, food : sf::Vector2i const&) : Direction
+  + update() : void
+  + render(window : sf::RenderWindow&) const : void
+  + updateHeatMap(snake : Snake const&, food : sf::Vector2i const&) const : void
+  + toggleHeatMap() : void
+}
+
+@enduml

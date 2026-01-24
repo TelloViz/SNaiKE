@@ -1,0 +1,9 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class Event {
+  + ~Event()
+  # Event()
+}
+
+@enduml

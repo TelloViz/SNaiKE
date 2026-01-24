@@ -1,0 +1,29 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class BaseStrategy {
+  {static} # globalShowHeatMap : bool
+
+  # isPositionBlocked(pos : Position const&, snake : Snake const&) const : bool
+  # isMoveSafe(dir : Direction, snake : Snake const&) const : bool
+
+  # getManhattanDistance(a : Position const&, b : Position const&) const : float
+  # getManhattanDistance(a : sf::Vector2i const&, b : sf::Vector2i const&) const : float
+  # getManhattanDistance(a : Position const&, b : sf::Vector2i const&) const : float
+  # getManhattanDistance(a : sf::Vector2i const&, b : Position const&) const : float
+
+  # countAccessibleSpace(start : Position const&, snake : Snake const&) const : int
+  # getNeighbors(pos : Position const&) const : std::vector<Position>
+  # getDirectionToNeighbor(from : Position const&, to : Position const&) const : Direction
+  # calculateRandomMove(snake : Snake const&) const : Direction
+
+  + ~BaseStrategy()
+  + calculateNextMove(snake : Snake const&, food : sf::Vector2i const&) : Direction
+  + update() : void
+  + render(window : sf::RenderWindow&) const : void
+  + toggleHeatMap() : void
+  + isHeatMapEnabled() const : bool
+  {static} + isGlobalHeatMapEnabled() : bool
+}
+
+@enduml

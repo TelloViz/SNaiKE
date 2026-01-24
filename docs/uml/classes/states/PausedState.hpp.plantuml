@@ -1,0 +1,17 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class PausedState {
+  - controller : GameController*
+  - context : StateContext
+  - machine : StateMachine*
+  - pauseText : sf::Text
+
+  + PausedState(ctrl : GameController*, ctx : StateContext const&, mach : StateMachine*)
+  + handleInput(input : GameInput const&) : void
+  + update() : void
+  + render(window : sf::RenderWindow&) : void
+  + getStateName() const : std::string
+}
+
+@enduml

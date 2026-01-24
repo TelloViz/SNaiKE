@@ -1,0 +1,23 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class GameController {
+  - stateMachine : StateMachine
+  - snake : Snake
+  - food : sf::Vector2i
+  - font : sf::Font&
+  - window : sf::RenderWindow*
+  - inputHandler : InputHandler&
+
+  + GameController(gameFont : sf::Font&, gameWindow : sf::RenderWindow*, handler : InputHandler&)
+  + initializeGame() : void
+  + handleInput(input : GameInput const&) : void
+  + update() : void
+  + render(window : sf::RenderWindow&) : void
+  + quitGame() : void
+  + getStateMachine() : StateMachine&
+  + getFont() const : sf::Font const&
+  + getCurrentState() const : State*
+}
+
+@enduml

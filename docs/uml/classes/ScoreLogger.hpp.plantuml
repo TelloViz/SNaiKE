@@ -1,0 +1,16 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class ScoreLogger {
+  {static} + logGame(session : GameSession const&) : void
+}
+
+class "ScoreLogger::GameSession" as GameSession <<struct>> {
+  + finalScore : int
+  + strategyChanges : std::vector<std::pair<AIStrategy,int>>
+  + gameLength : int
+}
+
+ScoreLogger +-- GameSession
+
+@enduml

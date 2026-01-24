@@ -1,0 +1,31 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class Snake {
+  - body : std::deque<sf::Vector2i>
+  - currentDirection : Direction
+  - nextDirection : Direction
+  - hasEaten : bool
+  - isGrowing : bool
+
+  + Snake()
+  + Snake(x : int, y : int)
+  + Snake(startPos : sf::Vector2i const&)
+
+  + setDirection(newDir : Direction) : void
+  + getCurrentDirection() const : Direction
+  + updateDirection() : void
+
+  + move() : void
+  + grow() : void
+  + checkCollision(gridWidth : int, gridHeight : int) const : bool
+  + eat(food : sf::Vector2i const&) : bool
+  + draw(window : sf::RenderWindow&, cellSize : int const) : void
+
+  + getBody() const : std::deque<sf::Vector2i> const&
+  + getHead() const : sf::Vector2i const&
+  + checkSelfCollision() const : bool
+  + render(window : sf::RenderWindow&) const : void
+}
+
+@enduml

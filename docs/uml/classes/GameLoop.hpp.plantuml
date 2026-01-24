@@ -1,0 +1,17 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class GameLoop {
+  - window : sf::RenderWindow
+  - font : sf::Font
+  - inputHandler : InputHandler
+  - gameController : GameController
+
+  + GameLoop()
+  + run() : void
+  + processEvents() : void
+  + update() : void
+  + render() : void
+}
+
+@enduml

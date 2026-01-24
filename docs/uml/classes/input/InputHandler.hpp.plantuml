@@ -1,0 +1,51 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+enum GameButton {
+  Up
+  Down
+  Left
+  Right
+  Select
+  Back
+  Start
+  Quit
+  ToggleAI
+  Num1
+  Num2
+  Num3
+  Num4
+  Num5
+  Num6
+  H
+  J
+  G
+  None
+}
+
+enum InputType {
+  ButtonPressed
+  ButtonReleased
+  WindowClosed
+}
+
+class GameInput <<struct>> {
+  + type : InputType
+  + button : GameButton
+}
+
+class InputHandler {
+  - inputQueue : std::queue<GameInput>
+  - currentInput : GameInput = {InputType::ButtonPressed, GameButton::None}
+
+  + handleSFMLEvent(event : sf::Event const&) : void
+  + hasInput() const : bool
+  + getNextInput() : GameInput
+  + translateSFMLEvent(event : sf::Event const&) : GameInput
+}
+
+InputHandler *-- GameInput : stores/uses
+GameInput --> InputType
+GameInput --> GameButton
+
+@enduml

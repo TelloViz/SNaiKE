@@ -1,0 +1,43 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class PlayingState {
+  - controller : GameController*
+  - context : StateContext
+  - machine : StateMachine*
+  - snake : Snake
+  - food : sf::Vector2i
+  - gameTime : GameClock
+  - lastMoveTime : sf::Time
+  - rng : std::mt19937
+  - isFrozen : bool
+  - score : int
+  - gameLength : int
+  - algoLabel : sf::Text
+  - aiPlayer : std::unique_ptr<AIPlayer>
+  - aiControlled : bool = false
+  - showHeatMap : bool = false
+  - heatMapUpdateClock : sf::Clock
+  - strategyChanges : std::vector<std::pair<AIStrategy, int>>
+  - lastStrategy : AIStrategy
+  - lastHeatMapState : bool = false
+  - lastPathArrowsState : bool = false
+  {static} {readOnly} - SNAKE_MOVE_INTERVAL : float = 1.0f / GameConfig::SNAKE_SPEED
+
+  - spawnFood() : void
+  - checkCollision() : bool
+  - renderFood(window : sf::RenderWindow&) const : void
+
+  + toggleAI() : void
+  + PlayingState(ctrl : GameController*, ctx : StateContext const&, mach : StateMachine*)
+  + handleInput(input : GameInput const&) : void
+  + update() : void
+  + render(window : sf::RenderWindow&) : void
+  + freeze() : void
+  + unfreeze() : void
+  + getStateName() const : std::string
+  + logStrategyChange() : void
+  + updateAlgoLabel() : void
+}
+
+@enduml

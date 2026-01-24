@@ -1,0 +1,23 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class MenuState {
+  - selectedOption : int
+  - titleText : sf::Text
+  - menuText : sf::Text
+  - menuOptions : std::vector<sf::Text>
+  - controller : GameController*
+  - context : StateContext
+  - machine : StateMachine*
+
+  - handlePlaySelected() : void
+
+  + MenuState(controller : GameController*, context : StateContext const&, machine : StateMachine*)
+  + update() : void
+  + render(window : sf::RenderWindow&) : void
+  + handleInput(input : GameInput const&) : void
+  + freeze() : void
+  + unfreeze() : void
+  + getStateName() const : std::string
+}
+@enduml

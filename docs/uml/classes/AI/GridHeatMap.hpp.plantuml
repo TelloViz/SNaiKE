@@ -1,0 +1,20 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class GridHeatMap {
+  - scores : std::vector<std::vector<float>>
+  - scoreMutex : std::mutex <<mutable>>
+  - needsUpdate : std::atomic<bool> = true
+  - maxValue : float
+  - minValue : float
+  - updateClock : sf::Clock <<mutable>>
+
+  + GridHeatMap()
+  + clear() : void
+  + setValue(x : int, y : int, value : float) : void
+  + getValue(x : int, y : int) const : float
+  + render(target : sf::RenderTarget&, cellSize : sf::Vector2f const&, opacity : float = 0.85f) const : void
+  + triggerUpdate() : void
+}
+
+@enduml

@@ -1,0 +1,37 @@
+@startuml AIStrategy
+skinparam classAttributeIconSize 0
+
+enum AIStrategy {
+  Manhattan
+  AStar
+  Hamilton
+  FloodFill
+  Voronoi
+  HybridAStar
+  WallFollow
+  None
+}
+
+class AIPlayer {
+  - currentStrategy : std::unique_ptr<BaseStrategy>
+  - plannedMoves : std::queue<GameInput>
+  - snake : Snake const&
+  - food : sf::Vector2i const&
+  - currentStrategyType : AIStrategy
+  - currentAIStrategy : AIStrategy = AIStrategy::None
+
+  + AIPlayer(s : Snake const&, f : sf::Vector2i const&)
+  + getNextInput() : GameInput
+  + setStrategy(type : AIStrategy) : void
+  + planNextMove() : void
+  + getStrategy() const : AIStrategy
+  + isEnabled() const : bool
+  + getCurrentStrategy() const : BaseStrategy*
+
+  - directionToButton(dir : Direction) : GameButton
+}
+
+AIPlayer --> AIStrategy
+AIPlayer *-- std::queue<GameInput>
+AIPlayer ..> BaseStrategy : uses (pointer)
+@enduml

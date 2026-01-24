@@ -1,0 +1,12 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class EventManager {
+  - handlers : std::unordered_map<std::type_index, std::vector<HandlerFn>>
+  - HandlerFn : std::function<void(const Event&)>
+
+  + subscribe<T>(handler : std::function<void(const T&)>) : void
+  + publish(event : Event const&) : void
+}
+
+@enduml

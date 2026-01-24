@@ -1,0 +1,18 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class StateTransitionEvent {
+  + type : Type
+  + targetState : std::string
+  + StateTransitionEvent(t : Type, state : std::string const&)
+}
+
+enum Type {
+  Push
+  Pop
+  Replace
+}
+
+StateTransitionEvent +-- Type
+
+@enduml

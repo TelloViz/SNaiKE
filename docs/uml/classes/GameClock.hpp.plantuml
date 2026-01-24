@@ -1,0 +1,16 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class GameClock {
+  - clock : sf::Clock
+  - pausedTime : sf::Time
+  - isPaused : bool
+
+  + GameClock()
+  + restart() : void
+  + getElapsedTime() const : sf::Time
+  + freeze() : void
+  + unfreeze() : void
+}
+
+@enduml

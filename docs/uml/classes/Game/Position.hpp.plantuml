@@ -1,0 +1,17 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class Position <<struct>> {
+    + pos : sf::Vector2i
+    
+    + Position()
+    + Position(vector : sf::Vector2i const&)
+    + Position(x: int, y : int)
+
+    + operator<(other : Position const&) const : bool
+    + operator==(other : Position const&) const : bool
+    + operator!=(other : Position const&) const : bool
+    + operator sf::Vector2i() const
+}
+
+@enduml

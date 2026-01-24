@@ -1,0 +1,21 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class GameConfig <<struct>> {
+  {static} {readOnly} + GRID_WIDTH : int = 20
+  {static} {readOnly} + GRID_HEIGHT : int = 20
+  {static} {readOnly} + CELL_SIZE : int = 20
+
+  {static} {readOnly} + MARGIN_TOP : int = 40
+  {static} {readOnly} + MARGIN_BOTTOM : int = 40
+  {static} {readOnly} + MARGIN_SIDES : int = 20
+  {static} {readOnly} + BORDER_THICKNESS : int = 2
+
+  {static} {readOnly} + WINDOW_WIDTH : int = (GRID_WIDTH * CELL_SIZE) + (MARGIN_SIDES * 2)
+  {static} {readOnly} + WINDOW_HEIGHT : int = (GRID_HEIGHT * CELL_SIZE) + MARGIN_TOP + MARGIN_BOTTOM
+
+  {static} {readOnly} + FRAME_RATE : int = 60
+  {static} {readOnly} + SNAKE_SPEED : float = 10.0f
+}
+
+@enduml

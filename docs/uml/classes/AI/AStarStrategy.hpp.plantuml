@@ -1,0 +1,70 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class AStarStrategy {
+  - snake : Snake const&
+
+  - currentPath : std::vector<Direction>
+  - visualPath : std::vector<Direction>
+  - pathUpdateClock : sf::Clock
+
+  - exploredNodes : std::vector<sf::Vector2i>
+  - currentHeuristic : Heuristic
+
+  - renderClock : sf::Clock
+  - explorationRenderClock : sf::Clock
+
+  {static} {readOnly} - PATH_RENDER_INTERVAL : float = 0.1f
+  {static} {readOnly} - PATH_UPDATE_INTERVAL : float = 0.1f
+  {static} {readOnly} - EXPLORATION_RENDER_INTERVAL : float = 0.1f
+
+  - lastExploredNodes : std::vector<sf::Vector2i>
+  - hasExplorationData : bool = false
+  - showHeatMap : bool = false
+  - showPathArrows : bool = false
+
+  + AStarStrategy(snakeRef : Snake const&)
+  + calculateNextMove(snake : Snake const&, food : sf::Vector2i const&) : Direction
+  + update() : void
+  + render(window : sf::RenderWindow&) const : void
+  + setHeuristic(h : Heuristic) : void
+  + getHeuristic() const : Heuristic
+  + toggleHeatMap() : void
+  + togglePathArrows() : void
+  + isHeatMapEnabled() const : bool
+  + isPathArrowsEnabled() const : bool
+  + setVisualizationState(heatMap : bool, pathArrows : bool) : void
+
+  - findPath(snake : Snake const&, food : sf::Vector2i const&) : std::vector<Direction>
+  - calculateHeuristic(pos : Position const&, goal : sf::Vector2i const&) const : float
+  - isPositionSafe(pos : Position const&, snake : Snake const&) const : bool
+  - countAccessibleSpace(start : Position const&, snake : Snake const&) const : int
+  - getNeighbors(pos : Position const&) const : std::vector<Position>
+  - isMovingTowardsBody(pos : Position const&, dir : Direction, snake : Snake const&) const : bool
+  - isPathSafe(path : std::vector<Direction> const&, snake : Snake const&) const : bool
+  - reconstructPath(start : Position const&, goal : Position const&, cameFrom : std::map<Position, Position> const&, directionToParent : std::map<Position, Direction> const&) const : std::vector<Direction>
+  - getEuclideanDistanceSquared(a : sf::Vector2i const&, b : sf::Vector2i const&) const : float
+  - countAccessibleNeighbors(pos : Position const&) const : int
+}
+
+' Nested enum (declared inside AStarStrategy)
+enum Heuristic {
+  MANHATTAN
+  EUCLIDEAN
+  CHEBYSHEV
+}
+
+' Nested struct (declared inside AStarStrategy)
+class Node <<struct>> {
+  + pos : Position
+  + gCost : float
+  + hCost : float
+  + fCost() const : float
+  + operator_gt(other : Node const&) const : bool
+}
+
+' UML nesting connectors (explicit “inner classifier”)
+AStarStrategy +-- Heuristic
+AStarStrategy +-- Node
+
+@enduml

@@ -1,0 +1,16 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class BasicStrategy {
+  - gridHeatMap : GridHeatMap
+
+  + calculateNextMove(snake : Snake const&, food : sf::Vector2i const&) : Direction
+  + update() : void
+  + render(window : sf::RenderWindow&) const : void
+
+  - updateHeatMap(snake : Snake const&, food : sf::Vector2i const&) : void
+  - isValidPosition(pos : sf::Vector2i const&) const : bool
+  - calculatePositionScore(pos : sf::Vector2i const&, snake : Snake const&, food : sf::Vector2i const&) const : float
+}
+
+@enduml
