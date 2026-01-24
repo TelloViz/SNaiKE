@@ -1,8 +1,10 @@
-#include "StateMachine.hpp"
-#include "State.hpp"
+#include "state_system/StateMachine.hpp"
+#include "state_system/State.hpp"
 
 #include <iostream> 
 #include <string>
+
+namespace state_system {
 
 void StateMachine::pushState(std::unique_ptr<State> state) {
     if (!state) {
@@ -92,3 +94,5 @@ void StateMachine::processStateChanges() {
 //     }
 //     return states.top().get();
 // }
+
+} // namespace state_system

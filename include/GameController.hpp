@@ -1,6 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
-#include "StateMachine.hpp"
+#include "state_system/StateMachine.hpp"
 #include "Snake.hpp"
 #include "input/InputHandler.hpp" 
 /**
@@ -14,7 +14,7 @@
  */
 class GameController {
 private:
-    StateMachine stateMachine;    ///< Manages game state transitions
+    state_system::StateMachine stateMachine;    ///< Manages game state transitions
     Snake snake;                  ///< Main player entity // TODO Consider moving this to exclusively within playing state
     sf::Vector2i food;           ///< Current food position
     sf::Font& font;              ///< Reference to global font resource
@@ -76,7 +76,7 @@ public:
      * @brief Gets reference to state machine
      * @return Reference to the game's state machine
      */
-    StateMachine& getStateMachine() { return stateMachine; }
+    state_system::StateMachine& getStateMachine() { return stateMachine; }
 
     /**
      * @brief Gets reference to global font
@@ -84,7 +84,7 @@ public:
      */
     const sf::Font& getFont() const { return font; }
 
-    State* getCurrentState() const { 
+    state_system::State* getCurrentState() const { 
         return stateMachine.getCurrentState(); 
     }
 };

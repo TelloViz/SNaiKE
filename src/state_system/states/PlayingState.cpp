@@ -1,15 +1,17 @@
-#include "states/PlayingState.hpp"
+#include "state_system/states/PlayingState.hpp"
 #include "ai/HamiltonStrategy.hpp"  
-#include "states/GameOverState.hpp"
-#include "states/PausedState.hpp"
+#include "state_system/states/GameOverState.hpp"
+#include "state_system/states/PausedState.hpp"
 #include "GameController.hpp"
-#include "StateMachine.hpp"
+#include "state_system/StateMachine.hpp"
 #include "GameConfig.hpp"
 #include "ScoreLogger.hpp" 
 #include <iostream>
 #include "ai/FloodFillStrategy.hpp"
 
-PlayingState::PlayingState(GameController* ctrl, const StateContext& ctx, StateMachine* mach)
+namespace state_system::states {
+
+PlayingState::PlayingState(::GameController* ctrl, const state_system::StateContext& ctx, state_system::StateMachine* mach)
     : State(ctrl, ctx, mach)
     , controller(ctrl)
     , context(ctx)
@@ -97,7 +99,7 @@ void PlayingState::handleInput(const GameInput& input) {
         switch (input.button) {
             case GameButton::Back:
                 std::cout << "Playing: Back pressed, pushing PausedState" << std::endl;
-                machine->pushState(std::make_unique<PausedState>(controller, context, machine));
+                machine->pushState(std::make_unique<state_system::states::PausedState>(controller, context, machine));
                 machine->processStateChanges();  // Important: Process the state change immediately
                 break;
             case GameButton::Up: 
@@ -289,7 +291,7 @@ void PlayingState::update() {
                          << ", Strategy Changes: " << strategyChanges.size() << std::endl;
 
                 // Transition to game over
-                machine->replaceState(std::make_unique<GameOverState>(controller, context, machine, score));
+                machine->replaceState(std::make_unique<state_system::states::GameOverState>(controller, context, machine, score));
                 machine->processStateChanges();
                 return;
             }
@@ -426,3 +428,5 @@ void PlayingState::unfreeze() {
     // Convert SNAKE_MOVE_INTERVAL to sf::Time before subtraction
     lastMoveTime = gameTime.getElapsedTime() - sf::seconds(SNAKE_MOVE_INTERVAL * 0.9f);
 }
+
+} // namespace state_system::states

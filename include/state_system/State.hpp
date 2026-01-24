@@ -3,6 +3,9 @@
 #include "input/InputHandler.hpp"
 
 class GameController;
+
+namespace state_system {
+
 class StateMachine;
 
 /**
@@ -92,3 +95,5 @@ public:
      */
     virtual std::string getStateName() const = 0;
 };
+
+} // namespace state_system

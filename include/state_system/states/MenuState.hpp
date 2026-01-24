@@ -1,24 +1,26 @@
 #pragma once
-#include "State.hpp"
+#include "state_system/State.hpp"
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include "input/InputHandler.hpp"
 
 
-class MenuState : public State {
+namespace state_system::states {
+
+class MenuState : public ::state_system::State {
 private:
     int selectedOption;
     sf::Text titleText;
     sf::Text menuText; 
     std::vector<sf::Text> menuOptions;
-    GameController* controller;
-    StateContext context;
-    StateMachine* machine;
+    ::GameController* controller;
+    state_system::StateContext context;
+    state_system::StateMachine* machine;
     
     void handlePlaySelected();
 
 public:
-    MenuState(GameController* controller, const StateContext& context, StateMachine* machine);
+    MenuState(::GameController* controller, const state_system::StateContext& context, state_system::StateMachine* machine);
     
     void update() override;
     void render(sf::RenderWindow& window) override;
@@ -27,3 +29,5 @@ public:
     void unfreeze() override; 
     std::string getStateName() const override { return "MenuState"; }
 };
+
+} // namespace state_system::states

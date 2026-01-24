@@ -1,5 +1,5 @@
 #pragma once
-#include "State.hpp"
+#include "state_system/State.hpp"
 #include "Snake.hpp"
 #include "GameClock.hpp"
 #include <SFML/Graphics.hpp>
@@ -12,7 +12,9 @@
 
 // Forward declarations
 class GameController;
-class StateMachine;
+class ::state_system::StateMachine;
+
+namespace state_system::states {
 
 /**
  * @brief Main gameplay state
@@ -24,11 +26,11 @@ class StateMachine;
  * - Score tracking
  * - Game over conditions
  */
-class PlayingState : public State {
+class PlayingState : public ::state_system::State {
 private:
-    GameController* controller;
-    StateContext context;
-    StateMachine* machine;
+    ::GameController* controller;
+    state_system::StateContext context;
+    state_system::StateMachine* machine;
     Snake snake;              ///< Player-controlled snake entity
     sf::Vector2i food;       ///< Current food position
     GameClock gameTime;     ///< Game time tracking
@@ -82,7 +84,7 @@ void toggleAI() { aiControlled = !aiControlled; }
      * - Random number generator
      * - Initial food placement
      */
-    PlayingState(GameController* ctrl, const StateContext& ctx, StateMachine* mach);
+    PlayingState(::GameController* ctrl, const state_system::StateContext& ctx, state_system::StateMachine* mach);
 
     /**
      * @brief Handles input events
@@ -141,3 +143,5 @@ void toggleAI() { aiControlled = !aiControlled; }
     void updateAlgoLabel();
 
 };
+
+} // namespace state_system::states

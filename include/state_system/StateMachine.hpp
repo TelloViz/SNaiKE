@@ -6,6 +6,10 @@
 #include "State.hpp"
 #include <iostream>
 
+namespace state_system {
+
+class GameController;
+
 /**
  * @brief Manages game state transitions and stack
  * 
@@ -110,6 +114,8 @@ public:
         return stackInfo;
     }
 };
+
+} // namespace state_system
 
 // TODO (1): Integrate observer pattern for state changes
 // TODO (2): Add state transition logging for debugging

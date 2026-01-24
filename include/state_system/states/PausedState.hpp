@@ -1,11 +1,13 @@
 #pragma once
-#include "State.hpp"
+#include "state_system/State.hpp"
 #include <SFML/Graphics.hpp>
 #include "input/InputHandler.hpp"
 
 
 class GameController;
-class StateMachine;
+class ::state_system::StateMachine;
+
+namespace state_system::states {
 
 /**
  * @brief Pause screen overlay state
@@ -16,11 +18,11 @@ class StateMachine;
  * - Resume with Escape key
  * - Semi-transparent overlay
  */
-class PausedState : public State {
+class PausedState : public ::state_system::State {
 private:
-    GameController* controller;
-    StateContext context;
-    StateMachine* machine;
+    ::GameController* controller;
+    state_system::StateContext context;
+    state_system::StateMachine* machine;
     sf::Text pauseText;    ///< Centered "PAUSED" message
 
 public:
@@ -32,7 +34,7 @@ public:
      * 
      * Initializes pause message and positions it centrally
      */
-    PausedState(GameController* ctrl, const StateContext& ctx, StateMachine* mach);
+    PausedState(::GameController* ctrl, const state_system::StateContext& ctx, state_system::StateMachine* mach);
 
     /**
      * @brief Handles input events
@@ -67,3 +69,5 @@ public:
      */
     std::string getStateName() const override { return "PausedState"; }
 };
+
+} // namespace state_system::states

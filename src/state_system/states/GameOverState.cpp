@@ -1,11 +1,13 @@
-#include "states/GameOverState.hpp"
-#include "states/MenuState.hpp"
+#include "state_system/states/GameOverState.hpp"
+#include "state_system/states/MenuState.hpp"
 #include "GameController.hpp"
-#include "StateMachine.hpp"
+#include "state_system/StateMachine.hpp"
 #include "ScoreLogger.hpp" 
 
-GameOverState::GameOverState(GameController* ctrl, const StateContext& ctx, StateMachine* mach, int score)
-    : State(ctrl, ctx, mach)
+namespace state_system::states {
+
+GameOverState::GameOverState(::GameController* ctrl, const state_system::StateContext& ctx, state_system::StateMachine* mach, int score)
+    : state_system::State(ctrl, ctx, mach)
     , controller(ctrl)
     , context(ctx)
     , machine(mach)
@@ -42,7 +44,7 @@ GameOverState::GameOverState(GameController* ctrl, const StateContext& ctx, Stat
 void GameOverState::handleInput(const GameInput& input) {
     if (input.type == InputType::ButtonPressed && input.button == GameButton::Select) {
         std::cout << "GameOver: Select pressed, returning to menu" << std::endl;
-        machine->replaceState(std::make_unique<MenuState>(controller, context, machine));
+        machine->replaceState(std::make_unique<state_system::states::MenuState>(controller, context, machine));
         machine->processStateChanges();
     }
 }
@@ -63,3 +65,5 @@ void GameOverState::freeze() {
 void GameOverState::unfreeze() {
     // Nothing to unfreeze in game over state
 }
+
+} // namespace state_system::states

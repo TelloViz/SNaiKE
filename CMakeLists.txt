@@ -25,20 +25,20 @@ add_executable(main
     src/GameLoop.cpp
     src/GameController.cpp
     src/Snake.cpp
-    src/StateMachine.cpp
-    src/states/MenuState.cpp
-    src/states/PlayingState.cpp
-    src/states/PausedState.cpp
-    src/states/GameOverState.cpp
-    src/Input/InputHandler.cpp
-    src/AI/AIPlayer.cpp
-    src/AI/BaseStrategy.cpp
-    src/AI/BasicStrategy.cpp
-    src/AI/RandomStrategy.cpp
-    src/AI/ManhattanStrategy.cpp
-    src/AI/AStarStrategy.cpp
-    src/AI/HamiltonStrategy.cpp
-    src/AI/FloodFillStrategy.cpp)
+    src/state_system/StateMachine.cpp
+    src/state_system/states/MenuState.cpp
+    src/state_system/states/PlayingState.cpp
+    src/state_system/states/PausedState.cpp
+    src/state_system/states/GameOverState.cpp
+    src/input/InputHandler.cpp
+    src/ai/AIPlayer.cpp
+    src/ai/BaseStrategy.cpp
+    src/ai/BasicStrategy.cpp
+    src/ai/RandomStrategy.cpp
+    src/ai/ManhattanStrategy.cpp
+    src/ai/AStarStrategy.cpp
+    src/ai/HamiltonStrategy.cpp
+    src/ai/FloodFillStrategy.cpp)
 
 # Configure include directories
 target_include_directories(main PRIVATE 

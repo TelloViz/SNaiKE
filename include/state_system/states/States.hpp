@@ -11,7 +11,7 @@
  * 
  * Usage:
  * @code
- * #include "states/States.hpp"
+ * #include "state_system/states/States.hpp"
  * @endcode
  */
 

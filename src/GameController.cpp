@@ -1,12 +1,12 @@
 #include "GameController.hpp"
-#include "states/MenuState.hpp"
+#include "state_system/states/MenuState.hpp"
 #include "GameConfig.hpp"
 #include "input/InputHandler.hpp"
 #include <iostream>
 
 
 void GameController::initializeGame() {
-    StateContext context{
+    state_system::StateContext context{
         font,
         GameConfig::GRID_WIDTH,
         GameConfig::GRID_HEIGHT,
@@ -17,7 +17,7 @@ void GameController::initializeGame() {
         GameConfig::BORDER_THICKNESS
     };
     
-    auto menuState = std::make_unique<MenuState>(this, context, &stateMachine);
+    auto menuState = std::make_unique<state_system::states::MenuState>(this, context, &stateMachine);
     if (!menuState) {
         return;
     }

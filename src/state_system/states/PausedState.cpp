@@ -1,9 +1,11 @@
-#include "states/PausedState.hpp"
+#include "state_system/states/PausedState.hpp"
 #include "GameController.hpp"
 
 #include <iostream>
 
-PausedState::PausedState(GameController* ctrl, const StateContext& ctx, StateMachine* mach)
+namespace state_system::states {
+
+PausedState::PausedState(::GameController* ctrl, const state_system::StateContext& ctx, state_system::StateMachine* mach)
     : State(ctrl, ctx, mach)
     , controller(ctrl)
     , context(ctx)
@@ -46,3 +48,5 @@ void PausedState::render(sf::RenderWindow& window) {
     // Render pause menu or overlay
     window.draw(pauseText);
 }
+
+} // namespace state_system::states
