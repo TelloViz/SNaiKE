@@ -1,9 +1,15 @@
 #pragma once
-#include <SFML/Graphics.hpp>
+
+// Standard Library Includes
 #include <vector>
 #include <limits>
-#include "GameConfig.hpp"
 #include <iostream>
+
+// Third-Party Includes
+#include <SFML/Graphics.hpp>
+
+// Project Includes
+#include "GameConfig.hpp"
 
 class HeatMap {
 public:

@@ -1,15 +1,15 @@
 #pragma once
 
-// Standard Library
+// Standard Library Includes
 #include <vector>
 #include <queue>
 #include <map>
 #include <cmath>
 
-// Third-Party
+// Third-Party Includes
 #include <SFML/Graphics.hpp>
 
-// Project
+// Project Includes
 #include "ai/BaseStrategy.hpp"
 #include "Snake.hpp"
 #include "GameConfig.hpp"

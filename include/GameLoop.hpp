@@ -1,5 +1,9 @@
 #pragma once
+
+// Third-Party Includes
 #include <SFML/Graphics.hpp>
+
+// Project Includes
 #include "GameController.hpp"
 #include "GameConfig.hpp"
 #include "input/InputHandler.hpp"

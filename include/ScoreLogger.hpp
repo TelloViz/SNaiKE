@@ -1,7 +1,11 @@
 #pragma once
+
+// Standard Library Includes
 #include <fstream>
 #include <string>
 #include <vector>
+
+// Project Includes
 #include "ai/AIPlayer.hpp"
 
 class ScoreLogger {

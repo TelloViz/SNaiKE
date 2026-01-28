@@ -1,8 +1,12 @@
 #pragma once
+
+// Standard Library Includes
 #include <functional>
 #include <unordered_map>
 #include <typeindex>
 #include <vector>
+
+// Project Includes
 #include "Event.hpp"
 
 /**

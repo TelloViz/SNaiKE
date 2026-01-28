@@ -1,8 +1,14 @@
 #pragma once
+
+// Standard Library Includes
+#include <vector>
+
+// Third-Party Includes
+#include <SFML/Graphics.hpp>
+
+// Project Includes
 #include "ai/BaseStrategy.hpp"
 #include "Snake.hpp"
-#include <vector>
-#include <SFML/Graphics.hpp>
 
 class HamiltonStrategy : public BaseStrategy {
 private:

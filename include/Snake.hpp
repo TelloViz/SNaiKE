@@ -1,6 +1,12 @@
 #pragma once
-#include <SFML/Graphics.hpp>
+
+// Standard Library Includes
 #include <deque>
+
+// Third-Party Includes
+#include <SFML/Graphics.hpp>
+
+// Project Includes
 #include "GameConfig.hpp"
 #include "game/Direction.hpp"
 

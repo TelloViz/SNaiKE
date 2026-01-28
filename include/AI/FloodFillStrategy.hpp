@@ -1,9 +1,9 @@
 #pragma once
 
-// Third-Party
+// Third-Party Includes
 #include <SFML/Graphics.hpp>
 
-// Project
+// Project Includes
 #include "ai/BaseStrategy.hpp"
 #include "Snake.hpp"
 

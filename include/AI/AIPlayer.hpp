@@ -1,13 +1,13 @@
 #pragma once
 
-// Standard Library
+// Standard Library Includes
 #include <memory>
 #include <queue>
 
-// Third-Party
+// Third-Party Includes
 #include <SFML/Graphics.hpp>
 
-// Project
+// Project Includes
 #include "input/InputHandler.hpp"
 #include "Snake.hpp"
 #include "ai/BaseStrategy.hpp"

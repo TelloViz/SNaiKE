@@ -1,4 +1,6 @@
 #pragma once
+
+// Third-Party Includes
 #include <SFML/System/Vector2.hpp>
 
 struct Position {

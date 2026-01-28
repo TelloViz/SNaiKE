@@ -1,9 +1,13 @@
 #pragma once
+
+// Third-Party Includes
+#include <SFML/System/Vector2.hpp>
+
+// Project Includes
 #include "game/Direction.hpp"
 #include "game/Position.hpp"
 #include "Snake.hpp"
 #include "ai/HeatMap.hpp"
-#include <SFML/System/Vector2.hpp>
 
 class ISnakeStrategy {
 public:

@@ -1,6 +1,10 @@
 #pragma once
-#include <SFML/Graphics.hpp>
+
+// Standard Library Includes
 #include <queue>
+
+// Third-Party Includes
+#include <SFML/Graphics.hpp>
 
 enum class GameButton {
     Up, Down, Left, Right,

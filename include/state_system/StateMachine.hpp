@@ -1,10 +1,14 @@
 #pragma once
+
+// Standard Library Includes
 #include <memory>
 #include <stack>
 #include <vector>
 #include <string>
-#include "State.hpp"
 #include <iostream>
+
+// Project Includes
+#include "State.hpp"
 
 namespace state_system {
 

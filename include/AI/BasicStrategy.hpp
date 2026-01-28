@@ -1,9 +1,9 @@
 #pragma once
 
-// Standard Library
+// Standard Library Includes
 #include <SFML/Graphics.hpp>
 
-// Project 
+// Project Includes
 #include "BaseStrategy.hpp"
 #include "ai/GridHeatMap.hpp"
 

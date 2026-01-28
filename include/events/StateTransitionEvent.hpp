@@ -1,6 +1,11 @@
 #pragma once
-#include "Event.hpp"
+
+// Standard Library Includes
 #include <string>
+
+// Project Includes
+#include "Event.hpp"
+
 
 /**
  * @brief Event triggered when state transitions should occur

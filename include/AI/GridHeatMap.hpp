@@ -1,15 +1,15 @@
 #pragma once
 
-// Standard Library
+// Standard Library Includes
 #include <vector>
 #include <mutex>
 #include <atomic>
 #include <iostream>
 
-// Third-Party
+// Third-Party Includes
 #include <SFML/Graphics.hpp>
 
-// Project
+// Project Includes
 #include "GameConfig.hpp"
 
 class GridHeatMap {

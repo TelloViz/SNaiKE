@@ -1,4 +1,6 @@
 #pragma once
+
+// Third-Party Includes
 #include <SFML/System/Clock.hpp>
 
 class GameClock {

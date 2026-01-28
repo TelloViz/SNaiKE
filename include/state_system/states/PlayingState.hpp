@@ -1,9 +1,14 @@
 #pragma once
+
+// Standard Library Includes
+#include <random>
+// Third-Party Includes
+#include <SFML/Graphics.hpp>
+
+// Project Includes
 #include "state_system/State.hpp"
 #include "Snake.hpp"
 #include "GameClock.hpp"
-#include <SFML/Graphics.hpp>
-#include <random>
 #include "input/InputHandler.hpp"
 #include "GameConfig.hpp"
 #include "ai/AIPlayer.hpp"

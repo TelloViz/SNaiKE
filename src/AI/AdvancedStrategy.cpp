@@ -1,9 +1,13 @@
 #include "ai/AdvancedStrategy.hpp"
-#include "GameConfig.hpp"
-#include <queue>
-#include <map>
-#include <set>
+
+// Standard library includes
 #include <iostream>
+#include <map>
+#include <queue>
+#include <set>
+
+// Project includes
+#include "GameConfig.hpp"
 
 Direction AdvancedStrategy::calculateNextMove(const Snake& snake, const sf::Vector2i& food) {
     // Try to find path to food first using A*

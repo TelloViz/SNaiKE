@@ -1,5 +1,9 @@
 #pragma once
+
+// Third-Party Includes
 #include <SFML/Graphics.hpp>
+
+// Project Includes
 #include "state_system/StateMachine.hpp"
 #include "Snake.hpp"
 #include "input/InputHandler.hpp" 

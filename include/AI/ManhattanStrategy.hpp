@@ -1,7 +1,12 @@
 #pragma once
-#include "ai/BaseStrategy.hpp"
+
+// Standard Library Includes
 #include <vector>
 #include <map>
+
+// Project
+#include "ai/BaseStrategy.hpp"
+
 
 class ManhattanStrategy : public BaseStrategy {
 public:

@@ -1,9 +1,17 @@
 #pragma once
-#include "state_system/State.hpp"
-#include "ai/AIPlayer.hpp" 
-#include <SFML/Graphics.hpp>
+
+// Standard Library Includes
 #include <vector>
 #include <utility>
+
+// Third-Party Includes
+#include <SFML/Graphics.hpp>
+
+// Project Includes
+#include "state_system/State.hpp"
+#include "ai/AIPlayer.hpp" 
+
+
 
 namespace state_system::states {
 

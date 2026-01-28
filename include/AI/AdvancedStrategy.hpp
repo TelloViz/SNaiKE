@@ -1,13 +1,13 @@
 #pragma once
 
-// Standard Library
-#include <vector>
+// Standard Library Includes
 #include <queue>
+#include <vector>
 
-// Third-Party
+// Third-Party Includes
 #include <SFML/Graphics.hpp>
 
-// Project
+// Project Includes
 #include "ai/BaseStrategy.hpp"
 #include "ai/GridHeatMap.hpp"
 

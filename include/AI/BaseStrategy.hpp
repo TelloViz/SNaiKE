@@ -1,13 +1,13 @@
 #pragma once
 
-// Standard library includes
+// Standard library Includes
 #include <iostream>
 #include <vector>
 
-// Third-party includes
+// Third-party Includes
 #include <SFML/Graphics.hpp>
 
-//Project includes
+//Project Includes
 #include "Snake.hpp"
 #include "game/Direction.hpp"
 #include "game/Position.hpp"
