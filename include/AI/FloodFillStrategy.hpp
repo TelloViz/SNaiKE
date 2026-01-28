@@ -1,7 +1,12 @@
 #pragma once
+
+// Third-Party
+#include <SFML/Graphics.hpp>
+
+// Project
 #include "ai/BaseStrategy.hpp"
 #include "Snake.hpp"
-#include <SFML/Graphics.hpp>
+
 
 class FloodFillStrategy : public BaseStrategy {
 public:

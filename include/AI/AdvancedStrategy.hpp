@@ -1,9 +1,15 @@
 #pragma once
-#include "ai/BaseStrategy.hpp"
-#include "ai/GridHeatMap.hpp"
-#include <SFML/Graphics.hpp>
+
+// Standard Library
 #include <vector>
 #include <queue>
+
+// Third-Party
+#include <SFML/Graphics.hpp>
+
+// Project
+#include "ai/BaseStrategy.hpp"
+#include "ai/GridHeatMap.hpp"
 
 class AdvancedStrategy : public BaseStrategy {
 public:

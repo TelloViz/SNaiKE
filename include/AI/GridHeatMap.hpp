@@ -1,10 +1,16 @@
 #pragma once
-#include <SFML/Graphics.hpp>
+
+// Standard Library
 #include <vector>
 #include <mutex>
 #include <atomic>
-#include "GameConfig.hpp"
 #include <iostream>
+
+// Third-Party
+#include <SFML/Graphics.hpp>
+
+// Project
+#include "GameConfig.hpp"
 
 class GridHeatMap {
 private:

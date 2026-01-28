@@ -1,13 +1,20 @@
 #pragma once
-#include <SFML/Graphics.hpp>
+
+// Standard Library
+#include <memory>
 #include <queue>
+
+// Third-Party
+#include <SFML/Graphics.hpp>
+
+// Project
 #include "input/InputHandler.hpp"
 #include "Snake.hpp"
 #include "ai/BaseStrategy.hpp"
 #include "ai/ManhattanStrategy.hpp"
 #include "ai/AStarStrategy.hpp"
 #include "ai/AdvancedStrategy.hpp"
-#include <memory>
+
 
 enum class AIStrategy {
     Manhattan,

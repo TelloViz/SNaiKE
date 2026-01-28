@@ -1,7 +1,11 @@
 #pragma once
+
+// Standard Library
+#include <SFML/Graphics.hpp>
+
+// Project 
 #include "BaseStrategy.hpp"
 #include "ai/GridHeatMap.hpp"
-#include <SFML/Graphics.hpp>
 
 class BasicStrategy : public BaseStrategy {
 public:

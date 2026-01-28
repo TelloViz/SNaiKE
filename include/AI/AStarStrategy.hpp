@@ -1,12 +1,19 @@
 #pragma once
-#include "ai/BaseStrategy.hpp"
-#include "Snake.hpp"
-#include "GameConfig.hpp"
-#include <SFML/Graphics.hpp>
+
+// Standard Library
 #include <vector>
 #include <queue>
 #include <map>
 #include <cmath>
+
+// Third-Party
+#include <SFML/Graphics.hpp>
+
+// Project
+#include "ai/BaseStrategy.hpp"
+#include "Snake.hpp"
+#include "GameConfig.hpp"
+
 
 class AStarStrategy : public BaseStrategy {
     const Snake& snake;  // Reference to snake for visualization
