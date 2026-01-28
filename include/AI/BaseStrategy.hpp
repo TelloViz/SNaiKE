@@ -1,10 +1,16 @@
 #pragma once
+
+// Standard library includes
+#include <iostream>
+#include <vector>
+
+// Third-party includes
 #include <SFML/Graphics.hpp>
+
+//Project includes
 #include "Snake.hpp"
 #include "game/Direction.hpp"
 #include "game/Position.hpp"
-#include <vector>
-#include <iostream>
 
 class BaseStrategy {
 protected:
