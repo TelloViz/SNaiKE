@@ -1,4 +1,6 @@
 #include "ai/HamiltonStrategy.hpp"
+
+// Standard Library Includes
 #include <iostream>
 
 HamiltonStrategy::HamiltonStrategy(const Snake& snakeRef)

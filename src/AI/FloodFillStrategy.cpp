@@ -1,9 +1,13 @@
 #include "ai/FloodFillStrategy.hpp"
-#include "ai/BaseStrategy.hpp"
-#include "GameConfig.hpp"
+
+// Standard Library Includes
 #include <queue>
 #include <vector>
 #include <iostream>
+
+// Project Includes
+#include "ai/BaseStrategy.hpp"
+#include "GameConfig.hpp"
 
 Direction FloodFillStrategy::calculateNextMove(const Snake& snake, const sf::Vector2i& food) {
     this->food = food;  // Store food position for arrow rendering

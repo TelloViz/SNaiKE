@@ -1,7 +1,10 @@
 #include "state_system/states/PausedState.hpp"
-#include "GameController.hpp"
 
+// Standard Library Includes
 #include <iostream>
+
+// Project Includes
+#include "GameController.hpp"
 
 namespace state_system::states {
 

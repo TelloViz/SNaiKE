@@ -1,17 +1,20 @@
-#include "GameLoop.hpp"
 #include "state_system/states/MenuState.hpp"
+
+// Standard Library Includes
+#include <iostream>
+
+// Project Includes
+#include "GameLoop.hpp"
 #include "state_system/states/PlayingState.hpp"
 #include "GameController.hpp"
 #include "state_system/StateMachine.hpp"
-#include <iostream>
-
 #include "GameConfig.hpp"
 
 namespace state_system::states
 {
 
     MenuState::MenuState(::GameController *ctrl, const state_system::StateContext &ctx, state_system::StateMachine *mach)
-        : State(ctrl, ctx, mach), selectedOption(0), controller(ctrl), context(ctx), machine(mach)
+        : state_system::State(ctrl, ctx, mach), selectedOption(0), controller(ctrl), context(ctx), machine(mach)
     {
         // Title setup
         titleText.setFont(context.font);

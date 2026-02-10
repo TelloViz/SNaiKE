@@ -1,8 +1,11 @@
 #include "state_system/StateMachine.hpp"
-#include "state_system/State.hpp"
 
-#include <iostream> 
+// Standard Library Includes
+#include <iostream>
 #include <string>
+
+// Project Includes
+#include "state_system/State.hpp"
 
 namespace state_system {
 

@@ -1,12 +1,12 @@
 #include "ai/AdvancedStrategy.hpp"
 
-// Standard library includes
+// Standard Library Includes
 #include <iostream>
 #include <map>
 #include <queue>
 #include <set>
 
-// Project includes
+// Project Includes
 #include "GameConfig.hpp"
 
 Direction AdvancedStrategy::calculateNextMove(const Snake& snake, const sf::Vector2i& food) {

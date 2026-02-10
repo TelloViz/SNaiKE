@@ -1,13 +1,16 @@
-#pragma once
 #include "ai/AIPlayer.hpp"
-#include "GameConfig.hpp"
+
+// Standard Library Includes
 #include <iostream>
-#include "Debug.hpp"
 #include <algorithm>
 #include <limits>
 #include <queue>
 #include <set>
 #include <map>
+
+// Project Includes
+#include "GameConfig.hpp"
+#include "Debug.hpp"
 #include "ai/BasicStrategy.hpp"
 #include "ai/AdvancedStrategy.hpp"
 #include "ai/RandomStrategy.hpp"

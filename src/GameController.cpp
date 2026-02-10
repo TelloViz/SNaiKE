@@ -1,8 +1,12 @@
 #include "GameController.hpp"
+
+// Standard Library Includes
+#include <iostream>
+
+// Project Includes
 #include "state_system/states/MenuState.hpp"
 #include "GameConfig.hpp"
 #include "input/InputHandler.hpp"
-#include <iostream>
 
 
 void GameController::initializeGame() {

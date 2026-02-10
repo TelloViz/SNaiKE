@@ -1,9 +1,13 @@
 #include "ai/BaseStrategy.hpp"
-#include "GameConfig.hpp"
+
+// Standard Library Includes
 #include <queue>
 #include <algorithm>
 #include <array>
 #include <iostream>
+
+// Project Includes
+#include "GameConfig.hpp"
 
 bool BaseStrategy::globalShowHeatMap = false;  // Initialize the static member
 

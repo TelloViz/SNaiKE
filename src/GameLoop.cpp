@@ -1,9 +1,13 @@
 #include "GameLoop.hpp"
-#include "state_system/states/States.hpp"
-#include "input/InputHandler.hpp"
+
+// Standard Library Includes
 #include <random>
 #include <iostream>
 #include <filesystem>
+
+// Project Includes
+#include "state_system/states/States.hpp"
+#include "input/InputHandler.hpp"
 
 
 GameLoop::GameLoop() 

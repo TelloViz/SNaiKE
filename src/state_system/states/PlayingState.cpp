@@ -1,12 +1,16 @@
 #include "state_system/states/PlayingState.hpp"
-#include "ai/HamiltonStrategy.hpp"  
+
+// Standard Library Includes
+#include <iostream>
+
+// Project Includes
+#include "ai/HamiltonStrategy.hpp"
 #include "state_system/states/GameOverState.hpp"
 #include "state_system/states/PausedState.hpp"
 #include "GameController.hpp"
 #include "state_system/StateMachine.hpp"
 #include "GameConfig.hpp"
-#include "ScoreLogger.hpp" 
-#include <iostream>
+#include "ScoreLogger.hpp"
 #include "ai/FloodFillStrategy.hpp"
 
 namespace state_system::states {
